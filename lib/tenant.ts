@@ -4,6 +4,7 @@
 // ============================================================
 
 import { headers } from "next/headers";
+import { mainDomain } from "./constants";
 import { services } from "./services";
 import { getCurrentUser } from "./session";
 import type { StoreBundle } from "./types";
@@ -21,7 +22,9 @@ export async function getTenant(): Promise<TenantCtx> {
   const host = (h.get("host") || "").replace(/:\d+$/, "").toLowerCase();
   const tenant = (h.get("x-tenant") as "main" | "store") || "main";
   const slug = h.get("x-store-slug");
-  const isPreview = !(host.endsWith("wathbastore.com") && tenant === "store");
+  const domain = mainDomain();
+  const onMainDomain = host === domain || host.endsWith(`.${domain}`);
+  const isPreview = !(onMainDomain && tenant === "store");
   return { tenant, slug, host, isPreview };
 }
 
