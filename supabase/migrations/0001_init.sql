@@ -9,24 +9,30 @@
 
 -- ---------- دوال الصلاحيات (security definer لتجنب ثغرات الاستدعاء) ----------
 
+-- تُستخدم PL/pgSQL هنا لأن الجدولين profiles وstore_members يُنشآن لاحقًا
+-- في هذا الملف. يؤجل PostgreSQL تخطيط الاستعلام حتى أول استدعاء للدالة.
 create or replace function public.is_platform_owner()
 returns boolean
-language sql stable security definer set search_path = public
+language plpgsql stable security definer set search_path = public
 as $$
-  select exists (
+begin
+  return exists (
     select 1 from public.profiles
     where id = auth.uid() and role = 'owner'
   );
+end;
 $$;
 
 create or replace function public.is_store_member(p_store uuid)
 returns boolean
-language sql stable security definer set search_path = public
+language plpgsql stable security definer set search_path = public
 as $$
-  select exists (
+begin
+  return exists (
     select 1 from public.store_members
     where store_id = p_store and user_id = auth.uid()
   );
+end;
 $$;
 
 -- ---------- profiles (امتداد auth.users) ----------
@@ -45,7 +51,28 @@ create policy "profiles_select_own" on public.profiles
   for select using (id = auth.uid() or public.is_platform_owner());
 
 create policy "profiles_update_own" on public.profiles
-  for update using (id = auth.uid());
+  for update using (id = auth.uid())
+  with check (id = auth.uid());
+
+-- لا يجوز لعضو متجر ترقية نفسه إلى مالك منصة أو تغيير بريد Auth
+create or replace function public.protect_profile_fields()
+returns trigger
+language plpgsql security definer set search_path = public
+as $$
+begin
+  if auth.uid() is not null and not public.is_platform_owner() then
+    if new.role is distinct from old.role or new.email is distinct from old.email then
+      raise exception 'لا تملك صلاحية تعديل دور الحساب أو بريده'
+        using errcode = '42501';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger protect_profile_fields
+  before update on public.profiles
+  for each row execute function public.protect_profile_fields();
 
 -- إنشاء البروفايل تلقائيًا عند التسجيل
 create or replace function public.handle_new_user()
@@ -84,6 +111,8 @@ create table public.stores (
   description text,
   logo_url text,
   cover_url text,
+  -- للتوافق مع النسخ المحلية فقط؛ يظل null في Supabase.
+  -- بيانات التسليم الفعلية محفوظة في store_credentials المحمي أدناه.
   client_credentials jsonb,
   delivered_at timestamptz,
   created_at timestamptz not null default now(),
@@ -112,7 +141,9 @@ returns trigger
 language plpgsql security definer set search_path = public
 as $$
 begin
-  if not public.is_platform_owner() then
+  -- auth.uid() يكون null لعمليات SQL Editor وservice/secret key الموثوقة.
+  -- نقيّد فقط عضو المتجر المصادق عليه، بينما تسمح RLS للمالك أو الخدمة.
+  if auth.uid() is not null and not public.is_platform_owner() then
     new.subdomain := old.subdomain;
     new.status := old.status;
     new.owner_name := old.owner_name;
@@ -129,6 +160,31 @@ $$;
 create trigger protect_store_fields
   before update on public.stores
   for each row execute function public.protect_store_fields();
+
+-- ---------- store_credentials (خاص بمالك المنصة) ----------
+-- لا تُحفظ كلمات مرور التسليم في stores لأن صفوف المتاجر المسلّمة عامة القراءة.
+
+create table public.store_credentials (
+  store_id uuid primary key references public.stores(id) on delete cascade,
+  email text not null,
+  password text not null,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.store_credentials enable row level security;
+
+create policy "credentials_owner_select" on public.store_credentials
+  for select using (public.is_platform_owner());
+
+create policy "credentials_owner_insert" on public.store_credentials
+  for insert with check (public.is_platform_owner());
+
+create policy "credentials_owner_update" on public.store_credentials
+  for update using (public.is_platform_owner())
+  with check (public.is_platform_owner());
+
+create policy "credentials_owner_delete" on public.store_credentials
+  for delete using (public.is_platform_owner());
 
 -- ---------- store_settings ----------
 
