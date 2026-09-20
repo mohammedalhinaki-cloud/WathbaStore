@@ -9,6 +9,7 @@ import { getTenant, getStoreCtx } from "@/lib/tenant";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { Store, Lock, ShieldCheck } from "lucide-react";
 import LoginForm from "./login-form";
+import DeploymentNotice from "@/components/deployment-notice";
 
 export const metadata: Metadata = { title: "تسجيل الدخول" };
 
@@ -48,6 +49,7 @@ export default async function LoginPage() {
             هذه اللوحة خاصة بإدارة هذا المتجر فقط.
           </p>
         </div>
+        <DeploymentNotice />
       </div>
     );
   }
@@ -82,6 +84,7 @@ export default async function LoginPage() {
           </div>
         )}
       </div>
+      <DeploymentNotice />
     </div>
   );
 }

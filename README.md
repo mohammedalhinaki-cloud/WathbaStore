@@ -34,6 +34,21 @@ rshaf.wathbastore.com   mohammed.wathbastore.com   … (متاجر العملا�
 لا يوجد: تسجيل عام، إنشاء متجر ذاتي، أو شراء دومين لكل عميل.
 الدورة: **أنا → أنشئ → أجهّز → أختبر → أسلم → العميل يدير متجره.**
 
+### أين الموقع الحقيقي؟ (مهم)
+
+- **الموقع الحقيقي = `wathbastore.com`**، ولا يعمل إلا بعد: ربط الدومين + `*.wathbastore.com` في
+  Vercel، وضبط `NEXT_PUBLIC_MAIN_DOMAIN=wathbastore.com`، وإنشاء **حساب المالك** في Supabase
+  (`Authentication → Users`) ثم ترقيته عبر
+  `update public.profiles set role = 'owner' where lower(email) = lower('you@example.com');`
+- روابط `*.vercel.app` هي **عناوين نشر مؤقتة** لنفس المنصة — تصلح للاختبار ودخول لوحة المالك،
+  ولا تصلح لتسليم المتاجر لأن `vercel.app` لا يمنح نطاقات فرعية (`rshaf.<project>.vercel.app` لا يعمل).
+- على أي نطاق معاينة (`*.vercel.app`، `*.e2b.app`، `localhost`) تُشتغّل تلقائيًا محاكاة النطاق
+  الفرعي عبر `?store=`: `/?store=rshaf` للمتجر و`/admin?store=rshaf` للوحة العميل — حتى لو أشار
+  `NEXT_PUBLIC_MAIN_DOMAIN` إلى نطاق المعاينة نفسه (هذا ما كان يجعل الموقع العام فقط يظهر سابقًا).
+- شريط تنبيه صغير يظهر أسفل الصفحة على نطاقات المعاينة فقط لتنبيه أن النطاق مؤقت أو أن Supabase
+  غير مربوطة، ويختفي تلقائيًا على الدومين الرسمي.
+- الدليل العملي خطوة بخطوة: [`docs/LAUNCH_CHECKLIST_AR.md`](docs/LAUNCH_CHECKLIST_AR.md)
+
 ## التقنيات
 
 - **Next.js 15** (App Router) + **TypeScript** + **Tailwind CSS v4**
