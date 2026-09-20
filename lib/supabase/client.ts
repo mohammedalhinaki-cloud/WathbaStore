@@ -4,22 +4,18 @@
 
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import {
+  isSupabaseConfigured,
+  normalizeSupabaseUrl,
+  supabasePublicKey,
+  supabaseSecretKey,
+  supabaseUrl,
+} from "./env";
 
-/** يدعم مفاتيح Supabase الحديثة مع إبقاء الأسماء القديمة للتوافق. */
-function publicKey(): string | undefined {
-  return (
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
-}
-
-function secretKey(): string | undefined {
-  return process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-}
-
-export function isSupabaseConfigured(): boolean {
-  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && publicKey());
-}
+// كل القراءات تمر عبر lib/supabase/env.ts الذي يُطبّع القيم:
+// إزالة المسافات وأسطر جديدة والتنصيص، وإزالة أي مسار ملصوق مثل /rest/v1
+// (تكرار المسار هو سبب خطأ PostgREST: PGRST125 — Invalid path specified in request URL).
+export { isSupabaseConfigured, normalizeSupabaseUrl, supabaseUrl };
 
 /**
  * عميل الخادم المرتبط بجلسة المستخدم (عبر كوكيز @supabase/ssr) —
@@ -28,11 +24,11 @@ export function isSupabaseConfigured(): boolean {
 export async function supabaseServer(): Promise<SupabaseClient> {
   const { cookies } = await import("next/headers");
   const cookieStore = await cookies();
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = publicKey();
-  if (!url || !key) {
+  const key = supabasePublicKey();
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !key) {
     throw new Error("متغيرات Supabase العامة غير مكتملة");
   }
+  const url = supabaseUrl();
 
   return createServerClient(
     url,
@@ -60,12 +56,11 @@ export async function supabaseServer(): Promise<SupabaseClient> {
 let _admin: SupabaseClient | null = null;
 export function supabaseAdmin(): SupabaseClient {
   if (!_admin) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = secretKey();
-    if (!url || !key) {
+    const key = supabaseSecretKey();
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !key) {
       throw new Error("مفتاح Supabase السري غير مضبوط على الخادم");
     }
-    _admin = createClient(url, key, {
+    _admin = createClient(supabaseUrl(), key, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
   }

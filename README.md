@@ -108,7 +108,7 @@ npm run dev
 4. اختياريًا، شغّل `supabase/migrations/0002_demo_data.sql` لإضافة المتاجر والمنتجات والباقات العربية الجاهزة.
 5. عبّئ `.env` بمفاتيح Supabase الحديثة:
    ```env
-   NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+   NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co   # رابط المشروع فقط — بلا /rest/v1 وبلا تنصيص
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
    SUPABASE_SECRET_KEY=sb_secret_...   # خادم فقط: إنشاء حسابات العملاء عند التسليم
    NEXT_PUBLIC_MAIN_DOMAIN=wathbastore.com
