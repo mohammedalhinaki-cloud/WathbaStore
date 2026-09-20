@@ -4,7 +4,7 @@
 // ============================================================
 
 import { headers } from "next/headers";
-import { mainDomain } from "./constants";
+import { isPreviewHost, mainDomain } from "./constants";
 import { services } from "./services";
 import { getCurrentUser } from "./session";
 import type { StoreBundle } from "./types";
@@ -24,7 +24,9 @@ export async function getTenant(): Promise<TenantCtx> {
   const slug = h.get("x-store-slug");
   const domain = mainDomain();
   const onMainDomain = host === domain || host.endsWith(`.${domain}`);
-  const isPreview = !(onMainDomain && tenant === "store");
+  // نطاقات المعاينة (vercel.app …) تبقى «معاينة» دائمًا: روابط ?store= نسبية،
+  // حتى لو أشار NEXT_PUBLIC_MAIN_DOMAIN إلى نطاق المعاينة نفسه.
+  const isPreview = isPreviewHost(host) || !(onMainDomain && tenant === "store");
   return { tenant, slug, host, isPreview };
 }
 

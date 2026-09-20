@@ -9,6 +9,7 @@ import { notFound } from "next/navigation";
 import { getStoreCtx } from "@/lib/tenant";
 import { canonicalStoreUrl } from "@/components/store/store-shell";
 import LandingPage from "@/components/landing/landing-page";
+import DeploymentNotice from "@/components/deployment-notice";
 import StoreShell from "@/components/store/store-shell";
 import StoreHome from "@/components/store/store-home";
 import { services } from "@/lib/services";
@@ -61,5 +62,10 @@ export default async function HomePage() {
     );
   }
 
-  return <LandingPage />;
+  return (
+    <>
+      <LandingPage />
+      <DeploymentNotice />
+    </>
+  );
 }

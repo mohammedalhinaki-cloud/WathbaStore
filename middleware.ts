@@ -9,6 +9,7 @@
 // ============================================================
 
 import { NextResponse, type NextRequest } from "next/server";
+import { isPreviewHost } from "./lib/constants";
 
 /**
  * الدومين الرئيسي يُقرأ من متغير البيئة NEXT_PUBLIC_MAIN_DOMAIN،
@@ -33,7 +34,10 @@ export async function middleware(request: NextRequest) {
   let tenant: "main" | "store" = "main";
   let slug: string | null = null;
 
-  if (host === MAIN_DOMAIN || host.endsWith(`.${MAIN_DOMAIN}`)) {
+  // على نطاقات المعاينة (vercel.app / e2b.app / localhost) لا يمكن الاعتماد
+  // على النطاق الفرعي، فالمحاكاة عبر ?store= أولى حتى لو أشار
+  // NEXT_PUBLIC_MAIN_DOMAIN إلى نفس نطاق المعاينة بالخطأ.
+  if (!isPreviewHost(host) && (host === MAIN_DOMAIN || host.endsWith(`.${MAIN_DOMAIN}`))) {
     const isMain = MAIN_HOSTS.includes(host);
     if (!isMain) {
       const sub = host.slice(0, -(MAIN_DOMAIN.length + 1));

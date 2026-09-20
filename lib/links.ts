@@ -2,7 +2,7 @@
 // وثبة — توليد الروابط (يُعامل النطاق الفرعي الحقيقي ومعاينة ?store=)
 // ============================================================
 
-import { mainDomain, storeUrl } from "./constants";
+import { storeUrl } from "./constants";
 import { getTenant } from "./tenant";
 
 /**
@@ -12,7 +12,8 @@ import { getTenant } from "./tenant";
  */
 export async function storeHref(subdomain: string, path = "/"): Promise<string> {
   const tenant = await getTenant();
-  if (tenant.host.endsWith(mainDomain()) || !tenant.isPreview) {
+  // isPreview يغطي نطاقات المعاينة والدومين الرئيسي وكل النطاقات الوسيطة
+  if (!tenant.isPreview) {
     return storeUrl(subdomain, path);
   }
   const p = path === "/" ? "/" : path.startsWith("/") ? path : `/${path}`;

@@ -23,6 +23,36 @@ export function mainDomain(): string {
   return cleaned || "wathbastore.com";
 }
 
+/**
+ * نطاقات المعاينة/التطوير (Vercel / E2B / localhost …).
+ * لا يمكن أن تكون الدومين الرسمي، وعند الوصول عبرها نُشغّل محاكاة
+ * النطاق الفرعي عبر `?store=` حتى تعمل صفحات المتاجر قبل ربط الدومين.
+ */
+const PREVIEW_HOST_SUFFIXES = [
+  ".vercel.app",
+  ".vercel.dev",
+  ".e2b.app",
+  ".netlify.app",
+  ".onrender.com",
+  ".ngrok-free.app",
+  ".ngrok.io",
+  ".loca.lt",
+  ".fly.dev",
+];
+
+export function isPreviewHost(host: string | null | undefined): boolean {
+  const bare = (host ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/:\d+$/, "")
+    .replace(/^\[|\]$/g, "");
+  if (!bare) return true;
+  if (bare === "localhost" || bare === "127.0.0.1" || bare === "::1" || bare === "0.0.0.0") {
+    return true;
+  }
+  return PREVIEW_HOST_SUFFIXES.some((suffix) => bare.endsWith(suffix));
+}
+
 export function developerUrl(fallback?: string | null): string {
   return (
     process.env.DEVELOPER_URL ||
