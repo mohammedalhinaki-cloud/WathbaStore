@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Cairo", "Tajawal", ui-sans-serif, system-ui, sans-serif;
+
+  /* هوية وثبة (الموقع العام + لوحة الإدارة) */
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-300: #a5b4fc;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-brand-800: #3730a3;
+  --color-brand-900: #312e81;
+  --color-brand-950: #1e1b4b;
+
+  --color-accent-300: #fcd34d;
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706;
+
+  --color-ink-50: #f6f7fb;
+  --color-ink-100: #eceef6;
+  --color-ink-200: #d9ddeb;
+  --color-ink-300: #b9bfda;
+  --color-ink-400: #8f97b8;
+  --color-ink-500: #6b7394;
+  --color-ink-600: #535a78;
+  --color-ink-700: #424760;
+  --color-ink-800: #23263b;
+  --color-ink-900: #12141f;
+  --color-ink-950: #0a0c14;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-ink-50 text-ink-900 antialiased;
+  font-feature-settings: "ss01";
+}
+
+::selection {
+  background: var(--color-brand-200);
+}
+
+/* شريط تمرير أنيق */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-300) transparent;
+}
+
+/* ألوان المتجر تُضبط عبر متغيرات CSS من إعدادات كل متجر */
+.store-root {
+  --store-primary: #4f46e5;
+  --store-secondary: #f59e0b;
+}
+
+/* إخفاء سكرول أفقي خفيف */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
