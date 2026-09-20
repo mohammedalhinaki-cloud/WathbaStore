@@ -8,8 +8,19 @@ import { STORE_STATUS_LABELS } from "./types";
 export const APP_NAME = "وثبة";
 export const APP_EN = "WathbaStore";
 
+/**
+ * الدومين الرئيسي للمنصة، مقروءًا من NEXT_PUBLIC_MAIN_DOMAIN.
+ * يُنظَّف من البروتوكول والمسار والمنفذ والنقاط الزائدة حتى يعمل
+ * حتى لو كتب المستخدم القيمة بصيغة مثل "https://wathbastore.com/".
+ */
 export function mainDomain(): string {
-  return process.env.NEXT_PUBLIC_MAIN_DOMAIN || "wathbastore.com";
+  const raw = (process.env.NEXT_PUBLIC_MAIN_DOMAIN || "").trim().toLowerCase();
+  const cleaned = raw
+    .replace(/^https?:\/\//, "")
+    .replace(/\/.*$/, "")
+    .replace(/:\d+$/, "")
+    .replace(/^\.+|\.+$/g, "");
+  return cleaned || "wathbastore.com";
 }
 
 export function developerUrl(fallback?: string | null): string {

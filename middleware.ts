@@ -4,12 +4,28 @@
 // rshaf.wathbastore.com  →  x-tenant: store, x-store-slug: rshaf
 // wathbastore.com        →  x-tenant: main
 //
+// الدومين الرئيسي قابل للتهيئة عبر NEXT_PUBLIC_MAIN_DOMAIN
 // المعاينة (نطاق واحد): /?store=rshaf تحاكي النطاق الفرعي
 // ============================================================
 
 import { NextResponse, type NextRequest } from "next/server";
 
-const MAIN_HOSTS = ["wathbastore.com", "www.wathbastore.com"];
+/**
+ * الدومين الرئيسي يُقرأ من متغير البيئة NEXT_PUBLIC_MAIN_DOMAIN،
+ * مع العودة إلى wathbastore.com إن لم يُضبط.
+ *
+ * ملاحظة: Next.js يستبدل متغيرات NEXT_PUBLIC_ وقت البناء، لذلك أي تغيير
+ * لقيمة المتغير في Vercel يحتاج إعادة نشر (Redeploy) كي يسري.
+ */
+const MAIN_DOMAIN = (process.env.NEXT_PUBLIC_MAIN_DOMAIN || "wathbastore.com")
+  .trim()
+  .toLowerCase()
+  .replace(/^https?:\/\//, "")
+  .replace(/\/.*$/, "")
+  .replace(/:\d+$/, "")
+  .replace(/^\.+|\.+$/g, "");
+
+const MAIN_HOSTS = [MAIN_DOMAIN, `www.${MAIN_DOMAIN}`];
 const SUB_RE = /^[a-z0-9](?:[a-z0-9-]{0,60}[a-z0-9])?$/;
 
 export async function middleware(request: NextRequest) {
@@ -17,11 +33,10 @@ export async function middleware(request: NextRequest) {
   let tenant: "main" | "store" = "main";
   let slug: string | null = null;
 
-  if (host.endsWith("wathbastore.com")) {
-    const isMain =
-      host === "wathbastore.com" || host === "www.wathbastore.com";
+  if (host === MAIN_DOMAIN || host.endsWith(`.${MAIN_DOMAIN}`)) {
+    const isMain = MAIN_HOSTS.includes(host);
     if (!isMain) {
-      const sub = host.slice(0, -( "wathbastore.com".length + 1 ));
+      const sub = host.slice(0, -(MAIN_DOMAIN.length + 1));
       if (SUB_RE.test(sub)) {
         tenant = "store";
         slug = sub;
