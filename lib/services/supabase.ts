@@ -89,8 +89,14 @@ export class SupabaseServices implements Services {
 
   async userById(id: string): Promise<AppUser | null> {
     const sb = await supabaseServer();
-    const { data: authUser } = await sb.auth.admin.getUserById(id);
-    if (!authUser.user) return null;
+    // عميل الجلسة لا يملك صلاحية auth.admin. نتحقق من المستخدم الحالي
+    // بدل إرسال طلب Admin كان يؤدي إلى فقدان الجلسة بعد تسجيل الدخول.
+    const {
+      data: { user },
+      error,
+    } = await sb.auth.getUser();
+    if (error || !user || user.id !== id) return null;
+
     const { data: profile } = await sb
       .from("profiles")
       .select("role, full_name")
@@ -98,8 +104,8 @@ export class SupabaseServices implements Services {
       .maybeSingle();
     return this.buildUser(
       id,
-      authUser.user.email ?? "",
-      (profile?.full_name as string) ?? "",
+      user.email ?? "",
+      (profile?.full_name as string) ?? (user.user_metadata?.full_name as string) ?? "",
       (profile?.role as string) ?? "member"
     );
   }
@@ -158,13 +164,41 @@ export class SupabaseServices implements Services {
     };
   }
 
+  /**
+   * يرفق بيانات التسليم من الجدول الخاص. RLS يعيد صفوفًا لمالك المنصة فقط،
+   * ولذلك تبقى كلمة المرور غائبة تمامًا عن الزائر وصاحب المتجر.
+   */
+  private async attachCredentials(stores: Store[]): Promise<Store[]> {
+    if (stores.length === 0) return stores;
+    const { data } = await (await supabaseServer())
+      .from("store_credentials")
+      .select("store_id, email, password")
+      .in(
+        "store_id",
+        stores.map((store) => store.id)
+      );
+    if (!data?.length) return stores;
+
+    const byStore = new Map(
+      data.map((row) => [
+        row.store_id as string,
+        { email: row.email as string, password: row.password as string },
+      ])
+    );
+    return stores.map((store) => ({
+      ...store,
+      clientCredentials: byStore.get(store.id) ?? store.clientCredentials,
+    }));
+  }
+
   async listStores(): Promise<Store[]> {
     const { data, error } = await (await supabaseServer())
       .from("stores")
       .select("*")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return (data ?? []).map((r) => this.mapStore(r as Record<string, unknown>));
+    const stores = (data ?? []).map((r) => this.mapStore(r as Record<string, unknown>));
+    return this.attachCredentials(stores);
   }
 
   async getStore(id: string): Promise<Store | null> {
@@ -173,7 +207,11 @@ export class SupabaseServices implements Services {
       .select("*")
       .eq("id", id)
       .maybeSingle();
-    return data ? this.mapStore(data as Record<string, unknown>) : null;
+    if (!data) return null;
+    const [store] = await this.attachCredentials([
+      this.mapStore(data as Record<string, unknown>),
+    ]);
+    return store;
   }
 
   async getStoreBySubdomain(subdomain: string): Promise<Store | null> {
@@ -182,7 +220,11 @@ export class SupabaseServices implements Services {
       .select("*")
       .eq("subdomain", subdomain.trim().toLowerCase())
       .maybeSingle();
-    return data ? this.mapStore(data as Record<string, unknown>) : null;
+    if (!data) return null;
+    const [store] = await this.attachCredentials([
+      this.mapStore(data as Record<string, unknown>),
+    ]);
+    return store;
   }
 
   async getVisibleStoreBySubdomain(subdomain: string, actor: AppUser | null): Promise<StoreBundle | null> {
@@ -264,7 +306,7 @@ export class SupabaseServices implements Services {
   async isSubdomainAvailable(subdomain: string, exceptStoreId?: string): Promise<boolean> {
     let q = (await supabaseServer())
       .from("stores")
-      .select("id")
+      .select("id", { count: "exact", head: true })
       .eq("subdomain", subdomain.trim().toLowerCase());
     if (exceptStoreId) q = q.neq("id", exceptStoreId);
     const { count } = await q;
@@ -286,15 +328,27 @@ export class SupabaseServices implements Services {
     try {
       const user = await this.createUser({ email, password, name: store.ownerName });
       await this.addMembership(user.id, id, "owner");
-      const { error } = await supabaseAdmin()
+      const admin = supabaseAdmin();
+      const deliveredAt = new Date().toISOString();
+      const { error: credentialsError } = await admin
+        .from("store_credentials")
+        .upsert(
+          { store_id: id, email, password, updated_at: deliveredAt },
+          { onConflict: "store_id" }
+        );
+      if (credentialsError) return { ok: false, error: credentialsError.message };
+
+      const { error } = await admin
         .from("stores")
         .update({
           status: "delivered",
-          delivered_at: new Date().toISOString(),
-          client_credentials: { email, password },
+          delivered_at: deliveredAt,
+          // لا تُحفظ كلمة المرور في صف stores العام القراءة.
+          client_credentials: null,
         })
         .eq("id", id);
       if (error) return { ok: false, error: error.message };
+
       await this.logActivity({ id: null, email: actorEmail }, id, "store.delivered", { subdomain: store.subdomain });
       return { ok: true, credentials: { email, password } };
     } catch (e) {

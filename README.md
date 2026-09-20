@@ -91,26 +91,31 @@ npm run dev
   - `site_settings/pricing_plans/offers/portfolio_items`: قراءة عامة + كتابة للمالك فقط.
 - **تحقق مزدوج في الخادم**: كل API route يفحص المستخدم وصلاحياته على `store_id` قبل أي عملية (لا تعتمد الواجهة على إخفاء الأزرار).
 - **إعفاءات حقلية**: صاحب المتجر لا يستطيع تعديل النطاق/الحالة/بيانات المالك (ترIGGER `protect_store_fields` يحجبها في Supabase، والتحقق في الخادم في الوضع المحلي).
+- **بيانات التسليم**: كلمات المرور محفوظة في `store_credentials` بسياسة قراءة خاصة بمالك المنصة، ولا تقع داخل صفوف `stores` العامة للمتاجر المسلّمة.
 - **التخزين**: bucket `store-assets` بمسارات معزولة `stores/{store_id}/{logo|cover|products|pages}/...`.
 - **حالات المتجر**: مسودة، قيد التجهيز، جاهز للاختبار، جاهز للتسليم، مسلّم، متوقف — المتاجر غير المسلّمة لا يراها الزوار.
 
-## Supabase (الإنتاج)
+## Supabase وVercel (الإنتاج)
 
-1. أنشئ مشروعًا في [supabase.com](https://supabase.com) وفعّل `*.wathbastore.com` كـ redirect.
-2. شغّل `supabase/migrations/0001_init.sql` (SQL Editor أو CLI) — يجهّز الجداول وRLS والتخزين.
-3. أنشئ مستخدمك (Authentication → Users) ثم:
+> الدليل العربي الكامل خطوة بخطوة: [`docs/DEPLOY_VERCEL_AR.md`](docs/DEPLOY_VERCEL_AR.md)
+
+1. أنشئ مشروعًا في [Supabase](https://supabase.com/dashboard).
+2. شغّل `supabase/migrations/0001_init.sql` — يجهّز الجداول وRLS والتخزين.
+3. أنشئ مستخدمك من **Authentication → Users**، ثم حوّله إلى مالك:
    ```sql
    update public.profiles set role = 'owner' where email = 'you@wathbastore.com';
    ```
-4. عبّئ `.env`:
+4. اختياريًا، شغّل `supabase/migrations/0002_demo_data.sql` لإضافة المتاجر والمنتجات والباقات العربية الجاهزة.
+5. عبّئ `.env` بمفاتيح Supabase الحديثة:
    ```env
    NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-   SUPABASE_SERVICE_ROLE_KEY=eyJ...   # إنشاء حسابات العملاء عند التسليم
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+   SUPABASE_SECRET_KEY=sb_secret_...   # خادم فقط: إنشاء حسابات العملاء عند التسليم
    NEXT_PUBLIC_MAIN_DOMAIN=wathbastore.com
    DEVELOPER_URL=https://wathbastore.com
    ```
-5. أشر الدومين: `wathbastore.com` و wildcard `*.wathbastore.com` → استضافتك (مثل Vercel) بـ CNAME/A.
+   اسما `NEXT_PUBLIC_SUPABASE_ANON_KEY` و`SUPABASE_SERVICE_ROLE_KEY` القديمـان ما زالا مدعومين للتوافق.
+6. انشر على Vercel، ثم أضف `wathbastore.com` و`*.wathbastore.com` من إعدادات Domains.
 
 > بدون متغيرات Supabase يعمل النظام تلقائيًا بالوضع التجريبي المحلي (SQLite) — مفيد للتطوير والمعاينة.
 
@@ -143,6 +148,7 @@ app/
   admin/(client)/…             → منتجات، أقسام، مظهر، سجل
 app/api/…                      → REST API موثّق بالصلاحيات لكل مسار
 supabase/migrations/0001_init.sql → المخطط + RLS + Storage
+supabase/migrations/0002_demo_data.sql → بيانات عربية تجريبية بمعرّفات ثابتة
 ```
 
 ## الملاحظات
