@@ -4,6 +4,7 @@
 // ============================================================
 
 import { supabaseAdmin, supabaseServer, STORAGE_BUCKET } from "../supabase/client";
+import { mainDomain } from "../constants";
 import type {
   ActivityLog,
   AppUser,
@@ -294,13 +295,76 @@ export class SupabaseServices implements Services {
   }
 
   async changeSubdomain(id: string, subdomain: string): Promise<{ ok: boolean; error?: string }> {
-    const ok = await this.isSubdomainAvailable(subdomain, id);
-    if (!ok) return { ok: false, error: "النطاق الفرعي مستخدم بالفعل" };
-    const { error } = await (await supabaseServer())
-      .from("stores")
-      .update({ subdomain })
-      .eq("id", id);
-    return error ? { ok: false, error: error.message } : { ok: true };
+    const conflict = `النطاق الفرعي "${subdomain}" مستخدم بالفعل في متجر آخر`;
+    try {
+      const sb = await supabaseServer();
+      const { data: row } = await sb
+        .from("stores")
+        .select("id, subdomain")
+        .eq("id", id)
+        .maybeSingle();
+      if (!row) return { ok: false, error: "المتجر غير موجود" };
+      const oldSubdomain = String((row as Record<string, unknown>).subdomain ?? "").toLowerCase();
+      if (oldSubdomain === subdomain) return { ok: true };
+
+      const available = await this.isSubdomainAvailable(subdomain, id);
+      if (!available) return { ok: false, error: conflict };
+
+      const { error } = await sb.from("stores").update({ subdomain }).eq("id", id);
+      if (error) {
+        // 23505 = duplicate key value violates unique constraint
+        // (قد يحدث سباقًا بين الفحص أعلاه والحفظ)
+        if (error.code === "23505" || /duplicate key|unique/i.test(error.message)) {
+          return { ok: false, error: conflict };
+        }
+        return { ok: false, error: `تعذر حفظ التغيير في قاعدة البيانات: ${error.message}` };
+      }
+
+      // مواضع تعتمد على النطاق الفرعي المحفوظ كنص ثابت (معرض الأعمال)
+      // نحدّثها على نحو احتفالي: فشلها لا يُسقط نجاح التغيير.
+      await this.rewritePortfolioStoreUrls(oldSubdomain, subdomain);
+      return { ok: true };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e instanceof Error ? e.message : "حدث خطأ غير متوقع في الخادم",
+      };
+    }
+  }
+
+  /**
+   * يحديث روابط معرض الأعمال (portfolio_items.store_url) التي تشير إلى
+   * النطاق الفرعي القديم نحو الجديد. يُنفَّذ بالمحاولة الواحدة
+   * ولا يُرجع خطأً أبدًا حتى لا يخرب العملية الأصلية.
+   */
+  private async rewritePortfolioStoreUrls(oldSub: string, newSub: string): Promise<void> {
+    try {
+      const domain = mainDomain();
+      const oldHost = `${oldSub}.${domain}`;
+      const newHost = `${newSub}.${domain}`;
+      const sb = await supabaseServer();
+      const { data: items } = await sb
+        .from("portfolio_items")
+        .select("id, store_url");
+      for (const item of items ?? []) {
+        const r = item as Record<string, unknown>;
+        const url = typeof r.store_url === "string" ? r.store_url : "";
+        if (!url) continue;
+        let host = "";
+        try {
+          host = new URL(/^https?:\/\//i.test(url) ? url : `https://${url}`).hostname;
+        } catch {
+          continue;
+        }
+        if (host !== oldHost) continue;
+        await sb
+          .from("portfolio_items")
+          .update({ store_url: url.replace(oldHost, newHost) })
+          .eq("id", r.id as string);
+      }
+    } catch (e) {
+      console.warn("تعذر تحديث روابط معرض الأعمال بعد تغيير النطاق الفرعي", e);
+    }
   }
 
   async isSubdomainAvailable(subdomain: string, exceptStoreId?: string): Promise<boolean> {

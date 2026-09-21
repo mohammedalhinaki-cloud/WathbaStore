@@ -5,6 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { db, DEFAULT_SETTINGS, newId, rowToStore, type RawStoreRow } from "../local/db";
+import { mainDomain } from "../constants";
 import { hashPassword, verifyPassword } from "../local/auth";
 import type {
   ActivityLog,
@@ -256,10 +257,64 @@ export class LocalServices implements Services {
   }
 
   async changeSubdomain(id: string, subdomain: string): Promise<{ ok: boolean; error?: string }> {
-    const check = await this.isSubdomainAvailable(subdomain, id);
-    if (!check) return { ok: false, error: "النطاق الفرعي مستخدم بالفعل" };
-    db().prepare("UPDATE stores SET subdomain = ?, updated_at = ? WHERE id = ?").run(subdomain, now(), id);
-    return { ok: true };
+    const conflict = `النطاق الفرعي "${subdomain}" مستخدم بالفعل في متجر آخر`;
+    try {
+      const d = db();
+      const row = d
+        .prepare("SELECT id, subdomain FROM stores WHERE id = ?")
+        .get(id) as { id: string; subdomain: string } | undefined;
+      if (!row) return { ok: false, error: "المتجر غير موجود" };
+      const oldSubdomain = row.subdomain.trim().toLowerCase();
+      if (oldSubdomain === subdomain) return { ok: true };
+
+      const available = await this.isSubdomainAvailable(subdomain, id);
+      if (!available) return { ok: false, error: conflict };
+
+      try {
+        d.prepare("UPDATE stores SET subdomain = ?, updated_at = ? WHERE id = ?").run(subdomain, now(), id);
+      } catch {
+        // قيد UNIQUE على subdomain (سباق نادر بين الفحص والحفظ)
+        return { ok: false, error: conflict };
+      }
+
+      // مواضع تعتمد على النطاق الفرعي المحفوظ كنص ثابت (معرض الأعمال)
+      await this.rewritePortfolioStoreUrls(oldSubdomain, subdomain);
+      return { ok: true };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e instanceof Error ? e.message : "حدث خطأ غير متوقع في الخادم",
+      };
+    }
+  }
+
+  /**
+   * يحدّث روابط معرض الأعمال التي تشير إلى النطاق الفرعي القديم
+   * نحو الجديد. احتفالي: لا يُرجع خطأً حتى لا يخرب العملية الأصلية.
+   */
+  private rewritePortfolioStoreUrls(oldSub: string, newSub: string): void {
+    try {
+      const domain = mainDomain();
+      const oldHost = `${oldSub}.${domain}`;
+      const newHost = `${newSub}.${domain}`;
+      const d = db();
+      const rows = d
+        .prepare("SELECT id, store_url FROM portfolio_items WHERE store_url IS NOT NULL AND store_url != ''")
+        .all() as { id: string; store_url: string }[];
+      for (const item of rows) {
+        let host = "";
+        try {
+          host = new URL(/^https?:\/\//i.test(item.store_url) ? item.store_url : `https://${item.store_url}`).hostname;
+        } catch {
+          continue;
+        }
+        if (host !== oldHost) continue;
+        d.prepare("UPDATE portfolio_items SET store_url = ? WHERE id = ?")
+          .run(item.store_url.replace(oldHost, newHost), item.id);
+      }
+    } catch (e) {
+      console.warn("تعذر تحديث روابط معرض الأعمال بعد تغيير النطاق الفرعي", e);
+    }
   }
 
   async isSubdomainAvailable(subdomain: string, exceptStoreId?: string): Promise<boolean> {

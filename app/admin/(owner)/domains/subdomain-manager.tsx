@@ -17,7 +17,6 @@ export default function SubdomainManager({ store }: { store: Store }) {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const locked = store.status === "delivered";
   const check = validateSubdomain(value);
   const valid = check.ok && value !== store.subdomain;
 
@@ -31,12 +30,24 @@ export default function SubdomainManager({ store }: { store: Store }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subdomain: value }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "فشل التغيير");
+      // قراءة آمنة: لا نفترض أن الرد JSON (استجابة فارغة/غير صالحة
+      // من الخادم كانت تُظهر "Unexpected end of JSON input")
+      const text = await res.text();
+      let data: { error?: string } | null = null;
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch {
+        data = null;
+      }
+      if (!res.ok) {
+        throw new Error(
+          data?.error || `تعذر إتمام التغيير — استجابة غير صالحة من الخادم (HTTP ${res.status})`
+        );
+      }
       setEditing(false);
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "حدث خطأ");
+      setError(e instanceof Error ? e.message : "حدث خطأ غير متوقع");
     } finally {
       setBusy(false);
     }
@@ -61,13 +72,11 @@ export default function SubdomainManager({ store }: { store: Store }) {
         {!editing && (
           <button
             onClick={() => {
-              if (locked) return;
               setEditing(true);
               setError(null);
             }}
-            disabled={locked}
-            className="rounded-xl bg-brand-50 px-4 py-2 text-xs font-bold text-brand-700 ring-1 ring-brand-200 hover:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-50"
-            title={locked ? "متجر مسلّم — لا يمكن تغيير النطاق" : "تغيير النطاق"}
+            className="rounded-xl bg-brand-50 px-4 py-2 text-xs font-bold text-brand-700 ring-1 ring-brand-200 hover:bg-brand-100"
+            title="تغيير النطاق"
           >
             تغيير
           </button>
@@ -119,7 +128,9 @@ export default function SubdomainManager({ store }: { store: Store }) {
               {store.subdomain}.{mainDomain()}
             </p>
             <p className="mt-0.5 text-[11px] text-ink-400">
-              {locked ? "🔒 قُفل بعد التسليم" : "يمكن تغييره حتى التسليم"}
+              {store.status === "delivered"
+                ? "متجر مسلّم — عند التغيير يتوقف العمل بالرابط القديم"
+                : "يمكن تغييره في أي وقت — يتوقف العمل بالرابط القديم بعد التغيير"}
             </p>
           </div>
           <button onClick={copySub} className="rounded-lg p-2 text-ink-400 hover:bg-white hover:text-brand-600">
