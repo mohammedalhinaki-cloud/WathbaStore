@@ -5,6 +5,7 @@
 
 import { ShoppingBag } from "lucide-react";
 import type { StoreBundle } from "@/lib/types";
+import { storeHomeHref } from "@/lib/store-links";
 import { useCart } from "./cart-context";
 
 interface Props {
@@ -16,11 +17,12 @@ interface Props {
 export default function StoreHeader({ bundle, query, navLinks }: Props) {
   const { store } = bundle;
   const { totalItems, setIsOpen } = useCart();
+  const homeHref = storeHomeHref(query);
 
   return (
     <header className="sticky top-0 z-40 border-b border-ink-100 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-        <a href={query || "/"} className="flex min-w-0 items-center gap-2.5">
+        <a href={homeHref} className="flex min-w-0 items-center gap-2.5">
           {store.logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={store.logoUrl} alt={store.name} className="h-10 w-10 shrink-0 rounded-xl object-cover" />
@@ -36,7 +38,7 @@ export default function StoreHeader({ bundle, query, navLinks }: Props) {
         </a>
 
         <nav className="hidden items-center gap-1 md:flex">
-          <a href={query || "/"} className="rounded-lg px-3 py-2 text-sm font-bold text-ink-600 hover:text-[var(--store-primary)]">
+          <a href={homeHref} className="rounded-lg px-3 py-2 text-sm font-bold text-ink-600 hover:text-[var(--store-primary)]">
             الرئيسية
           </a>
           {navLinks.map((l) => (
@@ -70,7 +72,7 @@ export default function StoreHeader({ bundle, query, navLinks }: Props) {
       {/* شريط أقسام للجوال */}
       {navLinks.length > 0 && (
         <div className="no-scrollbar flex gap-2 overflow-x-auto border-t border-ink-100 px-4 py-2 md:hidden">
-          <a href={query || "/"} className="shrink-0 rounded-full bg-ink-100 px-3.5 py-1.5 text-xs font-bold text-ink-700">
+          <a href={homeHref} className="shrink-0 rounded-full bg-ink-100 px-3.5 py-1.5 text-xs font-bold text-ink-700">
             الرئيسية
           </a>
           {navLinks.map((l) => (

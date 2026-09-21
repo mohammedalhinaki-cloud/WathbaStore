@@ -64,11 +64,22 @@ npm run dev
 |---|---|
 | `rshaf.wathbastore.com` | `/?store=rshaf` |
 | `rshaf.wathbastore.com/products/latte` | `/products/latte?store=rshaf` |
+| `rshaf.wathbastore.com/checkout` | `/checkout?store=rshaf` |
 | `rshaf.wathbastore.com/admin` | `/admin?store=rshaf` |
 | `wathbastore.com/admin` | `/admin` |
 
 عند النشر على الدومين الحقيقي، يقوم الـ Middleware بقراءة الـ Host تلقائيًا
 (`rshaf.wathbastore.com` → متجر رشف فقط) — نفس الكود بدون أي تغيير.
+
+> **مهم:** في وضع المعاينة يجب أن يحمل **كل** رابط داخل المتجر المعامل `?store=`،
+> وإلا اعتُبر الطلب تابعًا للموقع العام وتظهر «الصفحة غير موجودة».
+> لذلك تُبنى الروابط عبر `lib/store-links.ts` (`withStore` / `storeHomeHref` / `checkoutHref`)
+> ولا تُكتب يدويًا. وكشبكة أمان، يحفظ الـ Middleware آخر متجر مُزار في كوكي
+> `wathba_preview_store`، فإذا فُتح مسار يخص المتاجر فقط (`/checkout`، `/products/…`، …)
+> بدون المعامل يُعاد توجيهه تلقائيًا إلى الرابط الصحيح.
+>
+> السلة معزولة لكل متجر بمفتاح `wathba-cart:<النطاق الفرعي>` حتى لا تختلط
+> منتجات متجر بمتجر أثناء المعاينة على نطاق واحد.
 
 ## السيناريو الكامل (كما في المتطلبات)
 

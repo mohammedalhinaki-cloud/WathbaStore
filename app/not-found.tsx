@@ -1,6 +1,7 @@
 // وثبة — صفحة 404 (تتكيف: متجر أم الموقع العام)
 import Link from "next/link";
 import { getTenant } from "@/lib/tenant";
+import { storeHomeHref } from "@/lib/store-links";
 
 export default async function NotFound() {
   const tenant = await getTenant();
@@ -16,7 +17,7 @@ export default async function NotFound() {
           لم نعثر على ما تبحث عنه في هذا المتجر.
         </p>
         <a
-          href={query || "/"}
+          href={storeHomeHref(query)}
           className="mt-8 rounded-xl px-6 py-3 text-sm font-extrabold text-white"
           style={{ backgroundColor: "var(--store-primary, #4f46e5)" }}
         >

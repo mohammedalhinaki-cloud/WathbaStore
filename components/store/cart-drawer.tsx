@@ -3,16 +3,35 @@
 // ============================================================
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "./cart-context";
 import { formatPrice } from "@/lib/constants";
+import { checkoutHref, storeFromSearch } from "@/lib/store-links";
 
-export default function CartDrawer() {
+interface Props {
+  /** معامل ?store= في وضع المعاينة — بدونه تفقد صفحة الدفع معرفة المتجر */
+  query?: string;
+}
+
+export default function CartDrawer({ query = "" }: Props) {
   const { items, removeItem, updateQuantity, totalItems, totalPrice, isOpen, setIsOpen } = useCart();
   const overlayRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  // رابط «إتمام الطلب» — يحمل ?store= في وضع المعاينة حتى لا تظهر 404
+  const [checkout, setCheckout] = useState(() => checkoutHref(query));
+
+  useEffect(() => {
+    if (query) {
+      setCheckout(checkoutHref(query));
+      return;
+    }
+    // خطة بديلة: لو لم يصلنا المعامل نقرأه من رابط الصفحة الحالية
+    const slug = storeFromSearch(typeof window === "undefined" ? null : window.location.search);
+    if (slug) setCheckout(checkoutHref(`?store=${encodeURIComponent(slug)}`));
+  }, [query]);
 
   useEffect(() => {
     if (isOpen) {
@@ -125,7 +144,7 @@ export default function CartDrawer() {
               </span>
             </div>
             <a
-              href="/checkout"
+              href={checkout}
               className="flex w-full items-center justify-center rounded-xl py-3.5 text-sm font-extrabold text-white shadow-lg transition-transform hover:scale-[1.01]"
               style={{ backgroundColor: "var(--store-primary)" }}
               onClick={() => setIsOpen(false)}
