@@ -73,7 +73,7 @@ export default function SocialLinks({
   if (items.length === 0) return null;
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center gap-2.5 ${className}`}>
       {items.map((it) => {
         const Icon = it.icon;
         return (
@@ -84,12 +84,11 @@ export default function SocialLinks({
             rel="noopener noreferrer"
             title={it.label}
             aria-label={it.label}
-            className="group flex h-10 w-10 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/15 transition-all hover:-translate-y-0.5 hover:ring-2"
-            style={{ ["--hover-color" as string]: it.color }}
+            className="group flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md ring-1 ring-ink-200/50 transition-all hover:-translate-y-0.5 hover:shadow-lg"
           >
             <Icon
-              className="h-5 w-5 text-white/90 transition-colors group-hover:text-white"
-              style={{ fontSize: size }}
+              className="h-5 w-5 transition-transform group-hover:scale-110"
+              style={{ color: it.color, fontSize: size }}
             />
           </a>
         );

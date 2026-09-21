@@ -63,6 +63,10 @@ interface SettingsRow {
   social_tiktok: string | null;
   social_whatsapp: string | null;
   developer_url: string | null;
+  footer_bg_color: string | null;
+  iban_rajhi: string | null;
+  iban_alinmaa: string | null;
+  iban_alahli: string | null;
   seo_title: string | null;
   seo_description: string | null;
   seo_keywords: string | null;
@@ -93,6 +97,10 @@ function rowToSettings(r: SettingsRow): StoreSettings {
     socialTiktok: r.social_tiktok ?? "",
     socialWhatsApp: r.social_whatsapp ?? "",
     developerUrl: r.developer_url ?? "",
+    footerBgColor: r.footer_bg_color ?? "",
+    ibanRajhi: r.iban_rajhi ?? "",
+    ibanAlinmaa: r.iban_alinmaa ?? "",
+    ibanAlahli: r.iban_alahli ?? "",
     seoTitle: r.seo_title ?? "",
     seoDescription: r.seo_description ?? "",
     seoKeywords: r.seo_keywords ?? "",
@@ -315,22 +323,26 @@ export class LocalServices implements Services {
     d.prepare(`INSERT INTO store_settings
       (store_id, template, font, primary_color, secondary_color, section_order, about_text,
        social_instagram, social_snapchat, social_tiktok, social_whatsapp, developer_url,
+       footer_bg_color, iban_rajhi, iban_alinmaa, iban_alahli,
        seo_title, seo_description, seo_keywords, seo_og_image, seo_favicon, seo_canonical, updated_at)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
       ON CONFLICT(store_id) DO UPDATE SET
         template=excluded.template, font=excluded.font, primary_color=excluded.primary_color,
         secondary_color=excluded.secondary_color, section_order=excluded.section_order,
         about_text=excluded.about_text, social_instagram=excluded.social_instagram,
         social_snapchat=excluded.social_snapchat, social_tiktok=excluded.social_tiktok,
-        social_whatsapp=excluded.social_whatsapp, developer_url=excluded.developer_url,
-        seo_title=excluded.seo_title, seo_description=excluded.seo_description,
+       social_whatsapp=excluded.social_whatsapp, developer_url=excluded.developer_url,
+       footer_bg_color=excluded.footer_bg_color, iban_rajhi=excluded.iban_rajhi,
+       iban_alinmaa=excluded.iban_alinmaa, iban_alahli=excluded.iban_alahli,
+       seo_title=excluded.seo_title, seo_description=excluded.seo_description,
         seo_keywords=excluded.seo_keywords, seo_og_image=excluded.seo_og_image,
         seo_favicon=excluded.seo_favicon, seo_canonical=excluded.seo_canonical,
         updated_at=excluded.updated_at`).run(
       storeId, next.template, next.font, next.primaryColor, next.secondaryColor,
       JSON.stringify(next.sectionOrder), next.aboutText,
       next.socialInstagram, next.socialSnapchat, next.socialTiktok, next.socialWhatsApp,
-      next.developerUrl, next.seoTitle, next.seoDescription, next.seoKeywords,
+      next.developerUrl, next.footerBgColor, next.ibanRajhi, next.ibanAlinmaa, next.ibanAlahli,
+      next.seoTitle, next.seoDescription, next.seoKeywords,
       next.seoOgImage, next.seoFavicon, next.seoCanonical, next.updatedAt
     );
     return next;

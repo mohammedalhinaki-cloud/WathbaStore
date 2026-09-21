@@ -1,12 +1,12 @@
 // ============================================================
-// وثبة — بطاقة المنتج (مع زر الطلب عبر واتساب)
+// وثبة — بطاقة المنتج (مع زر أضف إلى السلة)
 // ============================================================
 
 "use client";
 
 import Image from "next/image";
 import { formatPrice } from "@/lib/constants";
-import { waOrderLink } from "@/lib/wa";
+import { useCart } from "./cart-context";
 import type { Product } from "@/lib/types";
 import type { TemplateKey } from "@/lib/types";
 
@@ -20,17 +20,10 @@ interface Props {
 }
 
 export default function ProductCard({ product, storeName, whatsapp, query, template }: Props) {
+  const { addItem } = useCart();
   const priceText = formatPrice(product.price);
   const productUrl = `/products/${encodeURIComponent(product.slug)}${query || ""}`;
-  const waLink = waOrderLink(
-    whatsapp,
-    {
-      productName: product.name,
-      price: priceText,
-      productUrl,
-      storeName,
-    }
-  );
+  const outOfStock = product.stock != null && product.stock <= 0;
 
   if (template === "classic") {
     return (
@@ -63,16 +56,17 @@ export default function ProductCard({ product, storeName, whatsapp, query, templ
             )}
           </div>
         </div>
-        <span
+        <button
           onClick={(e) => {
             e.preventDefault();
-            window.open(waLink, "_blank");
+            if (!outOfStock) addItem(product);
           }}
-          className="shrink-0 rounded-lg px-3 py-2 text-xs font-extrabold text-white"
+          disabled={outOfStock}
+          className="shrink-0 rounded-lg px-3 py-2 text-xs font-extrabold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
           style={{ backgroundColor: "var(--store-primary)" }}
         >
-          اطلب الآن
-        </span>
+          {outOfStock ? "نفدت" : "أضف للسلة"}
+        </button>
       </a>
     );
   }
@@ -106,7 +100,7 @@ export default function ProductCard({ product, storeName, whatsapp, query, templ
             خصم
           </span>
         )}
-        {product.stock != null && product.stock <= 0 && (
+        {outOfStock && (
           <span className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm font-extrabold text-ink-600">
             نفدت الكمية
           </span>
@@ -127,17 +121,17 @@ export default function ProductCard({ product, storeName, whatsapp, query, templ
             <span className="text-xs text-ink-400 line-through">{formatPrice(product.oldPrice)}</span>
           )}
         </div>
-        <span
+        <button
           onClick={(e) => {
             e.preventDefault();
-            window.open(waLink, "_blank");
+            if (!outOfStock) addItem(product);
           }}
-          className="mt-3 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-extrabold text-white transition-opacity hover:opacity-90"
+          disabled={outOfStock}
+          className="mt-3 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-extrabold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
           style={{ backgroundColor: "var(--store-primary)" }}
         >
-          <span>💬</span>
-          اطلب عبر واتساب
-        </span>
+          {outOfStock ? "نفدت الكمية" : "أضف إلى السلة"}
+        </button>
       </div>
     </a>
   );

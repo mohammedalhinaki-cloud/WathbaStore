@@ -76,6 +76,10 @@ function initSchema(db: DatabaseSync): void {
     social_tiktok TEXT,
     social_whatsapp TEXT,
     developer_url TEXT,
+    footer_bg_color TEXT,
+    iban_rajhi TEXT,
+    iban_alinmaa TEXT,
+    iban_alahli TEXT,
     seo_title TEXT,
     seo_description TEXT,
     seo_keywords TEXT,
@@ -473,6 +477,10 @@ export const DEFAULT_SETTINGS: Omit<StoreSettings, "storeId" | "updatedAt"> = {
   seoOgImage: "",
   seoFavicon: "",
   seoCanonical: "",
+  footerBgColor: "",
+  ibanRajhi: "",
+  ibanAlinmaa: "",
+  ibanAlahli: "",
 };
 
 export function newId(prefix = ""): string {

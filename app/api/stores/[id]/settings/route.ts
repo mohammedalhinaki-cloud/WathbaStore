@@ -16,6 +16,10 @@ const SCHEMA = z.object({
   socialTiktok: z.string().max(300).optional(),
   socialWhatsApp: z.string().max(30).optional(),
   developerUrl: z.string().max(300).optional(),
+  footerBgColor: z.string().max(20).optional(),
+  ibanRajhi: z.string().max(30).optional(),
+  ibanAlinmaa: z.string().max(30).optional(),
+  ibanAlahli: z.string().max(30).optional(),
 });
 
 const MEMBER_FIELDS = [
@@ -24,6 +28,10 @@ const MEMBER_FIELDS = [
   "socialSnapchat",
   "socialTiktok",
   "socialWhatsApp",
+  "footerBgColor",
+  "ibanRajhi",
+  "ibanAlinmaa",
+  "ibanAlahli",
 ] as const;
 
 export async function PATCH(
