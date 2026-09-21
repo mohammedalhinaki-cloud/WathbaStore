@@ -9,6 +9,7 @@ import { ChevronRight } from "lucide-react";
 import { getStoreCtx } from "@/lib/tenant";
 import { services } from "@/lib/services";
 import { formatPrice } from "@/lib/constants";
+import { storeHomeHref } from "@/lib/store-links";
 import { canonicalStoreUrl } from "@/components/store/store-shell";
 import StoreShell from "@/components/store/store-shell";
 import ProductCard from "@/components/store/product-card";
@@ -75,7 +76,7 @@ export default async function ProductPage({ params }: Props) {
       <div className="mx-auto max-w-6xl px-4 py-8">
         {/* مسار التنقل */}
         <nav className="mb-6 flex items-center gap-1.5 text-sm text-ink-500">
-          <a href={query || "/"} className="hover:text-[var(--store-primary)]">الرئيسية</a>
+          <a href={storeHomeHref(query)} className="hover:text-[var(--store-primary)]">الرئيسية</a>
           <ChevronRight className="h-4 w-4" />
           <span className="font-semibold text-ink-800">{product.name}</span>
         </nav>

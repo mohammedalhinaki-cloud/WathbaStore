@@ -1,5 +1,9 @@
 // ============================================================
 // وثبة — سلة المشتريات (Context + localStorage)
+//
+// السلة معزولة لكل متجر: المفتاح wathba-cart:<النطاق الفرعي>.
+// على النطاقات الحقيقية كل متجر أصل (origin) مستقل أصلًا، أما في وضع
+// المعاينة (نطاق واحد + ?store=) فبدون العزل تختلط منتجات متجر بمتجر.
 // ============================================================
 "use client";
 
@@ -28,42 +32,92 @@ interface CartContextType {
   setIsOpen: (open: boolean) => void;
 }
 
+interface CartProviderProps {
+  children: React.ReactNode;
+  /** النطاق الفرعي للمتجر — لعزل السلة بين المتاجر */
+  storeKey?: string;
+  /** تبنّي السلة المحفوظة بالمفتاح القديم (على النطاق الحقيقي فقط) */
+  adoptLegacy?: boolean;
+}
+
 const CartContext = createContext<CartContextType | null>(null);
 
 const CART_KEY = "wathba-cart";
 
-function loadCart(): CartItem[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(CART_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+export function cartStorageKey(storeKey?: string): string {
+  const key = (storeKey || "").trim().toLowerCase();
+  return key ? `${CART_KEY}:${key}` : CART_KEY;
 }
 
-function saveCart(items: CartItem[]) {
+function sanitize(raw: unknown): CartItem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((i): i is CartItem => !!i && typeof i === "object" && typeof (i as CartItem).productId === "string")
+    .map((i) => ({
+      productId: String(i.productId),
+      name: String(i.name ?? ""),
+      price: Number(i.price) || 0,
+      oldPrice: i.oldPrice == null ? null : Number(i.oldPrice) || null,
+      quantity: Math.max(1, Math.floor(Number(i.quantity) || 1)),
+      imageUrl: typeof i.imageUrl === "string" ? i.imageUrl : null,
+      slug: String(i.slug ?? ""),
+    }));
+}
+
+function loadCart(key: string, adoptLegacy: boolean): CartItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (raw) return sanitize(JSON.parse(raw));
+
+    // ترقية من المفتاح القديم (آمنة فقط على نطاق المتجر الحقيقي)
+    if (adoptLegacy && key !== CART_KEY) {
+      const legacy = window.localStorage.getItem(CART_KEY);
+      if (legacy) {
+        const items = sanitize(JSON.parse(legacy));
+        window.localStorage.removeItem(CART_KEY);
+        if (items.length) {
+          window.localStorage.setItem(key, JSON.stringify(items));
+          return items;
+        }
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return [];
+}
+
+function saveCart(key: string, items: CartItem[]) {
   if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(CART_KEY, JSON.stringify(items));
+    window.localStorage.setItem(key, JSON.stringify(items));
   } catch {
     /* ignore */
   }
 }
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+export function CartProvider({ children, storeKey, adoptLegacy = false }: CartProviderProps) {
+  const storageKey = cartStorageKey(storeKey);
+  // نحفظ المفتاح مع العناصر حتى لا تُكتَب سلة متجر داخل مفتاح متجر آخر
+  const [cart, setCart] = useState<{ key: string; items: CartItem[] }>({ key: storageKey, items: [] });
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setItems(loadCart());
+    setCart({ key: storageKey, items: loadCart(storageKey, adoptLegacy) });
     setMounted(true);
-  }, []);
+  }, [storageKey, adoptLegacy]);
 
   useEffect(() => {
-    if (mounted) saveCart(items);
-  }, [items, mounted]);
+    if (mounted && cart.key === storageKey) saveCart(storageKey, cart.items);
+  }, [cart, mounted, storageKey]);
+
+  const items = cart.items;
+
+  const setItems = useCallback((updater: (prev: CartItem[]) => CartItem[]) => {
+    setCart((c) => ({ ...c, items: updater(c.items) }));
+  }, []);
 
   const addItem = useCallback((product: Product) => {
     setItems((prev) => {
@@ -87,11 +141,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       ];
     });
     setIsOpen(true);
-  }, []);
+  }, [setItems]);
 
   const removeItem = useCallback((productId: string) => {
     setItems((prev) => prev.filter((i) => i.productId !== productId));
-  }, []);
+  }, [setItems]);
 
   const updateQuantity = useCallback((productId: string, qty: number) => {
     if (qty <= 0) {
@@ -101,9 +155,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((prev) =>
       prev.map((i) => (i.productId === productId ? { ...i, quantity: qty } : i))
     );
-  }, []);
+  }, [setItems]);
 
-  const clearCart = useCallback(() => setItems([]), []);
+  const clearCart = useCallback(() => setItems(() => []), [setItems]);
 
   const totalItems = items.reduce((s, i) => s + i.quantity, 0);
   const totalPrice = items.reduce((s, i) => s + i.price * i.quantity, 0);

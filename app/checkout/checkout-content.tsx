@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Copy, Check, Building2, ChevronLeft, ShieldCheck } from "lucide-react";
 import { useCart, type CartItem } from "@/components/store/cart-context";
 import { formatPrice } from "@/lib/constants";
+import { storeHomeHref } from "@/lib/store-links";
 
 interface Props {
   whatsapp: string;
@@ -32,6 +33,8 @@ export default function CheckoutContent({ whatsapp, storeName, ibanRajhi, ibanAl
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [ibanErrors, setIbanErrors] = useState<Record<string, string>>({});
   const [mounted, setMounted] = useState(false);
+  /** رابط العودة للمتجر — يحمل ?store= في وضع المعاينة */
+  const homeHref = storeHomeHref(query);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -113,7 +116,7 @@ export default function CheckoutContent({ whatsapp, storeName, ibanRajhi, ibanAl
           <h1 className="mt-4 text-xl font-extrabold text-ink-900">سلتك فارغة</h1>
           <p className="mt-2 text-sm text-ink-500">أضف منتجات من المتجر لتتمم طلبك</p>
           <a
-            href={query || "/"}
+            href={homeHref}
             className="mt-6 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-extrabold text-white"
             style={{ backgroundColor: "var(--store-primary)" }}
           >
@@ -259,7 +262,7 @@ export default function CheckoutContent({ whatsapp, storeName, ibanRajhi, ibanAl
 
       {/* رابط العودة */}
       <div className="mt-8 text-center">
-        <a href={query || "/"} className="text-sm font-bold text-ink-400 hover:text-[var(--store-primary)]">
+        <a href={homeHref} className="text-sm font-bold text-ink-400 hover:text-[var(--store-primary)]">
           ← العودة للمتجر
         </a>
       </div>

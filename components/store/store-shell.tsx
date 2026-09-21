@@ -52,7 +52,7 @@ export default function StoreShell({ bundle, query, navLinks, children }: Props)
   const footerBg = settings.footerBgColor || undefined;
 
   return (
-    <CartProvider>
+    <CartProvider storeKey={store.subdomain} adoptLegacy={!query}>
       <div
         className="store-root flex min-h-screen flex-col bg-white"
         style={
@@ -121,7 +121,7 @@ export default function StoreShell({ bundle, query, navLinks, children }: Props)
         </footer>
 
         {/* ===== درج السلة ===== */}
-        <CartDrawer />
+        <CartDrawer query={query} />
       </div>
     </CartProvider>
   );
