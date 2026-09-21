@@ -11,6 +11,7 @@ import SocialLinks from "@/components/social-links";
 import StoreHeader from "./store-header";
 import { CartProvider } from "./cart-context";
 import CartDrawer from "./cart-drawer";
+import StoreJsonLd from "./store-json-ld";
 
 interface Props {
   bundle: StoreBundle;
@@ -53,6 +54,9 @@ export default function StoreShell({ bundle, query, navLinks, children }: Props)
 
   return (
     <CartProvider storeKey={store.subdomain} adoptLegacy={!query}>
+      {/* بيانات Structured Data الديناميكية للمتجر (schema.org) */}
+      <StoreJsonLd bundle={bundle} />
+
       <div
         className="store-root flex min-h-screen flex-col bg-white"
         style={

@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getStoreCtx } from "@/lib/tenant";
 import { services } from "@/lib/services";
-import { canonicalStoreUrl } from "@/components/store/store-shell";
+import { storePageMetadata } from "@/lib/seo";
 import StoreShell from "@/components/store/store-shell";
 import ProductsGrid from "@/components/store/products-grid";
 import { loadStoreAndNav } from "@/components/store/load-nav";
@@ -23,11 +23,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cat = cats.find((c) => c.slug === decodeURIComponent(slug));
   if (!cat) return {};
   const { store } = ctx.bundle;
-  return {
+  return storePageMetadata(ctx.bundle, {
     title: `${cat.name} | ${store.name}`,
     description: `${cat.name} في ${store.name}`,
-    alternates: { canonical: canonicalStoreUrl(store.subdomain, `/categories/${cat.slug}`) },
-  };
+    path: `/categories/${cat.slug}`,
+  });
 }
 
 export default async function CategoryPage({ params }: Props) {

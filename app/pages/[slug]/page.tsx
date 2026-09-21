@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getStoreCtx } from "@/lib/tenant";
 import { services } from "@/lib/services";
-import { canonicalStoreUrl } from "@/components/store/store-shell";
+import { storePageMetadata } from "@/lib/seo";
 import StoreShell from "@/components/store/store-shell";
 import { loadStoreAndNav } from "@/components/store/load-nav";
 
@@ -21,10 +21,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const page = await services().getPageBySlug(ctx.bundle.store.id, decodeURIComponent(slug));
   if (!page || !page.isVisible) return {};
   const { store } = ctx.bundle;
-  return {
+  return storePageMetadata(ctx.bundle, {
     title: `${page.title} | ${store.name}`,
-    alternates: { canonical: canonicalStoreUrl(store.subdomain, `/pages/${page.slug}`) },
-  };
+    path: `/pages/${page.slug}`,
+  });
 }
 
 export default async function StorePageView({ params }: Props) {

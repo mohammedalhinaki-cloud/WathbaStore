@@ -7,7 +7,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getStoreCtx } from "@/lib/tenant";
-import { canonicalStoreUrl } from "@/components/store/store-shell";
+import { storePageMetadata } from "@/lib/seo";
 import LandingPage from "@/components/landing/landing-page";
 import StoreShell from "@/components/store/store-shell";
 import StoreHome from "@/components/store/store-home";
@@ -17,20 +17,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const ctx = await getStoreCtx();
   if (ctx?.bundle) {
     const { store, settings } = ctx.bundle;
-    return {
-      title: settings.seoTitle || store.name,
-      description: settings.seoDescription || store.description,
-      keywords: settings.seoKeywords || undefined,
-      alternates: {
-        canonical: settings.seoCanonical || canonicalStoreUrl(store.subdomain),
-      },
-      openGraph: {
-        title: settings.seoTitle || store.name,
-        description: settings.seoDescription || store.description,
-        images: settings.seoOgImage || store.coverUrl ? [{ url: settings.seoOgImage || store.coverUrl! }] : undefined,
-        locale: "ar_SA",
-      },
-    };
+    const og = settings.seoOgImage || store.coverUrl || undefined;
+    return storePageMetadata(ctx.bundle, {
+      images: og ? [og] : undefined,
+    });
   }
   return {};
 }

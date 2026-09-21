@@ -27,6 +27,7 @@ import { waChatLink } from "@/lib/wa";
 import LandingNav from "./nav";
 import Faq from "./faq";
 import SocialLinks from "@/components/social-links";
+import SiteJsonLd from "@/components/site/site-json-ld";
 
 const SERVICES = [
   {
@@ -82,6 +83,9 @@ export default async function LandingPage() {
 
   return (
     <div id="top" className="bg-ink-950">
+      {/* بيانات Structured Data للموقع العام (WebSite + Organization) */}
+      <SiteJsonLd />
+
       <LandingNav whatsappHref={wa} />
 
       {/* ============ Hero ============ */}
