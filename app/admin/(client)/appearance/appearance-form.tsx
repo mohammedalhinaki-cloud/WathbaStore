@@ -35,6 +35,10 @@ export default function ClientAppearanceForm({ store, settings }: Props) {
   const [coverUrl, setCoverUrl] = useState<string[]>(store.coverUrl ? [store.coverUrl] : []);
   const [primary, setPrimary] = useState(settings.primaryColor);
   const [secondary, setSecondary] = useState(settings.secondaryColor);
+  const [footerBgColor, setFooterBgColor] = useState(settings.footerBgColor || "#f9fafb");
+  const [ibanRajhi, setIbanRajhi] = useState(settings.ibanRajhi);
+  const [ibanAlinmaa, setIbanAlinmaa] = useState(settings.ibanAlinmaa);
+  const [ibanAlahli, setIbanAlahli] = useState(settings.ibanAlahli);
 
   async function save() {
     setSaving(true);
@@ -56,7 +60,7 @@ export default function ClientAppearanceForm({ store, settings }: Props) {
       const d1 = await r1.json();
       if (!r1.ok) throw new Error(d1.error ?? "فشل حفظ بيانات المتجر");
 
-      // 2) الإعدادات (واتساب + روابط + عن المتجر)
+      // 2) الإعدادات (واتساب + روابط + عن المتجر + لون الفوتر + IBAN)
       const r2 = await fetch(`/api/stores/${store.id}/settings`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -66,6 +70,10 @@ export default function ClientAppearanceForm({ store, settings }: Props) {
           socialInstagram: instagram,
           socialSnapchat: snapchat,
           socialTiktok: tiktok,
+          footerBgColor,
+          ibanRajhi: ibanRajhi.trim(),
+          ibanAlinmaa: ibanAlinmaa.trim(),
+          ibanAlahli: ibanAlahli.trim(),
         }),
       });
       const d2 = await r2.json();
@@ -138,7 +146,7 @@ export default function ClientAppearanceForm({ store, settings }: Props) {
       </Card>
 
       <Card>
-        <h3 className="mb-4 font-extrabold text-ink-900">ألوان المتجر</h3>
+        <h3 className="mb-4 font-extrabold text-ink-900">الألوان والمظهر</h3>
         <div className="grid grid-cols-2 gap-4">
           <Field label="اللون الأساسي">
             <div className="flex items-center gap-2">
@@ -151,6 +159,32 @@ export default function ClientAppearanceForm({ store, settings }: Props) {
               <input type="color" className="h-11 w-14 cursor-pointer rounded-xl border border-ink-200 bg-white p-1" value={secondary} onChange={(e) => setSecondary(e.target.value)} />
               <input className={inputCls} dir="ltr" value={secondary} onChange={(e) => setSecondary(e.target.value)} />
             </div>
+          </Field>
+        </div>
+        <div className="mt-4">
+          <Field label="لون خلفية الفوتر">
+            <div className="flex items-center gap-2">
+              <input type="color" className="h-11 w-14 cursor-pointer rounded-xl border border-ink-200 bg-white p-1" value={footerBgColor} onChange={(e) => setFooterBgColor(e.target.value)} />
+              <input className={inputCls} dir="ltr" value={footerBgColor} onChange={(e) => setFooterBgColor(e.target.value)} placeholder="#f9fafb" />
+            </div>
+          </Field>
+        </div>
+      </Card>
+
+      <Card>
+        <h3 className="mb-1 font-extrabold text-ink-900">حسابات البنوك (IBAN)</h3>
+        <p className="mb-4 text-xs text-ink-400">
+          تظهر للعميل عند اختيار &quot;تحويل بنكي&quot; في صفحة الدفع. اترك الحقل فارغًا لإخفائه.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Field label="الراجحي" hint="SA + 22 رقم">
+            <input className={inputCls} dir="ltr" value={ibanRajhi} onChange={(e) => setIbanRajhi(e.target.value)} placeholder="SA03XXXXXXXXXX..." maxLength={30} />
+          </Field>
+          <Field label="الإنماء" hint="SA + 22 رقم">
+            <input className={inputCls} dir="ltr" value={ibanAlinmaa} onChange={(e) => setIbanAlinmaa(e.target.value)} placeholder="SA03XXXXXXXXXX..." maxLength={30} />
+          </Field>
+          <Field label="الأهلي" hint="SA + 22 رقم">
+            <input className={inputCls} dir="ltr" value={ibanAlahli} onChange={(e) => setIbanAlahli(e.target.value)} placeholder="SA03XXXXXXXXXX..." maxLength={30} />
           </Field>
         </div>
       </Card>

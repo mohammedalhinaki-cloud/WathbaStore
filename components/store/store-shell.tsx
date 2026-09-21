@@ -8,6 +8,9 @@ import { FONTS } from "@/lib/types";
 import { developerUrl, mainDomain, storeUrl } from "@/lib/constants";
 import { waChatLink } from "@/lib/wa";
 import SocialLinks from "@/components/social-links";
+import StoreHeader from "./store-header";
+import { CartProvider } from "./cart-context";
+import CartDrawer from "./cart-drawer";
 
 interface Props {
   bundle: StoreBundle;
@@ -46,137 +49,81 @@ export default function StoreShell({ bundle, query, navLinks, children }: Props)
   }
 
   const wa = store.whatsapp || settings.socialWhatsApp;
+  const footerBg = settings.footerBgColor || undefined;
 
   return (
-    <div
-      className="store-root flex min-h-screen flex-col bg-white"
-      style={
-        {
-          fontFamily: font,
-          "--store-primary": settings.primaryColor,
-          "--store-secondary": settings.secondaryColor,
-        } as React.CSSProperties
-      }
-    >
-      {/* ===== الهيدر ===== */}
-      <header className="sticky top-0 z-40 border-b border-ink-100 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-          <a href={query || "/"} className="flex min-w-0 items-center gap-2.5">
-            {store.logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={store.logoUrl} alt={store.name} className="h-10 w-10 shrink-0 rounded-xl object-cover" />
-            ) : (
-              <span
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg font-extrabold text-white"
-                style={{ backgroundColor: "var(--store-primary)" }}
-              >
-                {store.name.charAt(0)}
-              </span>
-            )}
-            <span className="truncate text-lg font-extrabold text-ink-900">{store.name}</span>
-          </a>
+    <CartProvider>
+      <div
+        className="store-root flex min-h-screen flex-col bg-white"
+        style={
+          {
+            fontFamily: font,
+            "--store-primary": settings.primaryColor,
+            "--store-secondary": settings.secondaryColor,
+          } as React.CSSProperties
+        }
+      >
+        {/* ===== الهيدر ===== */}
+        <StoreHeader bundle={bundle} query={query} navLinks={navLinks} />
 
-          <nav className="hidden items-center gap-1 md:flex">
-            <a href={query || "/"} className="rounded-lg px-3 py-2 text-sm font-bold text-ink-600 hover:text-[var(--store-primary)]">
-              الرئيسية
-            </a>
-            {navLinks.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                className="rounded-lg px-3 py-2 text-sm font-bold text-ink-600 hover:text-[var(--store-primary)]"
-              >
-                {l.label}
-              </a>
-            ))}
-          </nav>
+        {/* ===== المحتوى ===== */}
+        <main className="flex-1">{children}</main>
 
-          {wa && (
-            <a
-              href={waChatLink(wa)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-extrabold text-white shadow-sm transition-opacity hover:opacity-90"
-              style={{ backgroundColor: "#25D366" }}
-            >
-              <span className="text-base">💬</span>
-              <span className="hidden sm:inline">واتساب</span>
-            </a>
-          )}
-        </div>
-        {/* شريط أقسام للجوال */}
-        {navLinks.length > 0 && (
-          <div className="no-scrollbar flex gap-2 overflow-x-auto border-t border-ink-100 px-4 py-2 md:hidden">
-            <a href={query || "/"} className="shrink-0 rounded-full bg-ink-100 px-3.5 py-1.5 text-xs font-bold text-ink-700">
-              الرئيسية
-            </a>
-            {navLinks.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                className="shrink-0 rounded-full bg-ink-100 px-3.5 py-1.5 text-xs font-bold text-ink-700"
-              >
-                {l.label}
-              </a>
-            ))}
-          </div>
-        )}
-      </header>
-
-      {/* ===== المحتوى ===== */}
-      <main className="flex-1">{children}</main>
-
-      {/* ===== الفوتر ===== */}
-      <footer className="mt-16 border-t border-ink-100 bg-ink-50">
-        <div className="mx-auto max-w-6xl px-4 py-10">
-          <div className="flex flex-col items-center gap-6 text-center">
-            <div className="flex items-center gap-2.5">
-              {store.logoUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={store.logoUrl} alt={store.name} className="h-9 w-9 rounded-lg object-cover" />
+        {/* ===== الفوتر ===== */}
+        <footer className="mt-16 border-t" style={{ backgroundColor: footerBg || undefined, borderColor: footerBg ? "transparent" : undefined }}>
+          <div className="mx-auto max-w-6xl px-4 py-10">
+            <div className="flex flex-col items-center gap-6 text-center">
+              <div className="flex items-center gap-2.5">
+                {store.logoUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={store.logoUrl} alt={store.name} className="h-9 w-9 rounded-lg object-cover" />
+                )}
+                <span className="text-lg font-extrabold text-ink-900">{store.name}</span>
+              </div>
+              {store.description && (
+                <p className="max-w-md text-sm leading-6 text-ink-500">{store.description}</p>
               )}
-              <span className="text-lg font-extrabold text-ink-900">{store.name}</span>
+              <SocialLinks
+                instagram={settings.socialInstagram}
+                snapchat={settings.socialSnapchat}
+                tiktok={settings.socialTiktok}
+                whatsapp={wa}
+              />
+              {wa && (
+                <a
+                  href={waChatLink(wa)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-extrabold text-white"
+                  style={{ backgroundColor: "#25D366" }}
+                >
+                  💬 تواصل معنا عبر واتساب
+                </a>
+              )}
             </div>
-            {store.description && (
-              <p className="max-w-md text-sm leading-6 text-ink-500">{store.description}</p>
-            )}
-            <SocialLinks
-              instagram={settings.socialInstagram}
-              snapchat={settings.socialSnapchat}
-              tiktok={settings.socialTiktok}
-              whatsapp={wa}
-            />
-            {wa && (
-              <a
-                href={waChatLink(wa)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-extrabold text-white"
-                style={{ backgroundColor: "#25D366" }}
-              >
-                💬 تواصل معنا عبر واتساب
-              </a>
-            )}
-          </div>
 
-          {/* توقيع المطور — يُضبط من الإعدادات (DEVELOPER_URL) وليس ثابتًا في الكود */}
-          <div className="mt-8 border-t border-ink-200 pt-5 text-center">
-            <p className="text-xs text-ink-400">
-              تطوير:{" "}
-              <a
-                href={devUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-ink-500 transition-colors hover:text-[var(--store-primary)]"
-              >
-                WathbaStore
-              </a>{" "}
-              · {mainDomain()}
-            </p>
+            {/* توقيع المطور — يُضبط من الإعدادات (DEVELOPER_URL) وليس ثابتًا في الكود */}
+            <div className="mt-8 border-t border-ink-200 pt-5 text-center">
+              <p className="text-xs text-ink-400">
+                تطوير:{" "}
+                <a
+                  href={devUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-ink-500 transition-colors hover:text-[var(--store-primary)]"
+                >
+                  WathbaStore
+                </a>{" "}
+                · {mainDomain()}
+              </p>
+            </div>
           </div>
-        </div>
-      </footer>
-    </div>
+        </footer>
+
+        {/* ===== درج السلة ===== */}
+        <CartDrawer />
+      </div>
+    </CartProvider>
   );
 }
 

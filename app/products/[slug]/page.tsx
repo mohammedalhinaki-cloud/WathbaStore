@@ -9,10 +9,10 @@ import { ChevronRight } from "lucide-react";
 import { getStoreCtx } from "@/lib/tenant";
 import { services } from "@/lib/services";
 import { formatPrice } from "@/lib/constants";
-import { waOrderLink } from "@/lib/wa";
 import { canonicalStoreUrl } from "@/components/store/store-shell";
 import StoreShell from "@/components/store/store-shell";
 import ProductCard from "@/components/store/product-card";
+import AddToCartButton from "@/components/store/add-to-cart-button";
 import { loadStoreAndNav } from "@/components/store/load-nav";
 
 interface Props {
@@ -60,14 +60,7 @@ export default async function ProductPage({ params }: Props) {
     ...pages.filter((p) => p.isVisible).map((p) => ({ href: `/pages/${encodeURIComponent(p.slug)}${query}`, label: p.title })),
   ];
 
-  const wa = store.whatsapp || settings.socialWhatsApp;
   const priceText = formatPrice(product.price);
-  const waLink = waOrderLink(wa, {
-    productName: product.name,
-    price: priceText,
-    productUrl: canonicalStoreUrl(store.subdomain, `/products/${product.slug}`),
-    storeName: store.name,
-  });
 
   // منتجات مقترحة من نفس القسم
   const related =
@@ -146,18 +139,9 @@ export default async function ProductPage({ params }: Props) {
               <p className="mt-5 whitespace-pre-line leading-8 text-ink-600">{product.description}</p>
             )}
 
-            <a
-              href={waLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-7 flex w-full items-center justify-center gap-2.5 rounded-2xl px-6 py-4 text-lg font-extrabold text-white shadow-lg transition-transform hover:scale-[1.02]"
-              style={{ backgroundColor: "var(--store-primary)" }}
-            >
-              <span className="text-2xl">💬</span>
-              اطلب عبر واتساب
-            </a>
+            <AddToCartButton product={product} />
             <p className="mt-3 text-center text-xs text-ink-400">
-              ستصلك الرسالة تلقائيًا باسم المنتج وسعره — يتم التأكيد معك على التفاصيل.
+              أضف المنتج إلى سلة المشتريات ثم أتمم الطلب
             </p>
           </div>
         </div>
@@ -174,7 +158,7 @@ export default async function ProductPage({ params }: Props) {
                   key={p.id}
                   product={p}
                   storeName={store.name}
-                  whatsapp={wa}
+                  whatsapp=""
                   query={query}
                   template={settings.template}
                 />

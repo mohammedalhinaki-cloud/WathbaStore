@@ -1,5 +1,5 @@
 // ============================================================
-// وثبة — إعدادات المتجر: روابط التواصل + رابط المطور
+// وثبة — إعدادات المتجر: روابط التواصل + رابط المطور + لون الفوتر + حسابات IBAN
 // (رابط المطور = DEVELOPER_URL — يغيّر توقيع «تطوير: WathbaStore»)
 // ============================================================
 
@@ -29,6 +29,10 @@ export default function StoreSettingsForm({ store, settings }: Props) {
   const [tiktok, setTiktok] = useState(settings.socialTiktok);
   const [whatsapp, setWhatsapp] = useState(settings.socialWhatsApp || store.whatsapp);
   const [devUrl, setDevUrl] = useState(developerUrl(settings.developerUrl));
+  const [footerBgColor, setFooterBgColor] = useState(settings.footerBgColor || "#f9fafb");
+  const [ibanRajhi, setIbanRajhi] = useState(settings.ibanRajhi);
+  const [ibanAlinmaa, setIbanAlinmaa] = useState(settings.ibanAlinmaa);
+  const [ibanAlahli, setIbanAlahli] = useState(settings.ibanAlahli);
 
   async function save() {
     setSaving(true);
@@ -44,6 +48,10 @@ export default function StoreSettingsForm({ store, settings }: Props) {
           socialTiktok: tiktok.trim(),
           socialWhatsApp: whatsapp.trim(),
           developerUrl: devUrl.trim(),
+          footerBgColor: footerBgColor.trim(),
+          ibanRajhi: ibanRajhi.trim(),
+          ibanAlinmaa: ibanAlinmaa.trim(),
+          ibanAlahli: ibanAlahli.trim(),
         }),
       });
       const data = await res.json();
@@ -77,6 +85,68 @@ export default function StoreSettingsForm({ store, settings }: Props) {
           </Field>
           <Field label="واتساب" hint="رقم الواتساب مع رمز الدولة">
             <input className={inputCls} dir="ltr" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="9665xxxxxxxx" />
+          </Field>
+        </div>
+      </Card>
+
+      <Card>
+        <h3 className="mb-1 font-extrabold text-ink-900">لون خلفية الفوتر</h3>
+        <p className="mb-5 text-xs text-ink-400">
+          اختر لون خلفية أسفل المتجر (الفوتر)
+        </p>
+        <div className="flex items-center gap-3">
+          <input
+            type="color"
+            className="h-11 w-14 cursor-pointer rounded-xl border border-ink-200 bg-white p-1"
+            value={footerBgColor}
+            onChange={(e) => setFooterBgColor(e.target.value)}
+          />
+          <input
+            className={inputCls}
+            dir="ltr"
+            value={footerBgColor}
+            onChange={(e) => setFooterBgColor(e.target.value)}
+            placeholder="#f9fafb"
+          />
+        </div>
+      </Card>
+
+      <Card>
+        <h3 className="mb-1 font-extrabold text-ink-900">حسابات البنوك (IBAN)</h3>
+        <p className="mb-5 text-xs text-ink-400">
+          تظهر للعميل عند اختيار &quot;تحويل بنكي&quot; في صفحة الدفع. اترك الحقل فارغًا لإخفائه.
+          الآيبان يجب أن يبدأ بـ SA ويتكون من 24 خانة.
+        </p>
+        <div className="space-y-4">
+          <Field label="حساب الراجحي" hint="مثال: SA03XXXXXXXXXXXXXXXXXXXXXX">
+            <input
+              className={inputCls}
+              dir="ltr"
+              value={ibanRajhi}
+              onChange={(e) => setIbanRajhi(e.target.value)}
+              placeholder="SA0380000000608010167519"
+              maxLength={30}
+            />
+          </Field>
+          <Field label="حساب الإنماء" hint="مثال: SA03XXXXXXXXXXXXXXXXXXXXXX">
+            <input
+              className={inputCls}
+              dir="ltr"
+              value={ibanAlinmaa}
+              onChange={(e) => setIbanAlinmaa(e.target.value)}
+              placeholder="SA0305000000000000000000"
+              maxLength={30}
+            />
+          </Field>
+          <Field label="حساب الأهلي" hint="مثال: SA03XXXXXXXXXXXXXXXXXXXXXX">
+            <input
+              className={inputCls}
+              dir="ltr"
+              value={ibanAlahli}
+              onChange={(e) => setIbanAlahli(e.target.value)}
+              placeholder="SA0340000000000000000000"
+              maxLength={30}
+            />
           </Field>
         </div>
       </Card>

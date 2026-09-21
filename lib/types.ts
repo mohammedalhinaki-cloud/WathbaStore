@@ -83,6 +83,10 @@ export interface StoreSettings {
   seoOgImage: string;
   seoFavicon: string;
   seoCanonical: string;
+  footerBgColor: string;
+  ibanRajhi: string;
+  ibanAlinmaa: string;
+  ibanAlahli: string;
   updatedAt: string;
 }
 
