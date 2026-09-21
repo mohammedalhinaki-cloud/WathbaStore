@@ -10,7 +10,7 @@ import { getStoreCtx } from "@/lib/tenant";
 import { services } from "@/lib/services";
 import { formatPrice } from "@/lib/constants";
 import { storeHomeHref } from "@/lib/store-links";
-import { canonicalStoreUrl } from "@/components/store/store-shell";
+import { storePageMetadata } from "@/lib/seo";
 import StoreShell from "@/components/store/store-shell";
 import ProductCard from "@/components/store/product-card";
 import AddToCartButton from "@/components/store/add-to-cart-button";
@@ -27,20 +27,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await services().getProduct(ctx.bundle.store.id, decodeURIComponent(slug));
   if (!product) return {};
   const { store, settings } = ctx.bundle;
-  const title = `${product.name} | ${store.name}`;
-  return {
-    title,
+  return storePageMetadata(ctx.bundle, {
+    title: `${product.name} | ${store.name}`,
     description: product.description || settings.seoDescription || store.description,
-    alternates: {
-      canonical: settings.seoCanonical || canonicalStoreUrl(store.subdomain, `/products/${product.slug}`),
-    },
-    openGraph: {
-      title,
-      description: product.description,
-      images: product.images[0] ? [{ url: product.images[0].url }] : undefined,
-      locale: "ar_SA",
-    },
-  };
+    path: `/products/${product.slug}`,
+    images: product.images.map((i) => i.url),
+  });
 }
 
 export default async function ProductPage({ params }: Props) {

@@ -16,6 +16,11 @@ import "@fontsource/ibm-plex-sans-arabic/700.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://waathba.com"),
+  // أيقونة المفضلة ديناميكية حسب النطاق (app/icon/route.ts)
+  icons: {
+    icon: "/icon",
+    apple: "/icon",
+  },
   title: {
     default: "وثبة | waathba.com — متجرك الإلكتروني بثبة واحدة",
     template: "%s | وثبة",
