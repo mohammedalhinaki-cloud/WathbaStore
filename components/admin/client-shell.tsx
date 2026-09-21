@@ -55,7 +55,7 @@ export default function ClientShell({ storeName, subdomain, user, storeUrl, chil
         </span>
         <div className="min-w-0">
           <p className="truncate text-sm font-extrabold text-white">لوحة {storeName}</p>
-          <p className="text-[10px] font-bold text-ink-400">{subdomain}.wathbastore.com</p>
+          <p className="text-[10px] font-bold text-ink-400">{subdomain}.waathba.com</p>
         </div>
       </div>
 

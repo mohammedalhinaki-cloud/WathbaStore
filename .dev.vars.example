@@ -1,0 +1,3 @@
+# متغيرات محلية فقط لأدوات wrangler / opennextjs-cloudflare preview.
+# انسخ هذا الملف إلى .dev.vars إذا أردت معاينة بيئة development.
+NEXTJS_ENV=development

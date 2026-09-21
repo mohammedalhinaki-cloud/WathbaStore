@@ -1,8 +1,8 @@
 // ============================================================
 // وثبة — Middleware: كشف المستأجر من النطاق (subdomain)
 //
-// rshaf.wathbastore.com  →  x-tenant: store, x-store-slug: rshaf
-// wathbastore.com        →  x-tenant: main
+// rshaf.waathba.com  →  x-tenant: store, x-store-slug: rshaf
+// waathba.com        →  x-tenant: main
 //
 // الدومين الرئيسي قابل للتهيئة عبر NEXT_PUBLIC_MAIN_DOMAIN
 // المعاينة (نطاق واحد): /?store=rshaf تحاكي النطاق الفرعي
@@ -16,12 +16,12 @@ import { NextResponse, type NextRequest } from "next/server";
 
 /**
  * الدومين الرئيسي يُقرأ من متغير البيئة NEXT_PUBLIC_MAIN_DOMAIN،
- * مع العودة إلى wathbastore.com إن لم يُضبط.
+ * مع العودة إلى waathba.com إن لم يُضبط.
  *
  * ملاحظة: Next.js يستبدل متغيرات NEXT_PUBLIC_ وقت البناء، لذلك أي تغيير
- * لقيمة المتغير في Vercel يحتاج إعادة نشر (Redeploy) كي يسري.
+ * لقيمة المتغير في Cloudflare يحتاج إعادة بناء كي يسري.
  */
-const MAIN_DOMAIN = (process.env.NEXT_PUBLIC_MAIN_DOMAIN || "wathbastore.com")
+const MAIN_DOMAIN = (process.env.NEXT_PUBLIC_MAIN_DOMAIN || "waathba.com")
   .trim()
   .toLowerCase()
   .replace(/^https?:\/\//, "")
@@ -44,7 +44,10 @@ function isStoreOnlyPath(pathname: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
-  const host = (request.headers.get("host") || "").replace(/:\d+$/, "").toLowerCase();
+  // يُفضَّل x-forwarded-host — يضبطه بروكسي النطاق العرضي (Cloudflare Worker)
+  // ليحافظ على النطاق الفرعي الأصلي للزائر بعد إعادة توجيه الطلب داخليًا.
+  const forwarded = (request.headers.get("x-forwarded-host") || "").split(",")[0].trim();
+  const host = (forwarded || request.headers.get("host") || "").replace(/:\d+$/, "").toLowerCase();
   const onMainHost = host === MAIN_DOMAIN || host.endsWith(`.${MAIN_DOMAIN}`);
 
   let tenant: "main" | "store" = "main";

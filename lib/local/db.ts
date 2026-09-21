@@ -223,7 +223,7 @@ function seedIfEmpty(db: DatabaseSync): void {
   const insUser = db.prepare(
     "INSERT INTO local_users (id, email, password_hash, name, role, created_at) VALUES (?,?,?,?,?,?)"
   );
-  insUser.run("user-owner", process.env.LOCAL_OWNER_EMAIL || "owner@wathbastore.com", hashPassword(process.env.LOCAL_OWNER_PASSWORD || "Wathba#2026"), "مالك المنصة", "owner", ago(90));
+  insUser.run("user-owner", process.env.LOCAL_OWNER_EMAIL || "owner@waathba.com", hashPassword(process.env.LOCAL_OWNER_PASSWORD || "Wathba#2026"), "مالك المنصة", "owner", ago(90));
   insUser.run("user-rshaf", "rshaf@demo.com", hashPassword("Rshaf#2026"), "محمد الرشيف", "member", ago(20));
   insUser.run("user-oud", "oud@demo.com", hashPassword("Oud#2026"), "أحمد العتيبي", "member", ago(12));
   insUser.run("user-sara", "sara@demo.com", hashPassword("Sara#2026"), "سارة القحطاني", "member", ago(2));
@@ -268,7 +268,7 @@ function seedIfEmpty(db: DatabaseSync): void {
     '["hero","categories","products","pages","footer"]',
     "كافيه رشف وجهةٌ لعشّاق القهوة المختصة؛ نختاري حبوبنا بعناية ونحضر مشروباتنا أمامك بحب.",
     "https://instagram.com/rshaf.cafe", "rshaf_cafe", "https://tiktok.com/@rshaf.cafe", "",
-    "https://wathbastore.com",
+    "https://waathba.com",
     "كافيه رشف | القهوة والحلويات",
     "قهوة مختصة، مشروبات باردة، وحلويات طازجة في كافيه رشف. اطلب الآن عبر واتساب.",
     "قهوة, لاتيه, حلويات, كافيه رشف, قهوة مختصة",
@@ -279,7 +279,7 @@ function seedIfEmpty(db: DatabaseSync): void {
     '["hero","categories","products","footer"]',
     "في عود وروائح نختار أجود أنواع العود والعطور من شمول تايلاند والهند وفيتنام، بخلطات عريقة.",
     "https://instagram.com/oud.roua3", "oud_roua3", "", "",
-    "https://wathbastore.com",
+    "https://waathba.com",
     "عود وروائح | عطور وعود فاخر",
     "تشكيلة فاخرة من العود والعطور الأصلية. جودة مضمونة وتسليم سريع.",
     "عود, عطور, عود تايلاند, عطر فاخر",
@@ -289,7 +289,7 @@ function seedIfEmpty(db: DatabaseSync): void {
     "store-sweets", "modern", "tajawal", "#BE185D", "#F59E0B",
     '["hero","categories","products","footer"]',
     "", "", "", "", "",
-    "https://wathbastore.com",
+    "https://waathba.com",
     "دار رشف للحلويات", "حلويات فاخرة ومخبوزات يومية.", "", "", "", "", ago(1)
   );
 
@@ -358,12 +358,12 @@ function seedIfEmpty(db: DatabaseSync): void {
     (id, whatsapp_number, developer_url, about_text, hero_title, hero_subtitle, features, faq, social_instagram, social_snapchat, social_tiktok, updated_at)
     VALUES (1,?,?,?,?,?,?,?,?,?,?,?)`).run(
     "966500000000",
-    "https://wathbastore.com",
+    "https://waathba.com",
     "وثبة منصة متكاملة أنشئ بها متاجر إلكترونية للعملاء: أنشئ، صمّم، جهّز المنتجات، ضبّط SEO، وسلّم المتجر على نطاق فرعي خاص — ثم يدير العميل متجره بنفسه من لوحة تحكم مستقلة.",
     "متجرك الإلكتروني… بثُبة واحدة",
-    "أبني لك متجرًا إلكترونيًا متكاملًا على نطاق خاص بك مثل rshaf.wathbastore.com — أنشئه وأجهّزه بالكامل وأسلّمه جاهزًا، وأنت تديره من لوحة تحكمك.",
+    "أبني لك متجرًا إلكترونيًا متكاملًا على نطاق خاص بك مثل rshaf.waathba.com — أنشئه وأجهّزه بالكامل وأسلّمه جاهزًا، وأنت تديره من لوحة تحكمك.",
     JSON.stringify([
-      { title: "نطاق فرعي خاص", desc: "كل متجر على نطاق مستقل: name.wathbastore.com — بدون شراء دومين." },
+      { title: "نطاق فرعي خاص", desc: "كل متجر على نطاق مستقل: name.waathba.com — بدون شراء دومين." },
       { title: "تصميم بهوية متجرك", desc: "قوالب، خطوط، وألوان قابلة للتخصيص بالكامل." },
       { title: "الطلب عبر واتساب", desc: "زر طلب ذكي برسالة جاهزة تتضمن اسم المنتج وسعره." },
       { title: "SEO محلي", desc: "عناوين ووصف وكلمات مفتاحية عربية محسّنة لكل متجر." },
@@ -371,13 +371,13 @@ function seedIfEmpty(db: DatabaseSync): void {
       { title: "لوحة تحكم للعميل", desc: "يعتمد العميل على نفسه: منتجات، أقسام، أسعار، وصور." },
     ]),
     JSON.stringify([
-      { q: "هل أحتاج لشراء دومين منفصل لمتجري؟", a: "لا. يحصل متجرك على نطاق فرعي مجاني مثل name.wathbastore.com، ويمكنك ربط دومين خاص لاحقًا إذا رغبت." },
+      { q: "هل أحتاج لشراء دومين منفصل لمتجري؟", a: "لا. يحصل متجرك على نطاق فرعي مجاني مثل name.waathba.com، ويمكنك ربط دومين خاص لاحقًا إذا رغبت." },
       { q: "كيف أطلب المتجر؟", a: "تواصل معي عبر زر الواتساب في أي مكان بالموقع، وسأتولى إنشاء متجرك وتجهيزه بالكامل." },
       { q: "هل أستطيع إدارة متجري بنفسي؟", a: "نعم. بعد التسليم تحصل على لوحة تحكم مستقلة تضيف من خلالها المنتجات وتعديل الأسعار والصور." },
       { q: "كيف يتم التسليم؟", a: "بعد اكتمال التجهيز والاختبار، أُنشئ لك حسابًا وأرسل لك بيانات الدخول ورابط متجرك." },
       { q: "هل الطلبات عبر واتساب؟", a: "نعم. زبونك يضغط «اطلب عبر واتساب» تصلك الرسالة باسم المنتج وسعره مباشرة." },
     ]),
-    "https://instagram.com/wathbastore", "wathbastore", "https://tiktok.com/@wathbastore",
+    "https://instagram.com/waathba", "waathba", "https://tiktok.com/@waathba",
     now
   );
 
@@ -403,14 +403,14 @@ function seedIfEmpty(db: DatabaseSync): void {
   // ----- الأعمال -----
   const insPortfolio = db.prepare(`INSERT INTO portfolio_items
     (id, title, description, image_url, store_url, tags, is_visible, sort_order, created_at) VALUES (?,?,?,?,?,?,?,?,?)`);
-  insPortfolio.run("pf-rshaf", "كافيه رشف", "متجر قهوة مختصة وحلويات بقالب عصري وألوان دافئة.", "/seed/rshaf-cover.jpg", "https://rshaf.wathbastore.com", "قهوة, حلويات, متجر طعام", 1, 0, ago(18));
-  insPortfolio.run("pf-oud", "عود وروائح", "متجر عطور وعود فاخر بهوية كلاسيكية راقية.", "/seed/portfolio-perfume.jpg", "https://oud.wathbastore.com", "عطور, عود, متجر فاخر", 1, 1, ago(10));
+  insPortfolio.run("pf-rshaf", "كافيه رشف", "متجر قهوة مختصة وحلويات بقالب عصري وألوان دافئة.", "/seed/rshaf-cover.jpg", "https://rshaf.waathba.com", "قهوة, حلويات, متجر طعام", 1, 0, ago(18));
+  insPortfolio.run("pf-oud", "عود وروائح", "متجر عطور وعود فاخر بهوية كلاسيكية راقية.", "/seed/portfolio-perfume.jpg", "https://oud.waathba.com", "عطور, عود, متجر فاخر", 1, 1, ago(10));
 
   // ----- سجل النشاطات -----
   const insLog = db.prepare(
     "INSERT INTO activity_logs (store_id, user_id, actor_email, action, details, created_at) VALUES (?,?,?,?,?,?)"
   );
-  const ownerEmail = process.env.LOCAL_OWNER_EMAIL || "owner@wathbastore.com";
+  const ownerEmail = process.env.LOCAL_OWNER_EMAIL || "owner@waathba.com";
   insLog.run(null, "user-owner", ownerEmail, "store.created", JSON.stringify({ store: "store-sweets", name: "دار رشف للحلويات" }), ago(2));
   insLog.run("store-rshaf", "user-owner", ownerEmail, "product.created", JSON.stringify({ name: "كيك الشوكولاتة" }), ago(5));
   insLog.run("store-oud", "user-owner", ownerEmail, "store.delivered", JSON.stringify({ subdomain: "oud" }), ago(10));

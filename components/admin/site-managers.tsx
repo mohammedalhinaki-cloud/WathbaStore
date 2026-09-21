@@ -138,7 +138,7 @@ export function PortfolioManager({ items }: { items: PortfolioItem[] }) {
                 <input className={inputCls} value={editing.title ?? ""} onChange={(e) => setEditing({ ...editing, title: e.target.value })} />
               </Field>
               <Field label="رابط المتجر">
-                <input className={inputCls} dir="ltr" value={editing.storeUrl ?? ""} onChange={(e) => setEditing({ ...editing, storeUrl: e.target.value })} placeholder="https://rshaf.wathbastore.com" />
+                <input className={inputCls} dir="ltr" value={editing.storeUrl ?? ""} onChange={(e) => setEditing({ ...editing, storeUrl: e.target.value })} placeholder="https://rshaf.waathba.com" />
               </Field>
             </div>
             <Field label="وصف مختصر">

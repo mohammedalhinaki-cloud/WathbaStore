@@ -24,7 +24,7 @@ export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
           <span className="text-xl font-extrabold tracking-tight text-white">
             وثبة
             <span className="mr-1.5 rounded-md bg-accent-500/15 px-1.5 py-0.5 text-[10px] font-bold text-accent-400">
-              WathbaStore
+              waathba.com
             </span>
           </span>
         </a>

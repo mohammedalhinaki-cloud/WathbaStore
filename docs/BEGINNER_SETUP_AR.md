@@ -1,6 +1,6 @@
-# دليل المبتدئ الكامل — ربط وثبة بـ Supabase و Vercel
+# دليل المبتدئ الكامل — ربط وثبة بـ Supabase و Cloudflare
 
-> هذا الدليل مكتوب لشخص **لم يستخدم Supabase أو Vercel من قبل أبداً**.
+> هذا الدليل مكتوب لشخص **لم يستخدم Supabase أو Cloudflare من قبل أبداً**.
 > كل خطوة مشروحة بالنقرات. لا تتخطَّ أي خطوة، واتبعها بالترتيب.
 > الوقت المتوقع: **45 – 60 دقيقة** (بدون وقت انتظار الـ DNS).
 
@@ -14,11 +14,11 @@
 
 | الجزء | ما هو؟ | أين سيعيش؟ |
 |---|---|---|
-| **الكود** (ملفات Next.js) | الصفحات، التصميم، الأزرار | **Vercel** |
+| **الكود** (ملفات Next.js) | الصفحات، التصميم، الأزرار | **Cloudflare** (Workers & Pages عبر OpenNext) |
 | **البيانات** (المتاجر، المنتجات، الحسابات، الصور) | الأرقام والنصوص المخزّنة | **Supabase** |
 
 الكود وحده = موقع فارغ. البيانات وحدها = معلومات بلا واجهة.
-**الربط** بينهما يتم عن طريق **3 نصوص سرّية** تُسمى «متغيرات البيئة» (Environment Variables) — تأخذها من Supabase وتلصقها في Vercel. هذا كل شيء. بقية الدليل تفاصيل.
+**الربط** بينهما يتم عن طريق **3 نصوص سرّية** تُسمى «متغيرات البيئة» (Environment Variables) — تأخذها من Supabase وتلصقها في Cloudflare. هذا كل شيء. بقية الدليل تفاصيل.
 
 ### ما هو Supabase؟
 خدمة تعطيك **قاعدة بيانات PostgreSQL** جاهزة على الإنترنت، مع:
@@ -27,8 +27,11 @@
 - **Storage** — مكان رفع الصور.
 - **SQL Editor** — نافذة تكتب فيها أوامر لقاعدة البيانات.
 
-### ما هو Vercel؟
-خدمة تأخذ كودك من GitHub، **تبنيه** (build)، وتنشره على الإنترنت برابط حقيقي وشهادة HTTPS مجاناً. وكل مرة ترفع تعديلاً على GitHub، ينشر النسخة الجديدة تلقائياً.
+### ما هو Cloudflare؟
+خدمة تستضيف كود Next.js وتشغّله على شبكتها العالمية. هذا المشروع يجري على
+**Cloudflare Workers & Pages** عبر المحوّل الرسمي **OpenNext** (لا نستخدم أداة
+`next-on-pages` القديمة المهجورة). تأخذ Cloudflare كودك من GitHub وتبنيه وتنشره،
+وكل مرة ترفع تعديلاً على GitHub تنشر النسخة الجديدة تلقائياً.
 
 ### كيف يعمل مشروعك الآن (مهم جداً)
 في ملف `lib/services/index.ts` يوجد هذا المنطق:
@@ -40,7 +43,9 @@ _services = isSupabaseConfigured() ? getSupabaseServices() : localServices;
 بالعربي: **إذا** وجد التطبيق متغيرات Supabase → يستخدم Supabase.
 **وإلا** → يستخدم قاعدة بيانات SQLite محلية داخل مجلد `.data/`.
 
-النسخة المحلية ممتازة للتجربة على جهازك، لكنها **لا تعمل على Vercel إطلاقاً** (لأن Vercel لا يحتفظ بالملفات بين الطلبات). لذلك إذا نسيت متغيراً واحداً، سيظهر موقعك **فارغاً** على Vercel. هذا أشهر خطأ للمبتدئين، وسنتجنّبه.
+النسخة المحلية ممتازة للتجربة على جهازك، لكنها **لا تعمل على Cloudflare إطلاقاً**
+(لأن بيئة Workers لا تسمح بنظام الملفات). لذلك إذا نسيت متغيراً واحداً، سيظهر موقعك
+**فارغاً** على Cloudflare. هذا أشهر خطأ للمبتدئين، وسنتجنّبه.
 
 ---
 
@@ -50,7 +55,7 @@ _services = isSupabaseConfigured() ? getSupabaseServices() : localServices;
 
 1. افتح المتصفح على: **https://supabase.com**
 2. اضغط الزر الأخضر **Start your project** (أعلى اليمين).
-3. اختر **Continue with GitHub** — هذا الأفضل، لأنك ستحتاج GitHub لاحقاً مع Vercel أصلاً.
+3. اختر **Continue with GitHub** — هذا الأفضل، لأنك ستحتاج GitHub لاحقاً مع Cloudflare أصلاً.
 4. ستنتقل لصفحة GitHub تطلب الإذن → اضغط **Authorize supabase**.
 5. الآن أنت داخل لوحة تحكم Supabase (Dashboard).
 
@@ -66,7 +71,7 @@ _services = isSupabaseConfigured() ? getSupabaseServices() : localServices;
 
 | الحقل | ماذا تكتب | ملاحظة |
 |---|---|---|
-| **Name** | `wathbastore` | اسم داخلي فقط، لا يظهر لأحد |
+| **Name** | `waathba` | اسم داخلي فقط، لا يظهر لأحد |
 | **Database Password** | اضغط **Generate a password** | ⚠️ اقرأ التحذير تحت الجدول |
 | **Region** | `Central EU (Frankfurt)` أو `Middle East (Bahrain)` إن وُجدت | الأقرب لك = أسرع |
 | **Pricing Plan** | **Free** | يكفيك تماماً في البداية |
@@ -246,7 +251,7 @@ rshaf    rshaf@demo.com   owner
 
 ### الخطوة 6 — نسخ المفاتيح الثلاثة 🔑
 
-هذه أهم خطوة في الدليل كله. هذه المفاتيح هي **الجسر** بين Vercel و Supabase.
+هذه أهم خطوة في الدليل كله. هذه المفاتيح هي **الجسر** بين Cloudflare و Supabase.
 
 1. من الشريط الجانبي، اضغط **Settings** (الترس، أسفل القائمة).
 2. اضغط **API Keys** (أو **API** في بعض الإصدارات).
@@ -283,76 +288,76 @@ rshaf    rshaf@demo.com   owner
 
 > ملاحظة: مشروعك يدعم أيضاً الاسمين القديمين `anon` و `service_role` (رأيتها في `lib/supabase/client.ts`). إذا كانت لوحتك تعرض الأسماء القديمة فقط، استخدمها. **لكن لا تخلط بين المجموعتين — اختر واحدة.**
 
-**انتهى Supabase. ✅** الآن ننتقل لـ Vercel.
+**انتهى Supabase. ✅** الآن ننتقل لـ Cloudflare.
 
 ---
 
-## الجزء الثاني: Vercel
+## الجزء الثاني: Cloudflare
 
 ### الخطوة 7 — ارفع كودك إلى GitHub أولاً
 
-Vercel يقرأ من GitHub، فتأكد أن آخر نسخة من كودك موجودة على الفرع `main`:
+Cloudflare تقرأ من GitHub، فتأكد أن آخر نسخة من كودك موجودة على الفرع `main`:
 
 ```bash
 git status                # تأكد لا يوجد شيء مهم غير محفوظ
 git push origin main      # أو ادمج فرع عملك في main أولاً
 ```
 
-> إذا كنت تعمل على فرع منفصل، ادمجه في `main` عبر Pull Request على GitHub قبل المتابعة — لأن Vercel سينشر من `main`.
+> إذا كنت تعمل على فرع منفصل، ادمجه في `main` عبر Pull Request على GitHub قبل المتابعة — لأن Cloudflare ستنشر من `main`.
 
 ---
 
-### الخطوة 8 — إنشاء حساب Vercel واستيراد المشروع
+### الخطوة 8 — إنشاء حساب Cloudflare ونشر المشروع
 
-1. افتح **https://vercel.com/new**
-2. اضغط **Continue with GitHub** → **Authorize Vercel**.
-3. إذا طلب منك اسماً للفريق (Team): اكتب اسمك واختر خطة **Hobby (Free)**.
-4. ستظهر صفحة «Import Git Repository» بقائمة مستودعاتك.
-5. ابحث عن **`WathbaStore`** واضغط **Import** بجانبه.
+1. افتح **https://dash.cloudflare.com** وسجّل الدخول (أو أنشئ حساباً مجانياً).
+2. من القائمة: **Workers & Pages** → **Create application** → **Pages** → **Connect to Git**.
+3. فوّض Cloudflare للوصول إلى GitHub، ثم ابحث عن مستودع **`WathbaStore`** واضغط **Begin setup**.
 
-> **لا ترى المستودع؟** اضغط **Adjust GitHub App Permissions** → اختر **All repositories** أو أضف `WathbaStore` يدوياً → **Save**، ثم ارجع.
+> **لا ترى المستودع؟** أعِد ضبط أذونات GitHub لتشمل هذا المستودع ثم عد.
 
 ---
 
-### الخطوة 9 — إعدادات المشروع (⚠️ لا تضغط Deploy بعد!)
+### الخطوة 9 — إعدادات المشروع (⚠️ اقرأ قبل Deploy)
 
-ستظهر صفحة «Configure Project»:
+ستظهر صفحة إعداد البناء:
 
-- **Project Name**: `wathbastore` (سيصبح رابطك `wathbastore.vercel.app` تقريباً).
-- **Framework Preset**: يجب أن يكتشف **Next.js** تلقائياً. ✅ لا تغيّره.
-- **Root Directory**: `./` — اتركه.
-- **Build and Output Settings**: **لا تلمسه إطلاقاً.** الافتراضي (`next build`) صحيح.
+- **Project name**: `waathba` (يظهر كـ `waathba.pages.dev`).
+- **Production branch**: `main`.
+- **Framework preset**: اختر **Next.js**.
+- **Build command**: `npm run cf-build`
+- **Build output directory**: `.open-next`
 
 **الآن الجزء الحاسم: Environment Variables**
 
-اضغط على **Environment Variables** لتوسيعها. سترى حقلين: **Key** و **Value**.
-
-أضف المتغيرات الخمسة التالية، **واحداً تلو الآخر** — اكتب الاسم في Key، والقيمة في Value، ثم اضغط **Add**:
+أضف المتغيرات الخمسة التالية للإنتاج والمعاينة:
 
 | # | Key (الاسم — انسخه حرفياً) | Value (القيمة) |
 |---|---|---|
 | 1 | `NEXT_PUBLIC_SUPABASE_URL` | الـ Project URL من الخطوة 6 |
 | 2 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | الـ Publishable key |
-| 3 | `SUPABASE_SECRET_KEY` | الـ Secret key |
-| 4 | `NEXT_PUBLIC_MAIN_DOMAIN` | `wathbastore.com` |
-| 5 | `DEVELOPER_URL` | `https://wathbastore.com` |
+| 3 | `SUPABASE_SECRET_KEY` | الـ Secret key (اجعله Secret) |
+| 4 | `NEXT_PUBLIC_MAIN_DOMAIN` | `waathba.com` |
+| 5 | `DEVELOPER_URL` | `https://waathba.com` |
 
 #### قواعد ذهبية لتجنّب 90% من المشاكل:
 
 1. **الأسماء حسّاسة لحالة الأحرف.** `next_public_...` خطأ. انسخ الأسماء من الجدول أعلاه بالنسخ واللصق، لا بالكتابة اليدوية.
 2. **لا مسافات ولا سطر جديد** في نهاية القيمة. عند اللصق تأكد ألا تكون هناك مسافة مخفية في الطرف.
 3. **لا تضع علامات تنصيص** حول القيم. اكتب `https://abc.supabase.co` وليس `"https://abc.supabase.co"`.
-4. **فعّل البيئات الثلاث:** تحت كل متغير هناك خيارات `Production` و `Preview` و `Development` — تأكد أن **الثلاثة مؤشّرة** (أو على الأقل Production و Preview).
+4. **اجعل `SUPABASE_SECRET_KEY` سرّياً (Secret)** حتى لا يظهر في الواجهة ولا يُدمج في كود المتصفح.
 5. **لا تضف المفاتيح الحديثة والقديمة معاً.** إما `PUBLISHABLE_KEY`+`SECRET_KEY`، أو `ANON_KEY`+`SERVICE_ROLE_KEY`. الخلط يسبب سلوكاً غير متوقع.
+
+> ☁️ **Compatibility flags:** ملف `wrangler.jsonc` في المشروع يضبط `nodejs_compat`
+> تلقائياً. إن لم يُطبَّق، أضفه يدوياً من **Settings → Compatibility Flags**.
 
 ---
 
 ### الخطوة 10 — النشر
 
 1. راجع المتغيرات الخمسة مرة أخيرة.
-2. اضغط **Deploy**.
-3. ستشاهد سجل البناء يتحرك (Building…) — يستغرق **1 – 3 دقائق**.
-4. عند النجاح: ورق ملوّن 🎉 ولقطة شاشة لموقعك مع زر **Visit**.
+2. اضغط **Save and Deploy**.
+3. سترى سجل البناء (Building…) — يستغرق **2 – 4 دقائق**.
+4. عند النجاح: رابط `https://waathba.pages.dev` مع زر **Visit**.
 
 #### إذا فشل البناء (شاشة حمراء)
 
@@ -364,16 +369,16 @@ git push origin main      # أو ادمج فرع عملك في main أولاً
 | `Module not found` | حزمة ناقصة — تأكد أن `package-lock.json` مرفوع إلى GitHub |
 | `Error: متغيرات Supabase العامة غير مكتملة` | نسيت متغيراً أو أخطأت في اسمه — راجع الخطوة 9 |
 
-بعد أي إصلاح: ارفع التعديل على GitHub، وسينشر Vercel تلقائياً.
+بعد أي إصلاح: ارفع التعديل على GitHub، وستعيد Cloudflare النشر تلقائياً.
 
 ---
 
-### الخطوة 11 — الاختبار على رابط vercel.app
+### الخطوة 11 — الاختبار على رابط pages.dev
 
-افتح رابطك (لنفترض `https://wathbastore.vercel.app`).
+افتح رابطك (لنفترض `https://waathba.pages.dev`).
 
 > 🔑 **مهم جداً — لماذا نستخدم `?store=` الآن؟**
-> على نطاق `.vercel.app` لا يمكن استخدام نطاقات فرعية حقيقية. لذلك `middleware.ts` في مشروعك يحاكيها عبر باراميتر `?store=`. هذا مؤقت، وسيختفي بعد ربط نطاقك الحقيقي في الخطوة 12.
+> على نطاق `.pages.dev` لا يمكن استخدام نطاقات فرعية حقيقية. لذلك `middleware.ts` في مشروعك يحاكيها عبر باراميتر `?store=`. هذا مؤقت، وسيختفي بعد ربط نطاقك الحقيقي في الخطوة 12.
 
 | ما تختبره | الرابط | المتوقع |
 |---|---|---|
@@ -396,74 +401,65 @@ git push origin main      # أو ادمج فرع عملك في main أولاً
 
 ---
 
-### الخطوة 12 — ربط نطاقك `wathbastore.com` والـ Wildcard
+### الخطوة 12 — ربط نطاقك `waathba.com` والـ Wildcard
 
-هذه الخطوة تجعل `rshaf.wathbastore.com` يعمل مباشرة بلا `?store=`.
+هذه الخطوة تجعل `rshaf.waathba.com` يعمل مباشرة بلا `?store=`.
 
-> **تحتاج أولاً أن تكون مالكاً للنطاق `wathbastore.com`** (مشترى من Namecheap أو GoDaddy أو Vercel نفسها).
+> **تحتاج أولاً:** أن يكون النطاق `waathba.com` مضافاً إلى Cloudflare كمنطقة (Zone)
+> نشطة — أي أن Nameservers لدى مسجّل النطاق تشير إلى Cloudflare.
 
-#### ✅ استخدام نطاق غير `wathbastore.com`
+#### ✅ استخدام نطاق غير `waathba.com`
 
 تم تعديل المشروع ليقرأ الدومين الرئيسي من متغير البيئة تلقائياً. فإذا أردت استخدام نطاق آخر (مثلاً `mystore.sa`):
 
-1. غيّر المتغير في Vercel فقط:
+1. غيّر المتغير في Cloudflare فقط:
    ```
    NEXT_PUBLIC_MAIN_DOMAIN = mystore.sa
    ```
-2. أضف في Domains النطاقين: `mystore.sa` و `*.mystore.sa`
-3. **Redeploy** (إلزامي — متغيرات `NEXT_PUBLIC_` تُحقن وقت البناء).
+2. أضف النطاق `mystore.sa` كـ Custom Domain للعامل، واضبط `*.mystore.sa` (سجل DNS + Route).
+3. **أعد النشر** (إلزامي — متغيرات `NEXT_PUBLIC_` تُحقن وقت البناء).
 
 وستعمل مباشرةً `rshaf.mystore.sa` بلا أي تعديل على الكود.
 
 > اكتب الدومين **وحده**: `mystore.sa`
 > وليس `https://mystore.sa` ولا `mystore.sa/` — رغم أن الكود صار ينظّف هذه الصيغ تلقائياً، الأفضل كتابته نظيفاً.
 
-#### 12-أ) أضف النطاقين في Vercel
+#### 12-أ) أضف النطاق في Cloudflare
 
-1. في مشروعك على Vercel: **Settings** → **Domains**.
-2. اكتب `wathbastore.com` → **Add**.
-3. اكتب `*.wathbastore.com` → **Add**. ← **هذا السطر هو سرّ عمل متاجر العملاء. بدونه لن يعمل أي نطاق فرعي.**
-4. سيعرض Vercel تعليمات DNS.
+1. في لوحة Cloudflare: **Workers & Pages** → عامل `waathba` → **Settings → Domains & Routes**.
+2. أضف **Custom Domain**:
+   - `waathba.com`
+   - `www.waathba.com`
+   Cloudflare ينشئ سجلات DNS والشهادة تلقائياً.
 
-#### 12-ب) إعداد DNS — اختر طريقة
+#### 12-ب) إعداد النطاق العرضي `*.waathba.com`
 
-**الطريقة السهلة (موصى بها للمبتدئ): نقل الـ Nameservers إلى Vercel**
+> ⚠️ Cloudflare **لا تدعم wildcard في Custom Domains**. متاجر العملاء `name.waathba.com`
+> تحتاج أحد الحلين:
 
-1. Vercel سيعرض لك خادمي أسماء مثل:
-   `ns1.vercel-dns.com` و `ns2.vercel-dns.com`
-2. ادخل على موقع الشركة التي اشتريت منها النطاق.
-3. ابحث عن **Nameservers** / **Custom DNS** / **خوادم الأسماء**.
-4. احذف الموجود وضع خادمي Vercel.
-5. احفظ.
+**الحل الأسهل (Route + DNS):**
 
-✅ **لماذا هذه أسهل؟** لأن شهادة HTTPS للـ wildcard تحتاج تحققاً خاصاً، وVercel يتولاه كله تلقائياً عندما يملك الـ DNS.
+| الإجراء | تطبيقه |
+|---|---|
+| سجل DNS `CNAME` باسم `*` يشير إلى `waathba.com` (بروكسي - سحابة برتقالية) | DNS للمنطقة |
+| **Route** بنمط `*waathba.com/*` مع `zone_name: waathba.com` | Settings → Domains & Routes للعامل |
 
-**الطريقة الثانية: إبقاء DNS عند مزودك**
-
-ستضيف يدوياً سجلات مثل:
-- `A` للجذر `@` → `76.76.21.21`
-- `CNAME` للـ `*` → `cname.vercel-dns.com`
-- وسجل `CNAME` لـ `_acme-challenge` حسب ما يعرضه Vercel بالضبط ← **هذا مطلوب لشهادة الـ wildcard، ولا تتخطاه.**
-
-انسخ القيم من شاشة Vercel حرفياً، فهي قد تختلف عن المكتوب هنا.
+**الحل الأقوى (عامل Wildcard صغير):** عامل يمرر `x-forwarded-host` (التطبيق يقرأها)
+للتعرف على النطاق الفرعي — الكود الجاهز في `docs/DEPLOY_CLOUDFLARE_AR.md` القسم 5.
 
 #### 12-ج) انتظر
 
-انتشار الـ DNS يستغرق من **10 دقائق إلى 48 ساعة** (غالباً أقل من ساعة). ارجع لصفحة Domains وحدّثها حتى يتحول كلا النطاقين إلى **Valid Configuration** ✅ مع قفل HTTPS.
+إصدار شهادة HTTPS وإعداد السجلات يستغرق **من دقائق إلى ساعة**. حدّث صفحة Domains حتى تتحول إلى **Active**.
 
-#### 12-د) اجعله النطاق الأساسي
-
-في **Settings → Domains**، بجانب `wathbastore.com` اضغط القائمة (⋯) واختر جعله **Production domain**.
-
-#### 12-هـ) اختبر النهائي
+#### 12-د) اختبر النهائي
 
 | الرابط | المتوقع |
 |---|---|
-| `https://wathbastore.com` | الموقع العام |
-| `https://wathbastore.com/admin` | لوحة المالك |
-| `https://rshaf.wathbastore.com` | متجر كافيه رشف — **بلا `?store=`** |
-| `https://rshaf.wathbastore.com/admin` | لوحة عميل رشف |
-| `https://oud.wathbastore.com` | متجر عود وروائح |
+| `https://waathba.com` | الموقع العام |
+| `https://waathba.com/admin` | لوحة المالك |
+| `https://rshaf.waathba.com` | متجر كافيه رشف — **بلا `?store=`** |
+| `https://rshaf.waathba.com/admin` | لوحة عميل رشف |
+| `https://oud.waathba.com` | متجر عود وروائح |
 
 ---
 
@@ -476,24 +472,29 @@ git push origin main      # أو ادمج فرع عملك في main أولاً
 - ☐ نظّف جدول `store_credentials` من بيانات العرض.
 - ☐ راجع أسعار الباقات والعروض وروابط التواصل.
 - ☐ جرّب دورة كاملة: أنشئ متجراً حقيقياً جديداً من لوحة المالك → جهّزه → سلّمه → ادخل بحسابه.
-- ☐ راقب السجلات أول أسبوع: **Vercel → Logs** و **Supabase → Logs**.
-- ☐ ⚠️ **خطة Vercel Hobby مجانية لكنها للاستخدام غير التجاري.** إذا كنت ستبيع متاجر بمقابل مادي، رقِّ إلى **Pro**.
+- ☐ راقب السجلات أول أسبوع: **Cloudflare → Logs** و **Supabase → Logs**.
+- ☐ ⚠️ **الخطة المجانية في Cloudflare** تكفي للانطلاق والتجربة، لكن راجع خطتك
+  (Workers Paid) عند النمو أو الاستخدام التجاري المكثف.
 
 ---
 
 ## جدول حلّ المشاكل الشامل
 
-### 🔴 الموقع يعمل على جهازي لكنه فارغ على Vercel
-**السبب الأول عالمياً.** التطبيق لم يجد متغيرات Supabase فرجع للوضع المحلي (SQLite) الذي لا يعمل على Vercel.
-**الحل:** Settings → Environment Variables → تأكد من الخمسة، الأسماء مطابقة حرفياً، وبلا مسافات زائدة. ثم **Deployments → آخر نشر → (⋯) → Redeploy**.
+### 🔴 الموقع يعمل على جهازي لكنه فارغ على Cloudflare
+**السبب الأول عالمياً.** التطبيق لم يجد متغيرات Supabase فرجع للوضع المحلي (SQLite) الذي لا يعمل على Cloudflare.
+**الحل:** Workers & Pages → الإعدادات → Variables and Secrets → تأكد من الخمسة، الأسماء مطابقة حرفياً، وبلا مسافات زائدة. ثم **أعد نشر** (إعادة بناء).
 
 ### 🔴 عدّلت متغيراً ولم يتغير شيء
-المتغيرات تُحقن **وقت البناء**. أي تعديل يحتاج **Redeploy** يدوياً. لا يكفي تحديث الصفحة.
+المتغيرات تُحقن **وقت البناء**. أي تعديل يحتاج **إعادة نشر/بناء** يدوياً. لا يكفي تحديث الصفحة.
 
-### 🔴 سجلات Vercel تقول `Invalid path specified in request URL`
+### 🔴 رسالة «وضع Cloudflare Workers يتطلب Supabase»
+نسيت متغيرات Supabase (أو أحدها). أضف `NEXT_PUBLIC_SUPABASE_URL` و`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+و`SUPABASE_SECRET_KEY` ثم أعد النشر. الوضع المحلي SQLite خاص بالجهاز فقط.
+
+### 🔴 سجلات Cloudflare تقول `Invalid path specified in request URL`
 قيمة `NEXT_PUBLIC_SUPABASE_URL` تحوي مساراً (غالباً `/rest/v1` منسوخاً من نافذة Connect)، فتصل الاستعلامات
 إلى `/rest/v1/rest/v1/<table>` ويرفضها PostgREST بالرمز `PGRST125`.
-**الحل:** اجعل القيمة `https://abcdxyz.supabase.co` فقط — بلا مسار وبلا شرطة نهائية وبلا تنصيص وبلا أسطر جديدة — ثم **Redeploy**.
+**الحل:** اجعل القيمة `https://abcdxyz.supabase.co` فقط — بلا مسار وبلا شرطة نهائية وبلا تنصيص وبلا أسطر جديدة — ثم **أعد النشر**.
 (التطبيق يصحّح القيمة تلقائياً ويطبع تحذيراً في السجلات، لكن الأفضل تصحيح المتغير نفسه.)
 
 ### 🔴 تسجيل الدخول صحيح لكنه يعيدني لصفحة الدخول
@@ -522,20 +523,20 @@ select subdomain, status from public.stores;
 3. صور العرض في `public/seed` تُنشر مع التطبيق ولا علاقة لها بـ Supabase.
 
 ### 🔴 الـ Wildcard لا يعمل
-1. هل أضفت `*.wathbastore.com` **داخل مشروع Vercel**؟ سجل DNS وحده **لا يكفي**.
-2. هل حالة النطاق **Valid Configuration** مع شهادة HTTPS صادرة؟
-3. إن كان DNS خارجياً: هل أضفت سجل `_acme-challenge`؟
-4. هل قيمة `NEXT_PUBLIC_MAIN_DOMAIN` تطابق نطاقك بالضبط، وهل أعدت النشر بعد تغييرها؟
+1. هل أضفت سجل DNS `CNAME *` (بروكسي) وRoute بنمط `*waathba.com/*` (أو عامل الـ Wildcard)؟ سجل DNS وحده **لا يكفي** — Cloudflare لا تدعم wildcard في Custom Domains.
+2. هل حالة النطاق **Active** مع شهادة HTTPS صادرة؟
+3. هل قيمة `NEXT_PUBLIC_MAIN_DOMAIN` تطابق نطاقك بالضبط، وهل أعدت النشر بعد تغييرها؟
 
 ### 🔵 كيف أجرّب على جهازي قبل النشر؟
 في جذر المشروع ملف **`.env.local`** جاهز للتعبئة (وهو مُتجاهَل من Git، فلن يُرفع أبداً).
 
 - **تجربة محلية سريعة:** اتركه كما هو → يعمل بقاعدة SQLite داخلية ببيانات جاهزة.
-- **تجربة Supabase قبل Vercel:** املأ المتغيرات الثلاثة ثم أعد تشغيل `npm run dev`.
+- **تجربة Supabase قبل Cloudflare:** املأ المتغيرات الثلاثة ثم أعد تشغيل `npm run dev`.
+- **معاينة بيئة Workers محلياً:** `npm run cf-preview` (تعمل على `http://localhost:8787`).
 
 ```bash
 npm install
-npm run build   # ← شغّله دائماً قبل الرفع؛ يكشف الأخطاء قبل أن تفشل على Vercel
+npm run build   # ← شغّله دائماً قبل الرفع؛ يكشف الأخطاء قبل أن تفشل على Cloudflare
 npm run dev
 ```
 
@@ -552,6 +553,6 @@ npm run dev
 5. شغّل `0002_demo_data.sql` → البيانات التجريبية.
 6. انسخ المفاتيح الثلاثة من Settings → API Keys.
 7. ارفع الكود إلى `main` على GitHub.
-8. استورد المستودع في Vercel + أضف **5 متغيرات بيئة**.
+8. استورد المستودع في Cloudflare + أضف **5 متغيرات بيئة** (Build: `npm run cf-build`).
 9. Deploy → اختبر بـ `?store=rshaf`.
-10. أضف `wathbastore.com` **و** `*.wathbastore.com` في Domains → اضبط DNS → انتهى.
+10. أضف `waathba.com` كـ Custom Domain واضبط `*.waathba.com` (DNS + Route) → انتهى.

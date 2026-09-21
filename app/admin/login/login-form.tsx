@@ -54,7 +54,7 @@ export default function LoginForm({ kind }: { kind: "owner" | "client" }) {
               dir="ltr"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder={kind === "owner" ? "owner@wathbastore.com" : "client@email.com"}
+              placeholder={kind === "owner" ? "owner@waathba.com" : "client@email.com"}
               className="w-full rounded-xl border border-white/10 bg-ink-950/60 py-3 pr-10 pl-3 text-left text-sm text-white outline-none transition-colors placeholder:text-ink-600 focus:border-brand-400"
             />
           </div>

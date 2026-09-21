@@ -1,7 +1,7 @@
 // ============================================================
 // صفحة تسجيل الدخول:
-// - wathbastore.com/admin/login      → دخول المالك
-// - rshaf.wathbastore.com/admin/login → دخول صاحب المتجر
+// - waathba.com/admin/login      → دخول المالك
+// - rshaf.waathba.com/admin/login → دخول صاحب المتجر
 // ============================================================
 
 import type { Metadata } from "next";
@@ -39,7 +39,7 @@ export default async function LoginPage() {
             <p className="mt-2 text-sm text-ink-400">
               تسجيل دخول صاحب المتجر —{" "}
               <span className="font-mono text-xs" dir="ltr">
-                {store.subdomain}.wathbastore.com
+                {store.subdomain}.waathba.com
               </span>
             </p>
           </div>
@@ -74,7 +74,7 @@ export default async function LoginPage() {
               بيانات التجربة (الوضع المحلي)
             </p>
             <p className="mt-1" dir="ltr">
-              owner@wathbastore.com / Wathba#2026
+              owner@waathba.com / Wathba#2026
             </p>
             <p className="mt-2 text-[11px] text-ink-500">
               ولوحة العميل: rshaf@demo.com / Rshaf#2026 (على نطاق متجر رشف)

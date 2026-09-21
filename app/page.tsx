@@ -1,7 +1,7 @@
 // ============================================================
 // الصفحة الرئيسية:
-// - wathbastore.com        → الموقع العام (Landing)
-// - rshaf.wathbastore.com  → متجر العميل (أو ?store=rshaf في المعاينة)
+// - waathba.com        → الموقع العام (Landing)
+// - rshaf.waathba.com  → متجر العميل (أو ?store=rshaf في المعاينة)
 // ============================================================
 
 import type { Metadata } from "next";

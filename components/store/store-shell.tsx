@@ -40,7 +40,7 @@ export default function StoreShell({ bundle, query, navLinks, children }: Props)
           <p className="mt-8 text-xs text-ink-400">
             تطوير:{" "}
             <a href={devUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-ink-500 underline-offset-2 hover:underline">
-              WathbaStore
+              waathba.com
             </a>
           </p>
         </div>
@@ -112,7 +112,7 @@ export default function StoreShell({ bundle, query, navLinks, children }: Props)
                   rel="noopener noreferrer"
                   className="font-semibold text-ink-500 transition-colors hover:text-[var(--store-primary)]"
                 >
-                  WathbaStore
+                  waathba.com
                 </a>{" "}
                 · {mainDomain()}
               </p>
