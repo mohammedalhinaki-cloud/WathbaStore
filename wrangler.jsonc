@@ -1,0 +1,23 @@
+{
+  // ============================================================
+  // وثبة waathba.com — إعداد Cloudflare (OpenNext + Workers)
+  // عبر الأدوات الرسمية: opennextjs-cloudflare build / deploy
+  // ============================================================
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "waathba",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": [
+    // يتيح واجهات Node.js (node:sqlite, node:crypto, ...) وقت التشغيل
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  }
+  // ملاحظة حول النطاق العرضي (Wildcard) تحت *.waathba.com:
+  // أضِف النطاقات من لوحة Cloudflare → Workers & Pages → مشروعك → Settings
+  // → Domains & Routes (Custom Domains): waathba.com وwww.waathba.com
+  // وكل نطاق فرعي لمتجر (rshaf.waathba.com ...)، أو استخدم Worker مستقلا
+  // يمرر x-forwarded-host لمطابقة أي نطاق فرعي (انظر docs/DEPLOY_CLOUDFLARE_AR.md).
+}

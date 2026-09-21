@@ -23,7 +23,7 @@ export default async function NotFound() {
         >
           العودة للرئيسية
         </a>
-        <p className="mt-10 text-xs text-ink-400">تطوير: WathbaStore</p>
+        <p className="mt-10 text-xs text-ink-400">تطوير: waathba.com</p>
       </div>
     );
   }

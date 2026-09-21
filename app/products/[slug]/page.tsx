@@ -1,5 +1,5 @@
 // ============================================================
-// صفحة المنتج: rshaf.wathbastore.com/products/latte
+// صفحة المنتج: rshaf.waathba.com/products/latte
 // ============================================================
 
 import type { Metadata } from "next";

@@ -65,12 +65,12 @@ export function normalizeSupabaseUrl(raw: string | undefined | null): string | n
   return `${parsed.protocol}//${parsed.host}${path}`;
 }
 
-/** رسالة موحّدة تساعد على تصحيح المتغير في Vercel */
+/** رسالة موحّدة تساعد على تصحيح المتغير في منصة النشر */
 function invalidUrlError(): Error {
   return new Error(
     "NEXT_PUBLIC_SUPABASE_URL غير صالح. القيمة الصحيحة هي رابط المشروع فقط، مثال: " +
       "https://xxxxxxxxxxxx.supabase.co — بدون مسار /rest/v1 وبدون علامات تنصيص وبدون مسافات. " +
-      "صحّح القيمة في Vercel ثم نفّذ Redeploy (قيم NEXT_PUBLIC_ تُدمج وقت البناء)."
+      "صحّح القيمة في منصة النشر (Cloudflare) ثم أعد النشر (قيم NEXT_PUBLIC_ تُدمج وقت البناء)."
   );
 }
 
@@ -115,9 +115,9 @@ export function supabaseSecretKey(): string | undefined {
  * هل وضع Supabase مُهيّأ؟ (يكفي وجود القيمتين — نفس الدلالة السابقة).
  *
  * ملاحظة مقصودة: لا نُرجع false عند وجود رابط غير قابل للتفسير، لأن الرجوع
- * حينها إلى الوضع المحلي (SQLite) يفشل على Vercel أصلًا (نظام ملفات للقراءة فقط)
- * ويُخفي السبب. الأفضل: نُبقي وضع Supabase ونطبع سببًا واضحًا هنا، ثم يرمي
- * supabaseUrl() رسالة صريحة تُسمّي المتغير عند أول استعلام.
+ * حينها إلى الوضع المحلي (SQLite) يفشل على Cloudflare Workers أصلًا (لا نظام
+ * ملفات قابلًا للكتابة) ويُخفي السبب. الأفضل: نُبقي وضع Supabase ونطبع سببًا
+ * واضحًا هنا، ثم يرمي supabaseUrl() رسالة صريحة تُسمّي المتغير عند أول استعلام.
  */
 export function isSupabaseConfigured(): boolean {
   const raw = process.env.NEXT_PUBLIC_SUPABASE_URL;

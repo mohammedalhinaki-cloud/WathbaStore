@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
 const nextConfig: NextConfig = {
   images: {
@@ -11,3 +12,6 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+// تكامل بيئة التطوير المحلية مع Cloudflare (bindings ...) أثناء next dev
+initOpenNextCloudflareForDev();

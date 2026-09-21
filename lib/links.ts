@@ -7,7 +7,7 @@ import { getTenant } from "./tenant";
 
 /**
  * رابط متجه لمتجر:
- * - على الدومين الحقيقي: rshaf.wathbastore.com/path
+ * - على الدومين الحقيقي: rshaf.waathba.com/path
  * - في المعاينة/التطوير: /path?store=rshaf
  */
 export async function storeHref(subdomain: string, path = "/"): Promise<string> {

@@ -1,6 +1,6 @@
 // ============================================================
 // وثبة — الصفحة الرئيسية العامة (Landing Page)
-// تُعرض على wathbastore.com فقط — لا يظهر فيها أي شيء عن لوحة الإدارة
+// تُعرض على waathba.com فقط — لا يظهر فيها أي شيء عن لوحة الإدارة
 // ============================================================
 
 import Image from "next/image";
@@ -171,7 +171,7 @@ export default async function LandingPage() {
             </p>
             <ul className="mt-6 space-y-3">
               {[
-                "كل متجر على نطاق فرعي مستقل: name.wathbastore.com",
+                "كل متجر على نطاق فرعي مستقل: name.waathba.com",
                 "تصميم ومنتجات وSEO أجهزها أنا قبل التسليم",
                 "لوحة تحكم مستقلة لكل عميل بعد التسليم",
               ].map((t) => (
@@ -490,9 +490,9 @@ export default async function LandingPage() {
           </div>
         </div>
         <div className="border-t border-white/10 py-5 text-center text-xs text-ink-500">
-          © {new Date().getFullYear()} وثبة WathbaStore — جميع الحقوق محفوظة ·{" "}
+          © {new Date().getFullYear()} وثبة waathba.com — جميع الحقوق محفوظة ·{" "}
           <a href={devUrl} target="_blank" rel="noopener noreferrer" className="text-ink-400 hover:text-white">
-            wathbastore.com
+            waathba.com
           </a>
         </div>
       </footer>

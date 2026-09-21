@@ -1,5 +1,5 @@
 -- ============================================================
--- وثبة WathbaStore — بيانات العرض التجريبية لـ Supabase
+-- وثبة waathba.com — بيانات العرض التجريبية لـ Supabase
 -- ============================================================
 -- المتطلب السابق: تشغيل 0001_init.sql.
 --
@@ -166,7 +166,7 @@ values
     'rshaf_cafe',
     'https://tiktok.com/@rshaf.cafe',
     '',
-    'https://wathbastore.com',
+    'https://waathba.com',
     'كافيه رشف | القهوة والحلويات',
     'قهوة مختصة، مشروبات باردة، وحلويات طازجة في كافيه رشف. اطلب الآن عبر واتساب.',
     'قهوة, لاتيه, حلويات, كافيه رشف, قهوة مختصة',
@@ -187,7 +187,7 @@ values
     'oud_roua3',
     '',
     '',
-    'https://wathbastore.com',
+    'https://waathba.com',
     'عود وروائح | عطور وعود فاخر',
     'تشكيلة فاخرة من العود والعطور الأصلية. جودة مضمونة وتسليم سريع.',
     'عود, عطور, عود تايلاند, عطر فاخر',
@@ -208,7 +208,7 @@ values
     '',
     '',
     '',
-    'https://wathbastore.com',
+    'https://waathba.com',
     'دار رشف للحلويات',
     'حلويات فاخرة ومخبوزات يومية.',
     '',
@@ -502,12 +502,12 @@ insert into public.site_settings (
 values (
   1,
   '966500000000',
-  'https://wathbastore.com',
+  'https://waathba.com',
   'وثبة منصة متكاملة لإنشاء متاجر إلكترونية للعملاء: أنشئ، صمّم، جهّز المنتجات، اضبط SEO، وسلّم المتجر على نطاق فرعي خاص — ثم يدير العميل متجره بنفسه من لوحة تحكم مستقلة.',
   'متجرك الإلكتروني… بوثبة واحدة',
-  'أبني لك متجرًا إلكترونيًا متكاملًا على نطاق خاص بك مثل rshaf.wathbastore.com — أنشئه وأجهّزه بالكامل وأسلّمه جاهزًا، وأنت تديره من لوحة تحكمك.',
+  'أبني لك متجرًا إلكترونيًا متكاملًا على نطاق خاص بك مثل rshaf.waathba.com — أنشئه وأجهّزه بالكامل وأسلّمه جاهزًا، وأنت تديره من لوحة تحكمك.',
   '[
-    {"title":"نطاق فرعي خاص","desc":"كل متجر على نطاق مستقل: name.wathbastore.com — بدون شراء دومين."},
+    {"title":"نطاق فرعي خاص","desc":"كل متجر على نطاق مستقل: name.waathba.com — بدون شراء دومين."},
     {"title":"تصميم بهوية متجرك","desc":"قوالب، خطوط، وألوان قابلة للتخصيص بالكامل."},
     {"title":"الطلب عبر واتساب","desc":"زر طلب ذكي برسالة جاهزة تتضمن اسم المنتج وسعره."},
     {"title":"SEO محلي","desc":"عناوين ووصف وكلمات مفتاحية عربية محسّنة لكل متجر."},
@@ -515,15 +515,15 @@ values (
     {"title":"لوحة تحكم للعميل","desc":"يدير العميل بنفسه المنتجات والأقسام والأسعار والصور."}
   ]'::jsonb,
   '[
-    {"q":"هل أحتاج إلى شراء دومين منفصل لمتجري؟","a":"لا. يحصل متجرك على نطاق فرعي مثل name.wathbastore.com، ويمكنك ربط دومين خاص لاحقًا إذا رغبت."},
+    {"q":"هل أحتاج إلى شراء دومين منفصل لمتجري؟","a":"لا. يحصل متجرك على نطاق فرعي مثل name.waathba.com، ويمكنك ربط دومين خاص لاحقًا إذا رغبت."},
     {"q":"كيف أطلب المتجر؟","a":"تواصل معي عبر زر واتساب في الموقع، وسأتولى إنشاء متجرك وتجهيزه بالكامل."},
     {"q":"هل أستطيع إدارة متجري بنفسي؟","a":"نعم. بعد التسليم تحصل على لوحة تحكم مستقلة تضيف من خلالها المنتجات وتعدّل الأسعار والصور."},
     {"q":"كيف يتم التسليم؟","a":"بعد اكتمال التجهيز والاختبار، أُنشئ لك حسابًا وأرسل لك بيانات الدخول ورابط متجرك."},
     {"q":"هل الطلبات عبر واتساب؟","a":"نعم. عندما يضغط الزبون «اطلب عبر واتساب» تصلك رسالة باسم المنتج وسعره مباشرة."}
   ]'::jsonb,
-  'https://instagram.com/wathbastore',
-  'wathbastore',
-  'https://tiktok.com/@wathbastore',
+  'https://instagram.com/waathba',
+  'waathba',
+  'https://tiktok.com/@waathba',
   now()
 )
 on conflict (id) do update set
@@ -675,7 +675,7 @@ values
     'كافيه رشف',
     'متجر قهوة مختصة وحلويات بقالب عصري وألوان دافئة.',
     '/seed/rshaf-cover.jpg',
-    'https://rshaf.wathbastore.com',
+    'https://rshaf.waathba.com',
     'قهوة, حلويات, متجر طعام',
     true,
     0,
@@ -686,7 +686,7 @@ values
     'عود وروائح',
     'متجر عطور وعود فاخر بهوية كلاسيكية راقية.',
     '/seed/portfolio-perfume.jpg',
-    'https://oud.wathbastore.com',
+    'https://oud.waathba.com',
     'عطور, عود, متجر فاخر',
     true,
     1,
@@ -718,7 +718,7 @@ select
   null,
   coalesce(
     (select email from public.profiles where role = 'owner' order by created_at limit 1),
-    'owner@wathbastore.com'
+    'owner@waathba.com'
   ),
   'store.created',
   '{"store":"10000000-0000-4000-8000-000000000003","name":"دار رشف للحلويات"}'::jsonb,
@@ -743,7 +743,7 @@ select
   null,
   coalesce(
     (select email from public.profiles where role = 'owner' order by created_at limit 1),
-    'owner@wathbastore.com'
+    'owner@waathba.com'
   ),
   'product.created',
   '{"name":"كيك الشوكولاتة"}'::jsonb,
@@ -769,7 +769,7 @@ select
   null,
   coalesce(
     (select email from public.profiles where role = 'owner' order by created_at limit 1),
-    'owner@wathbastore.com'
+    'owner@waathba.com'
   ),
   'store.delivered',
   jsonb_build_object('subdomain', demo.subdomain),

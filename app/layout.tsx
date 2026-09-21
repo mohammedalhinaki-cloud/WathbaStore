@@ -15,16 +15,16 @@ import "@fontsource/ibm-plex-sans-arabic/600.css";
 import "@fontsource/ibm-plex-sans-arabic/700.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://wathbastore.com"),
+  metadataBase: new URL("https://waathba.com"),
   title: {
-    default: "وثبة | WathbaStore — متجرك الإلكتروني بثبة واحدة",
+    default: "وثبة | waathba.com — متجرك الإلكتروني بثبة واحدة",
     template: "%s | وثبة",
   },
   description:
     "منصة وثبة أنشئ بها متجرًا إلكترونيًا متكاملًا على نطاق فرعي خاص بك — تصميم، منتجات، SEO، وتسليم جاهز للإدارة.",
-  keywords: ["متاجر إلكترونية", "وثبة", "WathbaStore", "إنشاء متاجر", "متجر إلكتروني"],
+  keywords: ["متاجر إلكترونية", "وثبة", "waathba.com", "إنشاء متاجر", "متجر إلكتروني"],
   openGraph: {
-    title: "وثبة | WathbaStore",
+    title: "وثبة | waathba.com",
     description: "متجرك الإلكتروني بثبة واحدة — أنشئه وأجهزه وسلّمه جاهزًا.",
     locale: "ar_SA",
     type: "website",

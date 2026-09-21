@@ -1,12 +1,17 @@
 {
-  "name": "wathbastore",
+  "name": "waathba",
   "version": "1.0.0",
   "private": true,
-  "description": "وثبة WathbaStore — منصة إنشاء وتجهيز وتسليم المتاجر الإلكترونية على نطاقات فرعية (Multi-Tenant)",
+  "description": "وثبة waathba.com — منصة إنشاء وتجهيز وتسليم المتاجر الإلكترونية على نطاقات فرعية (Multi-Tenant)",
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
-    "start": "next start -H 0.0.0.0 -p 3000"
+    "start": "next start -H 0.0.0.0 -p 3000",
+    "cf-build": "opennextjs-cloudflare build",
+    "cf-preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "cf-deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "cf-upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
     "@fontsource/almarai": "^5.2.5",
@@ -24,11 +29,13 @@
     "zod": "^3.25.0"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.0.0",
     "@tailwindcss/postcss": "^4.1.0",
     "@types/node": "^22.15.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "tailwindcss": "^4.1.0",
-    "typescript": "^5.8.0"
+    "typescript": "^5.8.0",
+    "wrangler": "^4.0.0"
   }
 }

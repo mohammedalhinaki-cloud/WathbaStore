@@ -1,5 +1,5 @@
 // ============================================================
-// صفحة نصية للمتجر: rshaf.wathbastore.com/pages/about
+// صفحة نصية للمتجر: rshaf.waathba.com/pages/about
 // ============================================================
 
 import type { Metadata } from "next";

@@ -1,17 +1,20 @@
 // ============================================================
-// وثبة WathbaStore — ثوابت عامة
+// وثبة — ثوابت عامة
 // ============================================================
 
 import type { StoreStatus } from "./types";
 import { STORE_STATUS_LABELS } from "./types";
 
 export const APP_NAME = "وثبة";
-export const APP_EN = "WathbaStore";
+export const APP_EN = "waathba.com";
+
+/** النطاق الافتراضي للمنصة إن لم يُضبط NEXT_PUBLIC_MAIN_DOMAIN */
+export const DEFAULT_MAIN_DOMAIN = "waathba.com";
 
 /**
  * الدومين الرئيسي للمنصة، مقروءًا من NEXT_PUBLIC_MAIN_DOMAIN.
  * يُنظَّف من البروتوكول والمسار والمنفذ والنقاط الزائدة حتى يعمل
- * حتى لو كتب المستخدم القيمة بصيغة مثل "https://wathbastore.com/".
+ * حتى لو كتب المستخدم القيمة بصيغة مثل "https://waathba.com/".
  */
 export function mainDomain(): string {
   const raw = (process.env.NEXT_PUBLIC_MAIN_DOMAIN || "").trim().toLowerCase();
@@ -20,7 +23,7 @@ export function mainDomain(): string {
     .replace(/\/.*$/, "")
     .replace(/:\d+$/, "")
     .replace(/^\.+|\.+$/g, "");
-  return cleaned || "wathbastore.com";
+  return cleaned || DEFAULT_MAIN_DOMAIN;
 }
 
 export function developerUrl(fallback?: string | null): string {
@@ -43,7 +46,7 @@ export const RESERVED_SUBDOMAINS = [
   "new", "create", "add", "test", "testing", "demo", "dev", "development",
   "staging", "preview", "beta", "sandbox",
   "media", "img", "images", "files", "uploads", "storage",
-  "wathba", "wathbastore", "system", "root", "default", "home", "main",
+  "wathba", "wathbastore", "waathba", "system", "root", "default", "home", "main",
   "portal", "dashboard", "dashboard2", "internal", "private", "secure",
   "status", "monitor", "metrics", "logs", "analytics", "stats",
   "marketing", "sales", "hr", "finance", "legal", "privacy", "terms",

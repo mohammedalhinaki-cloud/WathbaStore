@@ -1,6 +1,6 @@
 // ============================================================
 // وثبة — إعدادات المتجر: روابط التواصل + رابط المطور + لون الفوتر + حسابات IBAN
-// (رابط المطور = DEVELOPER_URL — يغيّر توقيع «تطوير: WathbaStore»)
+// (رابط المطور = DEVELOPER_URL — يغيّر توقيع «تطوير: waathba.com»)
 // ============================================================
 
 "use client";
@@ -154,7 +154,7 @@ export default function StoreSettingsForm({ store, settings }: Props) {
       <Card>
         <h3 className="mb-1 font-extrabold text-ink-900">رابط الموقع المطور</h3>
         <p className="mb-5 text-xs text-ink-400">
-          يظهر أسفل المتجر: «تطوير: WathbaStore» — الرابط يُفتح في تبويب جديد.
+          يظهر أسفل المتجر: «تطوير: waathba.com» — الرابط يُفتح في تبويب جديد.
           (قيمة واحدة تُغيَّر هنا أو عبر متغير DEVELOPER_URL)
         </p>
         <Field label="DEVELOPER_URL">
