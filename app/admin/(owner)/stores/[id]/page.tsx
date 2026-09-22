@@ -11,7 +11,9 @@ import { mainDomain, formatDateShort } from "@/lib/constants";
 import { StatusBadge } from "@/components/admin/ui";
 import BuilderNav from "@/components/admin/builder-nav";
 import StoreInfoForm from "@/components/admin/store-info-form";
-import { Eye, ExternalLink, Gift } from "lucide-react";
+import SubdomainManager from "@/components/admin/subdomain-manager";
+import StorageHealthCard from "@/components/admin/storage-health-card";
+import { Eye, ExternalLink, Gift, LayoutDashboard } from "lucide-react";
 
 export const metadata: Metadata = { title: "إدارة متجر" };
 
@@ -32,6 +34,10 @@ export default async function StoreOverviewPage({
   const previewUrl = isRealHost
     ? `https://${store.subdomain}.${mainDomain()}`
     : `/?store=${store.subdomain}`;
+  // لوحة المتجر بنفس واجهة صاحب المتجر (المالك الرئيسي يملك كل الوظائف فيها)
+  const panelUrl = isRealHost
+    ? `https://${store.subdomain}.${mainDomain()}/admin`
+    : `/admin?store=${store.subdomain}`;
 
   return (
     <div>
@@ -55,7 +61,7 @@ export default async function StoreOverviewPage({
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <a
             href={previewUrl}
             target="_blank"
@@ -64,6 +70,15 @@ export default async function StoreOverviewPage({
           >
             <Eye className="h-4 w-4" />
             معاينة المتجر
+          </a>
+          <a
+            href={panelUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-extrabold text-white hover:bg-brand-700"
+          >
+            <LayoutDashboard className="h-4 w-4" />
+            لوحة المتجر
           </a>
           <Link
             href={`/admin/stores/${store.id}/delivery`}
@@ -80,6 +95,8 @@ export default async function StoreOverviewPage({
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <StoreInfoForm store={store} settings={settings} />
+          {/* تغيير النطاق الفرعي من داخل المتجر — يعمل لأي حالة (منها المسلّم) */}
+          <SubdomainManager store={store} />
         </div>
 
         <div className="space-y-4">
@@ -94,8 +111,8 @@ export default async function StoreOverviewPage({
                 </a>
               </li>
               <li>
-                <span className="block text-xs font-bold text-ink-400">لوحة العميل</span>
-                <a href={previewUrl.replace(/\/?$/, "") + "/admin"} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 font-mono text-xs font-bold text-brand-600 hover:underline" dir="ltr">
+                <span className="block text-xs font-bold text-ink-400">لوحة المتجر (نفس واجهة صاحب المتجر)</span>
+                <a href={panelUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 font-mono text-xs font-bold text-brand-600 hover:underline" dir="ltr">
                   {store.subdomain}.{mainDomain()}/admin
                   <ExternalLink className="h-3 w-3" />
                 </a>
@@ -108,6 +125,8 @@ export default async function StoreOverviewPage({
               </p>
             </div>
           </div>
+
+          <StorageHealthCard storeId={store.id} />
 
           <div className="rounded-2xl border border-ink-150 bg-white p-5 shadow-sm">
             <h3 className="mb-3 font-extrabold text-ink-900">التالي في الجولة</h3>

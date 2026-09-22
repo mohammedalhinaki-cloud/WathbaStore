@@ -4,6 +4,7 @@
 
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { sharedCookieDomain } from "../constants";
 import {
   isSupabaseConfigured,
   normalizeSupabaseUrl,
@@ -22,7 +23,7 @@ export { isSupabaseConfigured, normalizeSupabaseUrl, supabaseUrl };
  * كل استعلام يمر عبر RLS.
  */
 export async function supabaseServer(): Promise<SupabaseClient> {
-  const { cookies } = await import("next/headers");
+  const { cookies, headers } = await import("next/headers");
   const cookieStore = await cookies();
   const key = supabasePublicKey();
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !key) {
@@ -30,10 +31,24 @@ export async function supabaseServer(): Promise<SupabaseClient> {
   }
   const url = supabaseUrl();
 
+  // نطاق الكوكي المشترك: waathba.com ⇄ rshaf.waathba.com ⇄ أي متجر آخر.
+  // على المعاينة/التطوير يعود undefined فتبقى الكوكي على المضيف الحالي.
+  let host = "";
+  try {
+    const h = await headers();
+    host = h.get("x-forwarded-host")?.split(",")[0]?.trim() || h.get("host") || "";
+  } catch {
+    // خارج نطاق طلب (بناء/توليد) — تبقى الكوكي على المضيف الحالي
+  }
+  const domain = sharedCookieDomain(host);
+
   return createServerClient(
     url,
     key,
     {
+      cookieOptions: domain
+        ? { domain, path: "/", sameSite: "lax", secure: true, httpOnly: false }
+        : undefined,
       cookies: {
         getAll() {
           return cookieStore.getAll();

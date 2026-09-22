@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { services } from "@/lib/services";
-import { ok, badRequest, requireStoreActor } from "@/lib/api-utils";
+import { ok, badRequest, requireStoreActor, serverError } from "@/lib/api-utils";
 import { z } from "zod";
 
 const SCHEMA = z.object({
@@ -30,40 +30,48 @@ export async function PATCH(
   req: NextRequest,
   ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await ctx.params;
-  const page = await findPage(id);
-  if (!page) return badRequest("الصفحة غير موجودة");
-  const actor = await requireStoreActor(page.storeId);
-  if (actor instanceof NextResponse) return actor;
+  try {
+    const { id } = await ctx.params;
+    const page = await findPage(id);
+    if (!page) return badRequest("الصفحة غير موجودة");
+    const actor = await requireStoreActor(page.storeId);
+    if (actor instanceof NextResponse) return actor;
 
-  const parsed = SCHEMA.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return badRequest("بيانات غير صالحة");
-  const updated = await services().updatePage(id, parsed.data);
-  await services().logActivity(
-    { id: actor.id, email: actor.email },
-    page.storeId,
-    "page.updated",
-    { title: updated.title }
-  );
-  return ok({ page: updated });
+    const parsed = SCHEMA.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) return badRequest("بيانات غير صالحة");
+    const updated = await services().updatePage(id, parsed.data);
+    await services().logActivity(
+      { id: actor.id, email: actor.email },
+      page.storeId,
+      "page.updated",
+      { title: updated.title }
+    );
+    return ok({ page: updated });
+  } catch (e) {
+    return serverError(e);
+  }
 }
 
 export async function DELETE(
   _req: NextRequest,
   ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await ctx.params;
-  const page = await findPage(id);
-  if (!page) return badRequest("الصفحة غير موجودة");
-  const actor = await requireStoreActor(page.storeId);
-  if (actor instanceof NextResponse) return actor;
+  try {
+    const { id } = await ctx.params;
+    const page = await findPage(id);
+    if (!page) return badRequest("الصفحة غير موجودة");
+    const actor = await requireStoreActor(page.storeId);
+    if (actor instanceof NextResponse) return actor;
 
-  await services().deletePage(id);
-  await services().logActivity(
-    { id: actor.id, email: actor.email },
-    page.storeId,
-    "page.deleted",
-    { title: page.title }
-  );
-  return ok({ ok: true });
+    await services().deletePage(id);
+    await services().logActivity(
+      { id: actor.id, email: actor.email },
+      page.storeId,
+      "page.deleted",
+      { title: page.title }
+    );
+    return ok({ ok: true });
+  } catch (e) {
+    return serverError(e);
+  }
 }

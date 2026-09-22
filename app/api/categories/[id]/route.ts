@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { services } from "@/lib/services";
-import { ok, badRequest, requireStoreActor } from "@/lib/api-utils";
+import { ok, badRequest, requireStoreActor, serverError } from "@/lib/api-utils";
 import { z } from "zod";
 
 const SCHEMA = z.object({
@@ -19,46 +19,54 @@ export async function PATCH(
   req: NextRequest,
   ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await ctx.params;
-  const svc = services();
-  const list = await listAll();
-  const cat = list.find((c) => c.id === id);
-  if (!cat) return badRequest("القسم غير موجود");
-  const actor = await requireStoreActor(cat.storeId);
-  if (actor instanceof NextResponse) return actor;
+  try {
+    const { id } = await ctx.params;
+    const svc = services();
+    const list = await listAll();
+    const cat = list.find((c) => c.id === id);
+    if (!cat) return badRequest("القسم غير موجود");
+    const actor = await requireStoreActor(cat.storeId);
+    if (actor instanceof NextResponse) return actor;
 
-  const parsed = SCHEMA.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return badRequest("بيانات غير صالحة");
-  const category = await svc.updateCategory(id, parsed.data);
-  await svc.logActivity(
-    { id: actor.id, email: actor.email },
-    cat.storeId,
-    "category.updated",
-    { name: category.name }
-  );
-  return ok({ category });
+    const parsed = SCHEMA.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) return badRequest("بيانات غير صالحة");
+    const category = await svc.updateCategory(id, parsed.data);
+    await svc.logActivity(
+      { id: actor.id, email: actor.email },
+      cat.storeId,
+      "category.updated",
+      { name: category.name }
+    );
+    return ok({ category });
+  } catch (e) {
+    return serverError(e);
+  }
 }
 
 export async function DELETE(
   _req: NextRequest,
   ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await ctx.params;
-  const svc = services();
-  const list = await listAll();
-  const cat = list.find((c) => c.id === id);
-  if (!cat) return badRequest("القسم غير موجود");
-  const actor = await requireStoreActor(cat.storeId);
-  if (actor instanceof NextResponse) return actor;
+  try {
+    const { id } = await ctx.params;
+    const svc = services();
+    const list = await listAll();
+    const cat = list.find((c) => c.id === id);
+    if (!cat) return badRequest("القسم غير موجود");
+    const actor = await requireStoreActor(cat.storeId);
+    if (actor instanceof NextResponse) return actor;
 
-  await svc.deleteCategory(id);
-  await svc.logActivity(
-    { id: actor.id, email: actor.email },
-    cat.storeId,
-    "category.deleted",
-    { name: cat.name }
-  );
-  return ok({ ok: true });
+    await svc.deleteCategory(id);
+    await svc.logActivity(
+      { id: actor.id, email: actor.email },
+      cat.storeId,
+      "category.deleted",
+      { name: cat.name }
+    );
+    return ok({ ok: true });
+  } catch (e) {
+    return serverError(e);
+  }
 }
 
 // جميع الأقسام (المالك يرى كل شيء عبر RLS؛ في الوضع المحلي نقراء مباشرة)

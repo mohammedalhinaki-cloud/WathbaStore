@@ -8,6 +8,8 @@
 // ⚠️ لا تستخدم هنا next/headers حتى يبقى الملف صالحًا لمكوّنات العميل.
 // ============================================================
 
+import { mainDomain } from "./constants";
+
 /** معامل الاستعلام الخاص بالمتجر: "?store=rshaf" أو "" على النطاق الحقيقي */
 export type StoreQuery = string;
 
@@ -44,4 +46,20 @@ export function storeFromSearch(search: string | null | undefined): string | nul
   } catch {
     return null;
   }
+}
+
+/**
+ * رابط لوحة المالك الرئيسي من داخل لوحة متجر:
+ *   - على نطاق الموقع (waathba.com)         → "/admin"
+ *   - على نطاق متجر (rshaf.waathba.com)     → "https://waathba.com/admin"
+ *   - في وضع المعاينة (نطاق واحد + ?store=) → "/admin" (بدون المعامل
+ *     ليُفسَّر كموقع رئيسي = لوحة المالك)
+ */
+export function ownerPanelHref(): string {
+  if (typeof window === "undefined") return "/admin";
+  const host = window.location.host.replace(/:\d+$/, "").toLowerCase();
+  const domain = mainDomain();
+  if (host === domain || host === `www.${domain}`) return "/admin";
+  if (host.endsWith(`.${domain}`)) return `https://${domain}/admin`;
+  return "/admin";
 }

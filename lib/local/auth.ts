@@ -6,6 +6,7 @@ import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypt
 import fs from "node:fs";
 import path from "node:path";
 import type { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
+import { sharedCookieDomain } from "../constants";
 
 const DATA_DIR = path.join(process.cwd(), ".data");
 
@@ -70,13 +71,22 @@ export function verifySession(token: string): { uid: string } | null {
   }
 }
 
-export function sessionCookieOptions() {
+/**
+ * خيارات كوكي الجلسة في الوضع التجريبي.
+ * `host` هو مضيف الطلب: على النطاق الحقيقي تُكتب الكوكي على النطاق الأب
+ * (`.waathba.com`) ليعمل الدخول على كل النطاقات الفرعية، وعلى المعاينة
+ * المحلية تبقى كما هي.
+ */
+export function sessionCookieOptions(host?: string | null) {
+  const domain = sharedCookieDomain(host);
+  const secure = domain ? true : process.env.NODE_ENV === "production" && !isLocalhost();
   return {
     httpOnly: true,
     sameSite: "lax" as const,
-    secure: process.env.NODE_ENV === "production" && !isLocalhost(),
+    secure,
     maxAge: 7 * 24 * 60 * 60,
     path: "/",
+    ...(domain ? { domain } : {}),
   };
 }
 

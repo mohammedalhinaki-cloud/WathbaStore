@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { services } from "@/lib/services";
 import { mainDomain } from "@/lib/constants";
 import { PageHeader, StatusBadge, Card } from "@/components/admin/ui";
-import SubdomainManager from "./subdomain-manager";
+import SubdomainManager from "@/components/admin/subdomain-manager";
 
 export const metadata: Metadata = { title: "النطاقات الفرعية" };
 

@@ -1,11 +1,18 @@
 // ============================================================
 // وثبة — حقل رفع صورة (متعددة) مع معاينة
+//
+// ملاحظة تشخيصية مهمة: كان الحقل يعرض «فشل الرفع» في كل حالة لا يعود
+// فيها الخادم برد JSON يحوي error — وأكثر حالاتها استجابة 500 فارغة من
+// خطأ غير ملتقط في الخادم. الآن:
+//   • نقرأ النص أولًا ثم نحاول تحليله JSON (لا نفترض الشكل).
+//   • نعرض رمز HTTP ورسالة الخادم الحقيقية ورمز الخطأ التقني.
+//   • الحذف (زر ×) يحذف الصورة من التخزين أيضًا (استبدال/تنظيف حقيقي).
 // ============================================================
 
 "use client";
 
 import { useRef, useState } from "react";
-import { ImagePlus, X, Loader2 } from "lucide-react";
+import { ImagePlus, X, Loader2, AlertTriangle } from "lucide-react";
 
 interface Props {
   storeId: string;
@@ -15,6 +22,12 @@ interface Props {
   onChange: (urls: string[]) => void;
   hint?: string;
   maxSize?: number;
+}
+
+interface ApiError {
+  error?: string;
+  code?: string;
+  detail?: string;
 }
 
 export default function UploadField({
@@ -29,11 +42,24 @@ export default function UploadField({
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+
+  async function readResponse(res: Response): Promise<ApiError> {
+    const text = await res.text().catch(() => "");
+    if (!text) return {};
+    try {
+      const parsed = JSON.parse(text) as ApiError;
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
     setError(null);
+    setErrorCode(null);
     setUploading(true);
     try {
       const urls = [...value];
@@ -46,22 +72,54 @@ export default function UploadField({
         form.append("storeId", storeId);
         form.append("folder", folder);
         form.append("file", file);
-        const res = await fetch("/api/upload", { method: "POST", body: form });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error ?? "فشل الرفع");
-        urls.push(data.url as string);
+        let res: Response;
+        try {
+          res = await fetch("/api/upload", { method: "POST", body: form });
+        } catch {
+          setError("تعذر الاتصال بالخادم — تحقق من الشبكة ثم أعد المحاولة");
+          setErrorCode("network");
+          continue;
+        }
+        const data = await readResponse(res);
+        if (!res.ok) {
+          setError(
+            data.error
+              ? `${data.error}${data.detail ? ` — ${data.detail}` : ""}`
+              : `فشل الرفع — استجابة غير متوقعة من الخادم (HTTP ${res.status})`
+          );
+          setErrorCode(data.code ?? `http_${res.status}`);
+          continue;
+        }
+        if (!data.error && "url" in data && typeof (data as { url?: string }).url === "string") {
+          urls.push((data as { url: string }).url);
+        } else {
+          setError("لم يُرجع الخادم رابط الصورة — أعد المحاولة");
+          setErrorCode("no_url");
+        }
       }
       onChange(urls);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "فشل رفع الصورة");
+      setError(e instanceof Error ? e.message : "فشل الرفع");
+      setErrorCode("unexpected");
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
     }
   }
 
-  function removeAt(i: number) {
+  async function removeAt(i: number) {
+    const url = value[i];
     onChange(value.filter((_, idx) => idx !== i));
+    // تنظيف فعلي: نحذف الكائن من التخزين إن كان من مرفوعاتنا (لا يعطّل الواجهة)
+    try {
+      await fetch("/api/upload", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ storeId, url }),
+      });
+    } catch {
+      /* تجاهل: الحذف من السجل تم أصلًا */
+    }
   }
 
   return (
@@ -115,9 +173,10 @@ export default function UploadField({
               )}
               <button
                 type="button"
+                title="حذف الصورة من التخزين"
                 onClick={(e) => {
                   e.stopPropagation();
-                  removeAt(i);
+                  void removeAt(i);
                 }}
                 className="absolute top-1 left-1 hidden h-5 w-5 items-center justify-center rounded-full bg-ink-950/80 text-white group-hover:flex"
               >
@@ -127,7 +186,15 @@ export default function UploadField({
           ))}
         </div>
       )}
-      {error && <p className="mt-2 text-xs font-semibold text-rose-600">{error}</p>}
+      {error && (
+        <div className="mt-2 flex items-start gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2">
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-500" />
+          <p className="text-xs font-semibold leading-5 text-rose-700">
+            {error}
+            {errorCode && <span className="mt-0.5 block font-mono text-[10px] text-rose-400">{errorCode}</span>}
+          </p>
+        </div>
+      )}
       {hint && !error && <p className="mt-2 text-xs text-ink-400">{hint}</p>}
     </div>
   );

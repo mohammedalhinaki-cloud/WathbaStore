@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { services } from "@/lib/services";
-import { ok, badRequest, requireStoreActor } from "@/lib/api-utils";
+import { ok, badRequest, requireStoreActor, serverError } from "@/lib/api-utils";
 import { isOwner } from "@/lib/authorize";
 import { z } from "zod";
 
@@ -30,46 +30,54 @@ export async function GET(
   _req: NextRequest,
   ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await ctx.params;
-  const actor = await requireStoreActor(id);
-  if (actor instanceof NextResponse) return actor;
-  const store = await services().getStore(id);
-  if (!store) return badRequest("المتجر غير موجود");
-  const settings = await services().getStoreSettings(id);
-  return ok({ store, settings });
+  try {
+    const { id } = await ctx.params;
+    const actor = await requireStoreActor(id);
+    if (actor instanceof NextResponse) return actor;
+    const store = await services().getStore(id);
+    if (!store) return badRequest("المتجر غير موجود");
+    const settings = await services().getStoreSettings(id);
+    return ok({ store, settings });
+  } catch (e) {
+    return serverError(e);
+  }
 }
 
 export async function PATCH(
   req: NextRequest,
   ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await ctx.params;
-  const actor = await requireStoreActor(id);
-  if (actor instanceof NextResponse) return actor;
+  try {
+    const { id } = await ctx.params;
+    const actor = await requireStoreActor(id);
+    if (actor instanceof NextResponse) return actor;
 
-  const body = (await req.json().catch(() => null)) as Record<string, unknown>;
-  const parsed = PatchSchema.safeParse(body ?? {});
-  if (!parsed.success) return badRequest("بيانات غير صالحة");
-  let patch = parsed.data;
+    const body = (await req.json().catch(() => null)) as Record<string, unknown>;
+    const parsed = PatchSchema.safeParse(body ?? {});
+    if (!parsed.success) return badRequest("بيانات غير صالحة");
+    let patch = parsed.data;
 
-  if (!isOwner(actor)) {
-    // عزل صارم: صاحب المتجر يعدّل حقوله فقط
-    const restricted: Record<string, unknown> = {};
-    for (const f of MEMBER_FIELDS) {
-      if (patch[f] !== undefined) restricted[f] = patch[f];
+    if (!isOwner(actor)) {
+      // عزل صارم: صاحب المتجر يعدّل حقوله فقط
+      const restricted: Record<string, unknown> = {};
+      for (const f of MEMBER_FIELDS) {
+        if (patch[f] !== undefined) restricted[f] = patch[f];
+      }
+      patch = restricted;
+      if (Object.keys(restricted).length === 0) {
+        return badRequest("هذه الحقول مقيدة للمالك");
+      }
     }
-    patch = restricted;
-    if (Object.keys(restricted).length === 0) {
-      return badRequest("هذه الحقول مقيدة للمالك");
-    }
+
+    const store = await services().updateStore(id, patch);
+    await services().logActivity(
+      { id: actor.id, email: actor.email },
+      id,
+      "store.updated",
+      { fields: Object.keys(patch) }
+    );
+    return ok({ store });
+  } catch (e) {
+    return serverError(e);
   }
-
-  const store = await services().updateStore(id, patch);
-  await services().logActivity(
-    { id: actor.id, email: actor.email },
-    id,
-    "store.updated",
-    { fields: Object.keys(patch) }
-  );
-  return ok({ store });
 }
