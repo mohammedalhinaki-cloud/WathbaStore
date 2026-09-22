@@ -1,13 +1,16 @@
 // ============================================================
 // وثبة — الصفحة الرئيسية للمتجر (أقسام حسب ترتيب الإعدادات)
 //
-// تغييران مقصودان هنا:
+// تغييرات مقصودة هنا:
 // 1) أُزيل شريط «تبويبات الأقسام» (قهوة / مشروبات باردة / حلويات) من
 //    وسط الصفحة الرئيسية — الأقسام ما زالت متاحة من القائمة العلوية
 //    وصفحات /categories/[slug] وأزرار فلترة المنتجات.
-// 2) صورة الغلاف (البطل) صارت تظهر دائمًا: لم تعد مرتبطة بالقالب
-//    («بسيط» كان يخفيها)، ولها سلسلة بدائل حتى لا يظهر مكانها مستطيل
-//    لون فارغ: coverUrl ← صورة SEO ← خلفية متدرجة بألوان المتجر.
+// 2) صورة الغلاف (البطل) تظهر دائمًا: لم تعد مرتبطة بالقالب («بسيط» كان
+//    يخفيها)، ولها سلسلة بدائل حتى لا يظهر مكانها مستطيل لون فارغ:
+//    coverUrl ← صورة SEO ← خلفية متدرجة بألوان المتجر.
+// 3) الغلاف يملأ الشاشة بالكامل (hero-fullscreen = 100vh/100svh) على
+//    الجوال والكمبيوتر عند الدخول الأول، وزر «تسوّق الآن» يمرّر الشاشة
+//    تمريرًا سلسًا إلى قسم «منتجاتنا» (#products) مباشرة.
 // ============================================================
 
 import Image from "next/image";
@@ -15,6 +18,7 @@ import { services } from "@/lib/services";
 import { isOptimizableSrc, pickFirstImage } from "@/lib/images";
 import type { StoreBundle } from "@/lib/types";
 import ProductsGrid from "./products-grid";
+import HeroCtaButton from "./hero-cta-button";
 
 interface Props {
   bundle: StoreBundle;
@@ -46,10 +50,10 @@ export default async function StoreHome({ bundle, query }: Props) {
 
   return (
     <div>
-      {/* ===== صورة الغلاف (البطل) ===== */}
+      {/* ===== صورة الغلاف (البطل) — ملء الشاشة بالكامل ===== */}
       {showHero && (
         <section
-          className="relative isolate flex min-h-[340px] items-center overflow-hidden sm:min-h-[440px]"
+          className="hero-fullscreen relative isolate flex items-center overflow-hidden"
           style={{ backgroundColor: "var(--store-primary)" }}
         >
           {cover ? (
@@ -99,14 +103,7 @@ export default async function StoreHome({ bundle, query }: Props) {
                 </p>
               )}
               {sections.includes("products") && (
-                <a
-                  href="#products"
-                  className="mt-6 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-extrabold text-white shadow-lg transition-transform hover:scale-[1.03]"
-                  style={{ backgroundColor: "var(--store-secondary)" }}
-                >
-                  تسوّق الآن
-                  <span>←</span>
-                </a>
+                <HeroCtaButton targetId="products" />
               )}
             </div>
           </div>
@@ -115,7 +112,10 @@ export default async function StoreHome({ bundle, query }: Props) {
 
       {/* ===== المنتجات ===== */}
       {sections.includes("products") && (
-        <section id="products" className="mx-auto max-w-6xl px-4 pt-12">
+        <section
+          id="products"
+          className="mx-auto max-w-6xl scroll-mt-28 px-4 pt-12 md:scroll-mt-20"
+        >
           <div className="mb-6 flex items-center gap-3">
             <span className="h-7 w-1.5 rounded-full" style={{ backgroundColor: "var(--store-primary)" }} />
             <h2 className="text-xl font-extrabold text-ink-900 sm:text-2xl">منتجاتنا</h2>
