@@ -9,8 +9,9 @@
     "start": "next start -H 0.0.0.0 -p 3000",
     "cf-build": "opennextjs-cloudflare build",
     "cf-preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "cf-deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "cf-upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "cf-deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy && node scripts/verify-deploy.mjs",
+    "cf-upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload && node scripts/verify-deploy.mjs",
+    "cf-verify": "node scripts/verify-deploy.mjs",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
