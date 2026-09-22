@@ -142,16 +142,21 @@ export default function DesignForm({ store, settings }: Props) {
               </span>
               <span className="truncate text-xs font-extrabold text-white">{store.name}</span>
             </div>
-            {template !== "minimal" && (
-              <div className="relative h-20" style={{ backgroundColor: primary }}>
+            {/* صورة الغلاف (البطل) تظهر في كل القوالب — بما فيها «بسيط» */}
+            <div className="relative h-20" style={{ backgroundColor: primary }}>
+              {store.coverUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={store.coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              ) : (
                 <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_30%_60%,white_1.5px,transparent_1.5px)] [background-size:18px_18px]" />
-                <div className="absolute bottom-3 right-3">
-                  <div className="h-2.5 w-20 rounded bg-white/80" />
-                  <div className="mt-1.5 h-2 w-28 rounded bg-white/50" />
-                  <div className="mt-2 h-4 w-14 rounded-md" style={{ backgroundColor: secondary }} />
-                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-l from-black/60 to-transparent" />
+              <div className="absolute bottom-3 right-3">
+                <div className="h-2.5 w-20 rounded bg-white/80" />
+                <div className="mt-1.5 h-2 w-28 rounded bg-white/50" />
+                <div className="mt-2 h-4 w-14 rounded-md" style={{ backgroundColor: secondary }} />
               </div>
-            )}
+            </div>
             <div className={`grid gap-2.5 bg-white p-3 ${template === "classic" ? "grid-cols-1" : "grid-cols-2"}`}>
               {[0, 1, 2, 3].map((i) =>
                 template === "classic" ? (

@@ -8,13 +8,15 @@ import { services } from "@/lib/services";
 import { ok, badRequest, requireStoreActor, serverError } from "@/lib/api-utils";
 import { isOwner } from "@/lib/authorize";
 import { z } from "zod";
-import type { SectionKey } from "@/lib/types";
+import { normalizeSectionOrder } from "@/lib/types";
 
 const SCHEMA = z.object({
   template: z.enum(["modern", "classic", "minimal"]).optional(),
   font: z.enum(["cairo", "tajawal", "almarai", "ibm-plex"]).optional(),
   primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   secondaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  // "categories" ما زالت مقبولة هنا للتوافق مع البيانات/الطلبات القديمة،
+  // لكنها تُحذف قبل الحفظ (تبويبات الأقسام لم تعد تظهر في الرئيسية).
   sectionOrder: z
     .array(z.enum(["hero", "categories", "products", "pages", "footer"]))
     .optional(),
@@ -49,7 +51,9 @@ export async function PATCH(
       font: patch.font,
       primaryColor: patch.primaryColor,
       secondaryColor: patch.secondaryColor,
-      sectionOrder: patch.sectionOrder as SectionKey[] | undefined,
+      sectionOrder: patch.sectionOrder
+        ? normalizeSectionOrder(patch.sectionOrder)
+        : undefined,
     });
     await services().logActivity(
       { id: actor.id, email: actor.email },

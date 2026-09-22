@@ -25,7 +25,7 @@ export type TemplateKey = "modern" | "classic" | "minimal";
 export const TEMPLATES: { key: TemplateKey; label: string; desc: string }[] = [
   { key: "modern", label: "عصري", desc: "واجهة واسعة، بطاقات بارزة، وبطل صورة غلاف" },
   { key: "classic", label: "كلاسيكي", desc: "تخطيط مرتب بأسطر، بهدوء وبساطة" },
-  { key: "minimal", label: "بسيط", desc: "شبكة مدمجة بدون بطل، تركيز على المنتجات" },
+  { key: "minimal", label: "بسيط", desc: "شبكة مدمجة، تركيز على المنتجات" },
 ];
 
 export type FontKey = "cairo" | "tajawal" | "almarai" | "ibm-plex";
@@ -36,14 +36,69 @@ export const FONTS: { key: FontKey; label: string; family: string }[] = [
   { key: "ibm-plex", label: "IBM Plex", family: "IBM Plex Sans Arabic" },
 ];
 
+/**
+ * أقسام الصفحة الرئيسية للمتجر.
+ *
+ * ملاحظة: "categories" (تبويبات الأقسام) أُزيلت من الصفحة الرئيسية — كانت
+ * تظهر كشريط تبويبات (قهوة / مشروبات باردة / حلويات) تحت صورة الغلاف.
+ * بقيت القيمة في النوع وفي ALL_SECTION_KEYS للتوافق مع البيانات القديمة المخزّنة
+ * في section_order، لكنها لم تعد قسمًا قابلًا للعرض ولا تظهر في لوحة التصميم.
+ * الأقسام نفسها ما زالت تعمل: روابط القائمة العلوية، صفحات /categories/[slug]،
+ * وأزرار فلترة المنتجات.
+ */
 export type SectionKey = "hero" | "categories" | "products" | "pages" | "footer";
+
+/** كل المفاتيح المعروفة (بما فيها المُهمَلة) — تُستخدم لتطبيع البيانات القديمة */
+const ALL_SECTION_KEYS: SectionKey[] = [
+  "hero",
+  "categories",
+  "products",
+  "pages",
+  "footer",
+];
+
+/** الأقسام الظاهرة فعليًا في الصفحة الرئيسية (بدون تبويبات الأقسام) */
+export const ACTIVE_SECTION_KEYS: SectionKey[] = [
+  "hero",
+  "products",
+  "pages",
+  "footer",
+];
+
 export const SECTIONS: { key: SectionKey; label: string }[] = [
   { key: "hero", label: "صورة الغلاف (البطل)" },
-  { key: "categories", label: "الأقسام" },
   { key: "products", label: "المنتجات" },
   { key: "pages", label: "روابط الصفحات" },
   { key: "footer", label: "الفوتر" },
 ];
+
+/** الترتيب الافتراضي لأقسام الرئيسية */
+export const DEFAULT_SECTION_ORDER: SectionKey[] = [...ACTIVE_SECTION_KEYS];
+
+/**
+ * تطبيع ترتيب الأقسام القادم من قاعدة البيانات:
+ * يحذف القيم المجهولة والمُهمَلة ("categories") ويمنع التكرار،
+ * ويُرجع الترتيب الافتراضي إن كانت القائمة فارغة — حتى لا تختفي
+ * صورة الغلاف بسبب بيانات قديمة أو ناقصة.
+ */
+export function normalizeSectionOrder(value: unknown): SectionKey[] {
+  if (!Array.isArray(value)) return [...DEFAULT_SECTION_ORDER];
+  const seen = new Set<SectionKey>();
+  const out: SectionKey[] = [];
+  for (const raw of value) {
+    if (typeof raw !== "string") continue;
+    const key = raw as SectionKey;
+    if (!ALL_SECTION_KEYS.includes(key)) continue; // قيمة مجهولة
+    if (!ACTIVE_SECTION_KEYS.includes(key)) continue; // قسم مُهمَل (تبويبات الأقسام)
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(key);
+  }
+  if (out.length === 0) return [...DEFAULT_SECTION_ORDER];
+  // صورة الغلاف قسم أساسي: إن سقطت من ترتيب قديم نُعيدها في المقدمة
+  if (!out.includes("hero")) out.unshift("hero");
+  return out;
+}
 
 export interface Store {
   id: string;

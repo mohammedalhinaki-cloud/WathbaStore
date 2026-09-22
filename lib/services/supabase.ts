@@ -22,6 +22,7 @@ import type {
   StoreSettings,
   StoreStatus,
 } from "../types";
+import { DEFAULT_SECTION_ORDER, normalizeSectionOrder } from "../types";
 import {
   StorageError,
   type CategoryInput,
@@ -33,14 +34,6 @@ import {
   type StorageHealth,
   type StoreInput,
 } from "./types";
-
-const DEFAULT_SECTION_ORDER: StoreSettings["sectionOrder"] = [
-  "hero",
-  "categories",
-  "products",
-  "pages",
-  "footer",
-];
 
 function slugify(name: string): string {
   const s = (name || "")
@@ -426,13 +419,11 @@ export class SupabaseServices implements Services {
   // ---------------- إعدادات المتجر ----------------
 
   private mapSettings(r: Record<string, unknown>): StoreSettings {
-    let sectionOrder: StoreSettings["sectionOrder"] = [...DEFAULT_SECTION_ORDER];
-    try {
-      const parsed = r.section_order;
-      if (Array.isArray(parsed)) sectionOrder = parsed as StoreSettings["sectionOrder"];
-    } catch {
-      /* ignore */
-    }
+    // ترتيب الأقسام يُطبَّع عند القراءة: يُسقط تبويبات الأقسام المُهمَلة
+    // ("categories") والقيم المجهولة، ويضمن بقاء صورة الغلاف ظاهرة.
+    const sectionOrder: StoreSettings["sectionOrder"] = normalizeSectionOrder(
+      r.section_order
+    );
     return {
       storeId: r.store_id as string,
       template: (r.template as StoreSettings["template"]) ?? "modern",
@@ -502,6 +493,8 @@ export class SupabaseServices implements Services {
       Object.entries(patch).filter(([, v]) => v !== undefined)
     ) as Partial<StoreSettings>;
     const next = { ...cur, ...clean, storeId };
+    // تنظيف ترتيب الأقسام قبل الكتابة (إزالة تبويبات الأقسام المُهمَلة)
+    next.sectionOrder = normalizeSectionOrder(next.sectionOrder);
     const { error } = await (await supabaseServer()).from("store_settings").upsert({
       store_id: storeId,
       template: next.template,

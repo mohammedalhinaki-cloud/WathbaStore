@@ -8,6 +8,7 @@ import { db, DEFAULT_SETTINGS, newId, rowToStore, type RawStoreRow } from "../lo
 import { mainDomain } from "../constants";
 import { hashPassword, verifyPassword } from "../local/auth";
 import { StorageError, type StorageHealth } from "./types";
+import { normalizeSectionOrder } from "../types";
 import type {
   ActivityLog,
   AppUser,
@@ -79,10 +80,11 @@ interface SettingsRow {
 }
 
 function rowToSettings(r: SettingsRow): StoreSettings {
+  // نُطبِّع ترتيب الأقسام دائمًا: يحذف تبويبات الأقسام المُهمَلة والقيم
+  // المجهولة، ويضمن وجود صورة الغلاف (البطل) حتى مع بيانات قديمة.
   let sectionOrder: StoreSettings["sectionOrder"] = [...DEFAULT_SETTINGS.sectionOrder];
   try {
-    const parsed = JSON.parse(r.section_order);
-    if (Array.isArray(parsed)) sectionOrder = parsed;
+    sectionOrder = normalizeSectionOrder(JSON.parse(r.section_order));
   } catch {
     /* ignore */
   }
@@ -376,6 +378,8 @@ export class LocalServices implements Services {
       Object.entries(patch).filter(([, v]) => v !== undefined)
     ) as Partial<StoreSettings>;
     const next = { ...cur, ...clean, storeId, updatedAt: now() };
+    // تنظيف ترتيب الأقسام قبل الكتابة (إزالة تبويبات الأقسام المُهمَلة)
+    next.sectionOrder = normalizeSectionOrder(next.sectionOrder);
     d.prepare(`INSERT INTO store_settings
       (store_id, template, font, primary_color, secondary_color, section_order, about_text,
        social_instagram, social_snapchat, social_tiktok, social_whatsapp, developer_url,
