@@ -1,4 +1,4 @@
-// وثبة — إدارة النطاقات الفرعية (المالك): تغيير النطاق قبل التسليم
+// وثبة — إدارة النطاقات الفرعية (المالك): تغيير النطاق في أي وقت
 import type { Metadata } from "next";
 import { services } from "@/lib/services";
 import { mainDomain } from "@/lib/constants";
@@ -13,7 +13,7 @@ export default async function DomainsPage() {
     <div>
       <PageHeader
         title="الدومينات والنطاقات الفرعية"
-        sub={`كل متجر يعمل على نطاق فرعي من ${mainDomain()} — يمكن تغيير النطاق قبل التسليم فقط`}
+        sub={`كل متجر يعمل على نطاق فرعي من ${mainDomain()} — يمكن تغيير النطاق في أي وقت، ويتوقف العمل بالرابط القديم بعد التغيير`}
       />
       <div className="grid gap-4 md:grid-cols-2">
         {stores.map((s) => (
