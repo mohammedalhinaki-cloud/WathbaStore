@@ -1,7 +1,7 @@
-# نشر وثبة waathba.com على Cloudflare
+# نشر معين maaoun.com على Cloudflare
 
 هذا الدليل ينقل المنصة من Vercel إلى **Cloudflare** (Workers & Pages) وينشر النطاق
-`waathba.com` مع النطاقات الفرعية (Wildcard) `*.waathba.com` لكل متاجر العملاء.
+`maaoun.com` مع النطاقات الفرعية (Wildcard) `*.maaoun.com` لكل متاجر العملاء.
 
 > **منصة النشر:** Cloudflare لا تدعم Next.js 15 بالطريقة التقليدية، وأداة
 > `@cloudflare/next-on-pages` القديمة أصبحت مهجورة رسميًا. يعتمد هذا المشروع على
@@ -13,7 +13,7 @@
 ## 0) المتطلبات المسبقة
 
 1. حساب Cloudflare.
-2. النطاق `waathba.com` **مضاف إلى Cloudflare** كمنطقة (Zone) نشطة
+2. النطاق `maaoun.com` **مضاف إلى Cloudflare** كمنطقة (Zone) نشطة
    (Nameservers لدى Cloudflare في المنطقة الحرة يكفي).
 3. مشروع Supabase جاهز (كما كان على Vercel) — الخطوات 1–4 أدناه.
 4. مستودع `mohammedalhinaki-cloud/WathbaStore` على GitHub.
@@ -39,7 +39,7 @@
    | `supabase/migrations/0004_store_settings_columns.sql` | أعمدة `store_settings` الناقصة (`footer_bg_color` والآيبانات) — بدونها يفشل حفظ الإعدادات بخطأ `PGRST204` |
 3. أنشئ حسابك من **Authentication → Users** ثم حوّله إلى مالك:
    ```sql
-   update public.profiles set role = 'owner' where email = 'you@waathba.com';
+   update public.profiles set role = 'owner' where email = 'you@maaoun.com';
    ```
 4. (اختياري) نفّذ `supabase/migrations/0002_demo_data.sql` لإضافة المتاجر والعروض العربية الجاهزة — **لا تُعد تنفيذه على قاعدة فيها بيانات**.
 5. تأكد من التخزين: **Storage** يجب أن توجد خزنة `store-assets` (Public، حد 5MB). الترحيل 0003 يُنشئها تلقائيًا إن كانت ناقصة.
@@ -69,8 +69,8 @@
 | `NEXT_PUBLIC_SUPABASE_URL` | رابط المشروع من Supabase |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable key |
 | `SUPABASE_SECRET_KEY` | Secret key (Secret) |
-| `NEXT_PUBLIC_MAIN_DOMAIN` | `waathba.com` |
-| `DEVELOPER_URL` | `https://waathba.com` |
+| `NEXT_PUBLIC_MAIN_DOMAIN` | `maaoun.com` |
+| `DEVELOPER_URL` | `https://maaoun.com` |
 
 > ⚠️ **متغيرات `NEXT_PUBLIC_` تُدمج وقت البناء** في Next.js. أي تغيير لها يتطلب
 > إعادة بناء (إعادة نشر) كي يسري — وليس تعديل المتغير فقط.
@@ -109,27 +109,29 @@ npm run cf-preview      # تعمل على http://localhost:8787
 
 ---
 
-## 5) ربط النطاق `waathba.com` والنطاق العرضي `*.waathba.com`
+## 5) ربط النطاق `maaoun.com` والنطاق العرضي `*.maaoun.com`
 
-**يتكون الموقع من جزأين:** حساب Works (OpenNext) + منطقة DNS للنطاق `waathba.com`
+**يتكون الموقع من جزأين:** حساب Works (OpenNext) + منطقة DNS للنطاق `maaoun.com`
 (النطاق مضاف إلى Cloudflare كنطاق "Zone").
 
-1. من **Workers & Pages** → عامل `waathba` → **Settings → Domains & Routes**.
+1. من **Workers & Pages** → العامل الحالي `waathba` → **Settings → Domains & Routes**.
+
+> اسم العامل في `wrangler.jsonc` يبقى `waathba` عمدًا. تغييره إلى `maaoun` قبل النشر ينشئ عاملًا جديدًا ولا يحدّث العامل المنشور. إعادة التسمية اختيارية ومن لوحة Cloudflare فقط، وبعدها حدّث الاسم في الملف.
 2. أضف **Custom Domains**:
-   - `waathba.com`
-   - `www.waathba.com`
-   - وأي نطاق فرعي ثابت تريده (مثل `admin.waathba.com` إن أردته).
+   - `maaoun.com`
+   - `www.maaoun.com`
+   - وأي نطاق فرعي ثابت تريده (مثل `admin.maaoun.com` إن أردته).
    Cloudflare ينشئ شهادة SSL وجرّات DNS تلقائيًا.
 
-3. **النطاق العرضي (Wildcard) لأي اسم متجر جديد `name.waathba.com`:**
+3. **النطاق العرضي (Wildcard) لأي اسم متجر جديد `name.maaoun.com`:**
    - **ـ نطاقات مخصصة (Custom Domains) لا تدعم Wildcard** في Cloudflare.
-   - الحل المعتمد: أضف **Route** بنمط `*waathba.com/*` يمر عبر عاملك، مع
+   - الحل المعتمد: أضف **Route** بنمط `*maaoun.com/*` يمر عبر عاملك، مع
      سجل DNS لأي نطاق فرعي (كما يوضح الجدول):
 
    | الإجراء | الإعداد |
    |---|---|
-   | DNS Wildcard | سجل `CNAME` باسم `*` يشير إلى `waathba.com` (بروكسي - سحابة برتقالية) |
-   | Route في العامل | نمط `*waathba.com/*` + `zone_name: waathba.com` |
+   | DNS Wildcard | سجل `CNAME` باسم `*` يشير إلى `maaoun.com` (بروكسي - سحابة برتقالية) |
+   | Route في العامل | نمط `*maaoun.com/*` + `zone_name: maaoun.com` |
 
    أو (الأقوى للـ Multi-Tenant): **عامل Wildcard صغير** يمرر `x-forwarded-host`
    (التطبيق يقرأها) ليعرف المتجر المطلوب:
@@ -139,9 +141,9 @@ npm run cf-preview      # تعمل على http://localhost:8787
      async fetch(request, env) {
        const url = new URL(request.url);
        const hostname = url.hostname;
-       // الموقع العام فقط هو ما يُعالج هنا (rshaf.waathba.com ... إلخ)
+       // الموقع العام فقط هو ما يُعالج هنا (rshaf.maaoun.com ... إلخ)
        // تمرير الطلب إلى تطبيق OpenNext مع تمرير النطاق الأصلي في x-forwarded-host
-       const target = new URL("https://waathba.com" + url.pathname + url.search);
+       const target = new URL("https://maaoun.com" + url.pathname + url.search);
        return fetch(target, {
          ...request,
          headers: {
@@ -154,26 +156,43 @@ npm run cf-preview      # تعمل على http://localhost:8787
    ```
 
    > التطبيق يقرأ `x-forwarded-host` أولًا (انظر `middleware.ts` و`lib/tenant.ts`) ليعرف
-   > النطاق الفرعي المطلوب ويربطه بقاعدة البيانات، فيعمل `rshaf.waathba.com`
+   > النطاق الفرعي المطلوب ويربطه بقاعدة البيانات، فيعمل `rshaf.maaoun.com`
    > مباشرة **بلا `?store=`**.
 
 3. في DNS للمنطقة أضف السجلات:
 
    | النوع | الاسم | القيمة | الحالة |
    |---|---|---|---|
-   | CNAME | `@` (الجذر) | نطاق الصفحة/العامل `waathba.pages.dev` (أو ما يعرضه Cloudflare) | بروكسي |
+   | CNAME | `@` (الجذر) | نطاق الصفحة/العامل الذي تعرضه Cloudflare (قد يبقى `waathba.pages.dev` إن لم تُعد تسمية المشروع) | بروكسي |
    | CNAME | `www` | الجذر أو العامل | بروكسي |
-   | CNAME | `*` | الجذر `waathba.com` | بروكسي |
+   | CNAME | `*` | الجذر `maaoun.com` | بروكسي |
 
 4. انتظر حتى تصبح الحالة **Active** وتصدر شهادات SSL (قد يستغرق دقائق).
 
 بعد نجاح DNS تعمل:
 
-- `https://waathba.com` — الموقع العام
-- `https://waathba.com/admin` — لوحة المالك
-- `https://rshaf.waathba.com` — متجر كافيه رشف (بلا `?store=`)
-- `https://rshaf.waathba.com/admin` — لوحة عميل رشف
-- `https://oud.waathba.com` — متجر عود وروائح
+- `https://maaoun.com` — الموقع العام
+- `https://maaoun.com/admin` — لوحة المالك
+- `https://rshaf.maaoun.com` — متجر كافيه رشف (بلا `?store=`)
+- `https://rshaf.maaoun.com/admin` — لوحة عميل رشف
+- `https://oud.maaoun.com` — متجر عود وروائح
+
+---
+
+## 5ب) إعدادات خارج الكود (يدويًا)
+
+لا توجد قائمة CORS أو روابط إعادة توجيه Auth داخل المستودع. بعد نقل النطاق حدّثها في اللوحات:
+
+| المكان | ماذا تفعل |
+|---|---|
+| Cloudflare → العامل `waathba` → Domains | أضف `maaoun.com` و`www.maaoun.com`، وسجّل DNS `CNAME *` مع Route `*maaoun.com/*` |
+| Cloudflare → Variables | `NEXT_PUBLIC_MAIN_DOMAIN=maaoun.com` و`DEVELOPER_URL=https://maaoun.com` ثم **أعد البناء** |
+| Supabase → Authentication → URL Configuration | Site URL = `https://maaoun.com`، وأضف Redirect URLs: `https://maaoun.com/**` و`https://*.maaoun.com/**` |
+| Supabase → SQL Editor | شغّل `0006_rebrand_maaoun.sql` مرة واحدة. **لا تُعد تشغيل `0002`** على قاعدة فيها بيانات |
+| Supabase → Authentication → Users | إن كان بريد المالك `@waathba.com` فغيّره يدويًا. الترحيل لا يمسّ `auth.users` |
+| اسم مشروع Pages / Supabase | إعادة التسمية اختيارية. تغيير اسم مشروع Pages يغيّر `*.pages.dev` |
+
+النطاق القديم `waathba.com` يبقى مفهومًا في الكود أثناء النقل، لكن الروابط الجديدة تُولَّد على `maaoun.com`.
 
 ---
 
@@ -222,7 +241,7 @@ npm run cf-preview      # تعمل على http://localhost:8787
 ### الـ Wildcard لا يعمل
 
 - تأكد من سجل DNS `CNAME *` بروكسي.
-- تأكد من إضافة Route بنمط `*waathba.com/*` (أو عامل الـ Wildcard) في إعدادات العامل.
+- تأكد من إضافة Route بنمط `*maaoun.com/*` (أو عامل الـ Wildcard) في إعدادات العامل.
 - النطاق الفرعي يجب أن يكون مسلّم الحالة (`delivered`) ليظهر للزوار.
 
 ### رسالة «فشل الرفع» عند رفع شعار/غلاف/صورة منتج
@@ -242,18 +261,18 @@ npm run cf-preview      # تعمل على http://localhost:8787
 قاعدة بيانات لم يُنفَّذ عليها الترحيل 0004: PostgREST يرد
 `PGRST204 — Could not find the 'footer_bg_color' column`. نفّذ الترحيل 0004 ثم أعد المحاولة.
 
-### متجر النطاق الفرعي لا يفتح، أو «الصفحة غير موجودة» على `rshaf.waathba.com`
+### متجر النطاق الفرعي لا يفتح، أو «الصفحة غير موجودة» على `rshaf.maaoun.com`
 
 - المتجر غير المسلّم (`delivered`) لا يظهر للزوار إطلاقًا — هذا سلوك مقصود.
   لوحة المتجر تعمل للمالك الرئيسي في أي حالة.
 - على نطاق حقيقي تأكد أن متصفحك/البروكسي يمرّر ترويسة `x-forwarded-host` بالنطاق الأصلي
-  (راجع قسم «ربط النطاق `waathba.com` والنطاق العرضي» أعلاه).
+  (راجع قسم «ربط النطاق `maaoun.com` والنطاق العرضي» أعلاه).
 
-### المالك الرئيسي يفتح `rshaf.waathba.com/admin` فيجد نفسه غير مسجَّل
+### المالك الرئيسي يفتح `rshaf.maaoun.com/admin` فيجد نفسه غير مسجَّل
 
-كوكي الجلسة تُكتب الآن على النطاق الأب `.waathba.com` (من `lib/constants.ts` →
+كوكي الجلسة تُكتب الآن على النطاق الأب `.maaoun.com` (من `lib/constants.ts` →
 `sharedCookieDomain`) لتعمل على كل النطاقات الفرعية. تأكد أن النطاقات الفرعية كلها تحت نفس
-الدومين (`*.waathba.com`) — أما في وضع المعاينة (نطاق واحد + `?store=slug`) فتُكتب الكوكي
+الدومين (`*.maaoun.com`) — أما في وضع المعاينة (نطاق واحد + `?store=slug`) فتُكتب الكوكي
 على المضيف الحالي كما هو.
 
 ### متغير `NEXT_PUBLIC_` عُدّل لكنه لم يسري

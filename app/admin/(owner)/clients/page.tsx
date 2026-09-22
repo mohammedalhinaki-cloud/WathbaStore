@@ -1,4 +1,4 @@
-// وثبة — قائمة العملاء (المالك)
+// معين — قائمة العملاء (المالك)
 import type { Metadata } from "next";
 import Link from "next/link";
 import { services } from "@/lib/services";

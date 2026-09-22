@@ -1,5 +1,5 @@
 // ============================================================
-// صفحة القسم: rshaf.waathba.com/categories/coffee
+// صفحة القسم: rshaf.maaoun.com/categories/coffee
 // ============================================================
 
 import type { Metadata } from "next";

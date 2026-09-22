@@ -1,12 +1,12 @@
 // ============================================================
-// وثبة — مساعدات SEO الديناميكية لكل متجر
+// معين — مساعدات SEO الديناميكية لكل متجر
 // كل القيم تُشتق من Supabase حسب النطاق الفرعي (hostname)،
 // دون أي اسم متجر ثابت في الكود — يعمل تلقائيًا لأي متجر جديد.
 // ============================================================
 
 import type { Metadata } from "next";
 import type { StoreBundle } from "./types";
-import { mainDomain, APP_NAME } from "./constants";
+import { mainDomain, APP_NAME, replaceLegacyPlatformDomain } from "./constants";
 import { services } from "./services";
 
 /** الرابط الأساسي للمتجر: يفضّل seoCanonical المضبوط، وإلا يُبنى من النطاق الفرعي */
@@ -20,7 +20,7 @@ export function storeCanonicalUrl(bundle: StoreBundle): string {
   return storeBaseUrl(bundle);
 }
 
-/** اسم العرض في <title>: نحترم عنوان SEO الصريح إن وُجد، وإلا «اسم المتجر | وثبة» */
+/** اسم العرض في <title>: نحترم عنوان SEO الصريح إن وُجد، وإلا «اسم المتجر | معين» */
 export function storeTitle(bundle: StoreBundle): string {
   const { store, settings } = bundle;
   const seo = settings.seoTitle?.trim();
@@ -98,7 +98,7 @@ export function buildStoreJsonLd(bundle: StoreBundle): Record<string, unknown> {
 
 /**
  * يبني كائن Metadata لمتجر بناءً على بياناته الديناميكية.
- * - العنوان يُضبط كـ absolute لمنع تكرار لاحقة العلامة (تجنّب «اسم | متجر | وثبة»).
+ * - العنوان يُضبط كـ absolute لمنع تكرار لاحقة العلامة (تجنّب «اسم | متجر | معين»).
  * - الرابط الكنسي والـ Open Graph يُشتقّان من النطاق/ seoCanonical.
  */
 export function storePageMetadata(

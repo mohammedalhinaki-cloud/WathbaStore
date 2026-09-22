@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * ============================================================
- * وثبة — اختبار RLS الحقيقي (PostgreSQL عبر PGlite/WASM)
+ * معين — اختبار RLS الحقيقي (PostgreSQL عبر PGlite/WASM)
  * ============================================================
  *
  * ينفّذ ترحيلات المشروع فعليًا على قاعدة PostgreSQL حقيقية:
@@ -136,7 +136,7 @@ grant usage on schema storage to anon, authenticated;
 
 const SEED = `
 insert into auth.users (id, email) values
-  ('${OWNER_UID}', 'owner@waathba.com'),
+  ('${OWNER_UID}', 'owner@maaoun.com'),
   ('${MEMBER_A_UID}', 'rshaf@demo.com'),
   ('${MEMBER_B_UID}', 'oud@demo.com'),
   ('${ANON_UID}', 'guest@demo.com')
@@ -365,6 +365,64 @@ async function main() {
     "الدوال تميّز عضو المتجر عن غيره",
     fnMember.rows[0]?.m === false && fnMember.rows[0]?.own === true && fnMember.rows[0]?.other === false
   );
+
+  console.log("\n  ── ترحيل إعادة التسمية 0006 (بلا حذف ودون تغيير الحسابات) ──");
+  const REBRAND = fs.readFileSync(path.join(ROOT, "supabase/migrations/0006_rebrand_maaoun.sql"), "utf8");
+  await db.exec(`
+    update public.site_settings set
+      developer_url = 'https://waathba.com',
+      about_text = 'منصة وثبة على waathba.com',
+      hero_title = 'متجرك الإلكتروني… بوثبة واحدة',
+      hero_subtitle = 'مثل rshaf.waathba.com',
+      features = '[{"title":"لماذا وثبة؟","desc":"name.wathbastore.com"}]'::jsonb,
+      faq = '[{"q":"ما هي وثبة؟","a":"نطاق waathba.com"}]'::jsonb,
+      social_instagram = 'https://instagram.com/waathba',
+      social_snapchat = 'waathba',
+      social_tiktok = 'https://tiktok.com/@waathba'
+    where id = 1;
+    update public.store_settings
+      set developer_url = 'https://waathba.com', seo_canonical = 'https://rshaf.waathba.com'
+      where store_id = '${S_A}';
+    insert into public.portfolio_items (title, image_url, store_url)
+      values ('قديم', '/seed/x.jpg', 'https://rahaf.waathba.com');
+  `);
+  const storesBefore = (await db.query("select count(*)::int as n from public.stores")).rows[0].n;
+  const emailBefore = (await db.query("select email from public.profiles where id = $1", [OWNER_UID])).rows[0].email;
+  await db.exec(REBRAND);
+  const site = (await db.query(`select developer_url, about_text, hero_title, features::text as features, faq::text as faq,
+      social_instagram, social_snapchat, social_tiktok from public.site_settings where id = 1`)).rows[0];
+  record(
+    "0006 يستبدل نطاق ونص الموقع العام",
+    site.developer_url === "https://maaoun.com" &&
+      !String(site.about_text).includes("waathba") &&
+      !String(site.about_text).includes("وثبة"),
+    `${site.developer_url} / ${site.about_text}`
+  );
+  record(
+    "0006 يحوّل «بوثبة واحدة» قبل الاستبدال العام",
+    String(site.hero_title).includes("مع معين") && !String(site.hero_title).includes("وثبة"),
+    site.hero_title
+  );
+  record(
+    "0006 يحدّث حسابات المنصة الاجتماعية فقط",
+    site.social_instagram === "https://instagram.com/maaoun" &&
+      site.social_snapchat === "maaoun" &&
+      site.social_tiktok === "https://tiktok.com/@maaoun" &&
+      String(site.faq).includes("ما هو معين") &&
+      String(site.features).includes("maaoun.com")
+  );
+  const settingsRow = (await db.query("select developer_url, seo_canonical from public.store_settings where store_id = $1", [S_A])).rows[0];
+  record(
+    "0006 يحدّث روابط المتجر المخزّنة",
+    settingsRow.developer_url === "https://maaoun.com" && settingsRow.seo_canonical === "https://rshaf.maaoun.com",
+    settingsRow.seo_canonical
+  );
+  const slug = (await db.query("select subdomain from public.stores where id = $1", [S_A])).rows[0].subdomain;
+  const storesAfter = (await db.query("select count(*)::int as n from public.stores")).rows[0].n;
+  const emailAfter = (await db.query("select email from public.profiles where id = $1", [OWNER_UID])).rows[0].email;
+  record("0006 لا يحذف متاجر ولا يغيّر النطاق الفرعي أو بريد الدخول", storesAfter === storesBefore && slug === "rshaf" && emailAfter === emailBefore, `${slug} / ${emailAfter}`);
+  const portfolio = (await db.query("select store_url from public.portfolio_items where title = 'قديم'")).rows[0];
+  record("0006 يحدّث رابط المعرض على النطاق القديم دون تغيير الاسم الفرعي", portfolio?.store_url === "https://rahaf.maaoun.com", portfolio?.store_url ?? "");
 
   await db.close();
 

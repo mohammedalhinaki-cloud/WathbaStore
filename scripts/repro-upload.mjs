@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * ============================================================
- * وثبة — إعادة إنتاج سبب «فشل الرفع» واختبار الإصلاح
+ * معين — إعادة إنتاج سبب «فشل الرفع» واختبار الإصلاح
  * ============================================================
  *
  * يشغّل خادم Supabase وهميًا (scripts/stub-supabase.mjs) ثم يشغّل التطبيق
@@ -173,7 +173,7 @@ async function main() {
     ...process.env,
     NEXT_PUBLIC_SUPABASE_URL: `http://127.0.0.1:${STUB_PORT}`,
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "pk_stub_public",
-    NEXT_PUBLIC_MAIN_DOMAIN: "waathba.com",
+    NEXT_PUBLIC_MAIN_DOMAIN: "maaoun.com",
     NEXT_TELEMETRY_DISABLED: "1",
   };
   if (WITH_SECRET_KEY) env.SUPABASE_SECRET_KEY = WRONG_SECRET_KEY ? "pk_wrong_key_not_a_service_key" : SECRET_KEY;

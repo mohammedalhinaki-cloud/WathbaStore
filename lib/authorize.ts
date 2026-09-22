@@ -1,5 +1,5 @@
 // ============================================================
-// وثبة — التحقق من الصلاحيات في الخادم
+// معين — التحقق من الصلاحيات في الخادم
 // (يعكس سياسات RLS في Supabase: العزل على مستوى البيانات)
 //
 // قاعدة المنصة:
@@ -44,7 +44,7 @@ export function canAccessStorePanel(actor: AppUser | null, storeId: string): boo
   return canManageStore(actor, storeId);
 }
 
-/** هل يستطيع المستخدم الوصول إلى لوحة المالك الرئيسي (waathba.com/admin)؟ */
+/** هل يستطيع المستخدم الوصول إلى لوحة المالك الرئيسي (maaoun.com/admin)؟ */
 export function canAccessOwnerPanel(actor: AppUser | null): boolean {
   return isMasterOwner(actor);
 }

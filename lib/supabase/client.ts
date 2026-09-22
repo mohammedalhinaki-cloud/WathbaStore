@@ -1,5 +1,5 @@
 // ============================================================
-// وثبة — عملاء Supabase (خادم)
+// معين — عملاء Supabase (خادم)
 // ============================================================
 
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
@@ -31,7 +31,7 @@ export async function supabaseServer(): Promise<SupabaseClient> {
   }
   const url = supabaseUrl();
 
-  // نطاق الكوكي المشترك: waathba.com ⇄ rshaf.waathba.com ⇄ أي متجر آخر.
+  // نطاق الكوكي المشترك: maaoun.com ⇄ rshaf.maaoun.com ⇄ أي متجر آخر.
   // على المعاينة/التطوير يعود undefined فتبقى الكوكي على المضيف الحالي.
   let host = "";
   try {

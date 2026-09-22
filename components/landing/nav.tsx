@@ -1,8 +1,9 @@
-// وثبة — شريط تنقل الموقع العام
+// معين — شريط تنقل الموقع العام
 "use client";
 
 import { useState } from "react";
 import { Menu, X, Store, ArrowLeft } from "lucide-react";
+import { APP_NAME, mainDomain } from "@/lib/constants";
 
 const LINKS = [
   { href: "#services", label: "الخدمات" },
@@ -22,9 +23,9 @@ export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
             <Store className="h-5 w-5 text-white" />
           </span>
           <span className="text-xl font-extrabold tracking-tight text-white">
-            وثبة
+            {APP_NAME}
             <span className="mr-1.5 rounded-md bg-accent-500/15 px-1.5 py-0.5 text-[10px] font-bold text-accent-400">
-              waathba.com
+              {mainDomain()}
             </span>
           </span>
         </a>

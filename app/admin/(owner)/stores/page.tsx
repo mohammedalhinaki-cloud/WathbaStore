@@ -1,4 +1,4 @@
-// وثبة — قائمة المتاجر (المالك)
+// معين — قائمة المتاجر (المالك)
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTenant } from "@/lib/tenant";

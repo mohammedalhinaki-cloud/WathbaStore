@@ -1,5 +1,5 @@
 // ============================================================
-// وثبة — إدارة محتوى الموقع العام (المالك)
+// معين — إدارة محتوى الموقع العام (المالك)
 // أعمال، باقات، عروض، إعدادات الموقع، سجل النشاطات
 // ============================================================
 
@@ -138,7 +138,7 @@ export function PortfolioManager({ items }: { items: PortfolioItem[] }) {
                 <input className={inputCls} value={editing.title ?? ""} onChange={(e) => setEditing({ ...editing, title: e.target.value })} />
               </Field>
               <Field label="رابط المتجر">
-                <input className={inputCls} dir="ltr" value={editing.storeUrl ?? ""} onChange={(e) => setEditing({ ...editing, storeUrl: e.target.value })} placeholder="https://rshaf.waathba.com" />
+                <input className={inputCls} dir="ltr" value={editing.storeUrl ?? ""} onChange={(e) => setEditing({ ...editing, storeUrl: e.target.value })} placeholder="https://rshaf.maaoun.com" />
               </Field>
             </div>
             <Field label="وصف مختصر">
@@ -479,7 +479,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
       <Card>
         <h3 className="mb-4 font-extrabold text-ink-900">بيانات التواصل</h3>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="رقم واتساب وثبة" hint="يظهر في زر التواصل في الموقع العام">
+          <Field label="رقم واتساب معين" hint="يظهر في زر التواصل في الموقع العام">
             <input className={inputCls} dir="ltr" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="9665xxxxxxxx" />
           </Field>
           <Field label="رابط الموقع المطور (DEVELOPER_URL)">
@@ -497,14 +497,14 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
           <Field label="نص الـ Hero الفرعي">
             <textarea className={inputCls} rows={2} value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} />
           </Field>
-          <Field label="نبذة عن وثبة">
+          <Field label="نبذة عن معين">
             <textarea className={inputCls} rows={3} value={about} onChange={(e) => setAbout(e.target.value)} />
           </Field>
         </div>
       </Card>
 
       <Card>
-        <h3 className="mb-4 font-extrabold text-ink-900">روابط تواصل وثبة</h3>
+        <h3 className="mb-4 font-extrabold text-ink-900">روابط تواصل معين</h3>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="انستقرام">
             <input className={inputCls} dir="ltr" value={instagram} onChange={(e) => setInstagram(e.target.value)} />

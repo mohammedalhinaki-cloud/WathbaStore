@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * ============================================================
- * وثبة waathba.com — فحص ما بعد النشر (post-deploy verification)
+ * معين maaoun.com — فحص ما بعد النشر (post-deploy verification)
  * ============================================================
  *
  * الغرض:
@@ -26,7 +26,7 @@ import { join, relative } from "node:path";
 
 const ROOT = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
 const ASSETS_DIR = join(ROOT, ".open-next", "assets");
-const BASE_URL = (process.env.VERIFY_BASE_URL || "https://waathba.com").replace(/\/$/, "");
+const BASE_URL = (process.env.VERIFY_BASE_URL || "https://maaoun.com").replace(/\/$/, "");
 const CONCURRENCY = 5;
 const RETRIES = 3;
 const RETRY_DELAY_MS = 4000;

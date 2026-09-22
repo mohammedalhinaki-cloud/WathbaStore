@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { APP_NAME, mainDomain } from "@/lib/constants";
 import "./globals.css";
 import "@fontsource/cairo/400.css";
 import "@fontsource/cairo/500.css";
@@ -14,23 +15,25 @@ import "@fontsource/ibm-plex-sans-arabic/400.css";
 import "@fontsource/ibm-plex-sans-arabic/600.css";
 import "@fontsource/ibm-plex-sans-arabic/700.css";
 
+const domain = mainDomain();
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://waathba.com"),
+  metadataBase: new URL(`https://${domain}`),
   // أيقونة المفضلة ديناميكية حسب النطاق (app/icon/route.ts)
   icons: {
     icon: "/icon",
     apple: "/icon",
   },
   title: {
-    default: "وثبة | waathba.com — متجرك الإلكتروني بثبة واحدة",
-    template: "%s | وثبة",
+    default: `${APP_NAME} | ${domain} — متجرك الإلكتروني مع ${APP_NAME}`,
+    template: `%s | ${APP_NAME}`,
   },
   description:
-    "منصة وثبة أنشئ بها متجرًا إلكترونيًا متكاملًا على نطاق فرعي خاص بك — تصميم، منتجات، SEO، وتسليم جاهز للإدارة.",
-  keywords: ["متاجر إلكترونية", "وثبة", "waathba.com", "إنشاء متاجر", "متجر إلكتروني"],
+    `منصة ${APP_NAME} أنشئ بها متجرًا إلكترونيًا متكاملًا على نطاق فرعي خاص بك — تصميم، منتجات، SEO، وتسليم جاهز للإدارة.`,
+  keywords: ["متاجر إلكترونية", APP_NAME, domain, "إنشاء متاجر", "متجر إلكتروني"],
   openGraph: {
-    title: "وثبة | waathba.com",
-    description: "متجرك الإلكتروني بثبة واحدة — أنشئه وأجهزه وسلّمه جاهزًا.",
+    title: `${APP_NAME} | ${domain}`,
+    description: `متجرك الإلكتروني مع ${APP_NAME} — أنشئه وأجهزه وسلّمه جاهزًا.`,
     locale: "ar_SA",
     type: "website",
   },

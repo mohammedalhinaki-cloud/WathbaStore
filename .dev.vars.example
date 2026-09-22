@@ -1,3 +1,7 @@
 # متغيرات محلية فقط لأدوات wrangler / opennextjs-cloudflare preview.
 # انسخ هذا الملف إلى .dev.vars إذا أردت معاينة بيئة development.
 NEXTJS_ENV=development
+NEXT_PUBLIC_MAIN_DOMAIN=maaoun.com
+DEVELOPER_URL=https://maaoun.com
+LOCAL_OWNER_EMAIL=owner@maaoun.com
+LOCAL_OWNER_PASSWORD=Maaoun#2026

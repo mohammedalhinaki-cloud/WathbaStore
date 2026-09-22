@@ -1,11 +1,16 @@
 // ============================================================
-// وثبة — تنفيذ الخدمات على SQLite (الوضع التجريبي المحلي)
+// معين — تنفيذ الخدمات على SQLite (الوضع التجريبي المحلي)
 // ============================================================
 
 import fs from "node:fs";
 import path from "node:path";
 import { db, DEFAULT_SETTINGS, newId, rowToStore, type RawStoreRow } from "../local/db";
-import { mainDomain } from "../constants";
+import {
+  generateDeliveryPassword,
+  presentSiteSettings,
+  replaceLegacyPlatformDomain,
+  rewriteStoredStoreUrl,
+} from "../constants";
 import { hashPassword, verifyPassword } from "../local/auth";
 import { StorageError, type StorageHealth } from "./types";
 import { normalizeSectionOrder } from "../types";
@@ -100,7 +105,7 @@ function rowToSettings(r: SettingsRow): StoreSettings {
     socialSnapchat: r.social_snapchat ?? "",
     socialTiktok: r.social_tiktok ?? "",
     socialWhatsApp: r.social_whatsapp ?? "",
-    developerUrl: r.developer_url ?? "",
+    developerUrl: replaceLegacyPlatformDomain(r.developer_url ?? ""),
     footerBgColor: r.footer_bg_color ?? "",
     ibanRajhi: r.iban_rajhi ?? "",
     ibanAlinmaa: r.iban_alinmaa ?? "",
@@ -110,7 +115,7 @@ function rowToSettings(r: SettingsRow): StoreSettings {
     seoKeywords: r.seo_keywords ?? "",
     seoOgImage: r.seo_og_image ?? "",
     seoFavicon: r.seo_favicon ?? "",
-    seoCanonical: r.seo_canonical ?? "",
+    seoCanonical: replaceLegacyPlatformDomain(r.seo_canonical ?? ""),
     updatedAt: r.updated_at,
   };
 }
@@ -297,23 +302,14 @@ export class LocalServices implements Services {
    */
   private rewritePortfolioStoreUrls(oldSub: string, newSub: string): void {
     try {
-      const domain = mainDomain();
-      const oldHost = `${oldSub}.${domain}`;
-      const newHost = `${newSub}.${domain}`;
       const d = db();
       const rows = d
         .prepare("SELECT id, store_url FROM portfolio_items WHERE store_url IS NOT NULL AND store_url != ''")
         .all() as { id: string; store_url: string }[];
       for (const item of rows) {
-        let host = "";
-        try {
-          host = new URL(/^https?:\/\//i.test(item.store_url) ? item.store_url : `https://${item.store_url}`).hostname;
-        } catch {
-          continue;
-        }
-        if (host !== oldHost) continue;
-        d.prepare("UPDATE portfolio_items SET store_url = ? WHERE id = ?")
-          .run(item.store_url.replace(oldHost, newHost), item.id);
+        const next = rewriteStoredStoreUrl(item.store_url, oldSub, newSub);
+        if (!next || next === item.store_url) continue;
+        d.prepare("UPDATE portfolio_items SET store_url = ? WHERE id = ?").run(next, item.id);
       }
     } catch (e) {
       console.warn("تعذر تحديث روابط معرض الأعمال بعد تغيير النطاق الفرعي", e);
@@ -337,7 +333,7 @@ export class LocalServices implements Services {
     if (!store.ownerName) return { ok: false, error: "أدخل اسم العميل أولاً من بيانات المتجر" };
 
     const email = store.ownerEmail.trim().toLowerCase();
-    const password = "Wathba@" + Math.random().toString(36).slice(2, 6) + Math.floor(Math.random() * 90 + 10);
+    const password = generateDeliveryPassword();
 
     const d = db();
     const existing = d
@@ -729,7 +725,7 @@ export class LocalServices implements Services {
     } catch { /* ignore */ }
     return {
       whatsappNumber: (r.whatsapp_number as string) ?? "",
-      developerUrl: (r.developer_url as string) ?? "",
+      developerUrl: replaceLegacyPlatformDomain((r.developer_url as string) ?? ""),
       aboutText: (r.about_text as string) ?? "",
       heroTitle: (r.hero_title as string) ?? "",
       heroSubtitle: (r.hero_subtitle as string) ?? "",
@@ -750,7 +746,7 @@ export class LocalServices implements Services {
         features: [], faq: [], socialInstagram: "", socialSnapchat: "", socialTiktok: "", updatedAt: now(),
       };
     }
-    return this.siteRowToSettings(row);
+    return presentSiteSettings(this.siteRowToSettings(row));
   }
 
   async updateSiteSettings(patch: Partial<SiteSettings>): Promise<SiteSettings> {
@@ -885,7 +881,7 @@ export class LocalServices implements Services {
       title: r.title as string,
       description: (r.description as string) ?? "",
       imageUrl: r.image_url as string,
-      storeUrl: (r.store_url as string) ?? "",
+      storeUrl: replaceLegacyPlatformDomain((r.store_url as string) ?? ""),
       tags: (r.tags as string) ?? "",
       isVisible: Boolean(r.is_visible),
       sortOrder: r.sort_order as number,

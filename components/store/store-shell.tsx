@@ -1,11 +1,11 @@
 // ============================================================
-// وثبة — غلاف المتجر (الهيدر + الفوتر + متغيرات التصميم)
+// معين — غلاف المتجر (الهيدر + الفوتر + متغيرات التصميم)
 // كل متجر يستقل هنا: خط، ألوان، شعار، روابط، وSEO
 // ============================================================
 
 import type { StoreBundle } from "@/lib/types";
 import { FONTS } from "@/lib/types";
-import { developerUrl, storeUrl } from "@/lib/constants";
+import { developerUrl, mainDomain, storeUrl } from "@/lib/constants";
 import { isDarkColor } from "@/lib/colors";
 import SocialLinks from "@/components/social-links";
 import StoreHeader from "./store-header";
@@ -41,7 +41,7 @@ export default function StoreShell({ bundle, query, navLinks, children }: Props)
           <p className="mt-8 text-xs text-ink-400">
             تطوير:{" "}
             <a href={devUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-ink-500 underline-offset-2 hover:underline">
-              waathba.com
+              {mainDomain()}
             </a>
           </p>
         </div>
@@ -127,7 +127,7 @@ export default function StoreShell({ bundle, query, navLinks, children }: Props)
             rel="noopener noreferrer"
             className="text-xs text-ink-400 transition-colors hover:text-ink-200"
           >
-            تطوير waathba.com © {new Date().getFullYear()}
+            تطوير {mainDomain()} © {new Date().getFullYear()}
           </a>
         </div>
 

@@ -1,4 +1,4 @@
-# دليل المبتدئ الكامل — ربط وثبة بـ Supabase و Cloudflare
+# دليل المبتدئ الكامل — ربط معين بـ Supabase و Cloudflare
 
 > هذا الدليل مكتوب لشخص **لم يستخدم Supabase أو Cloudflare من قبل أبداً**.
 > كل خطوة مشروحة بالنقرات. لا تتخطَّ أي خطوة، واتبعها بالترتيب.
@@ -10,7 +10,7 @@
 
 قبل أي نقرة، افهم الصورة الكبيرة — هذا سيوفّر عليك ساعات من الحيرة.
 
-موقعك «وثبة» يتكوّن من جزأين منفصلين تماماً:
+موقعك «معين» يتكوّن من جزأين منفصلين تماماً:
 
 | الجزء | ما هو؟ | أين سيعيش؟ |
 |---|---|---|
@@ -71,13 +71,13 @@ _services = isSupabaseConfigured() ? getSupabaseServices() : localServices;
 
 | الحقل | ماذا تكتب | ملاحظة |
 |---|---|---|
-| **Name** | `waathba` | اسم داخلي فقط، لا يظهر لأحد |
+| **Name** | `maaoun` | اسم داخلي فقط، لا يظهر لأحد |
 | **Database Password** | اضغط **Generate a password** | ⚠️ اقرأ التحذير تحت الجدول |
 | **Region** | `Central EU (Frankfurt)` أو `Middle East (Bahrain)` إن وُجدت | الأقرب لك = أسرع |
 | **Pricing Plan** | **Free** | يكفيك تماماً في البداية |
 
 > ⚠️ **كلمة مرور قاعدة البيانات:** بعد توليدها اضغط **Copy** والصقها فوراً في مكان آمن (تطبيق ملاحظات مقفل، أو مدير كلمات مرور مثل Bitwarden). **لن تستطيع رؤيتها مرة أخرى.**
-> مطمئنة: مشروع وثبة **لا يستخدم** هذه الكلمة (يستخدم المفاتيح بدلاً منها)، لكن ستحتاجها لو أردت الاتصال المباشر بقاعدة البيانات لاحقاً.
+> مطمئنة: مشروع معين **لا يستخدم** هذه الكلمة (يستخدم المفاتيح بدلاً منها)، لكن ستحتاجها لو أردت الاتصال المباشر بقاعدة البيانات لاحقاً.
 > **لا تكتبها أبداً في ملف داخل المشروع.**
 
 4. اضغط **Create new project**.
@@ -196,7 +196,11 @@ oud@demo.com       client
 
 ---
 
-### الخطوة 5 — تحميل البيانات التجريبية (ملف 0002)
+> إن كانت قاعدة الإنتاج **موجودة أصلًا** وفيها متاجر: لا تشغّل `0002`. شغّل مرة واحدة
+> `supabase/migrations/0006_rebrand_maaoun.sql` لتحديث الروابط والنصوص العامة فقط.
+> اسم مشروع Supabase الداخلي (مثل `waathba`) اختياري تغييره ولا يغيّر رابط `*.supabase.co`.
+
+### الخطوة 5 — تحميل البيانات التجريبية (ملف 0002) — لقاعدة جديدة فقط
 
 هذا يملأ موقعك بمحتوى عربي جاهز حتى لا تراه فارغاً.
 
@@ -338,7 +342,7 @@ git push origin main      # أو ادمج فرع عملك في main أولاً
 
 ستظهر صفحة إعداد البناء:
 
-- **Project name**: `waathba` (يظهر كـ `waathba.pages.dev`).
+- **Project name**: إن كان المشروع المنشور أصلًا باسم `waathba` **لا تُعد تسميته** إلا إذا قبلت تغيّر رابط `*.pages.dev`. لمشروع جديد يمكن استخدام `maaoun` (يظهر كـ `maaoun.pages.dev`).
 - **Production branch**: `main`.
 - **Framework preset**: اختر **Next.js**.
 - **Build command**: `npm run cf-build`
@@ -353,8 +357,8 @@ git push origin main      # أو ادمج فرع عملك في main أولاً
 | 1 | `NEXT_PUBLIC_SUPABASE_URL` | الـ Project URL من الخطوة 6 |
 | 2 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | الـ Publishable key |
 | 3 | `SUPABASE_SECRET_KEY` | الـ Secret key (اجعله Secret) |
-| 4 | `NEXT_PUBLIC_MAIN_DOMAIN` | `waathba.com` |
-| 5 | `DEVELOPER_URL` | `https://waathba.com` |
+| 4 | `NEXT_PUBLIC_MAIN_DOMAIN` | `maaoun.com` |
+| 5 | `DEVELOPER_URL` | `https://maaoun.com` |
 
 #### قواعد ذهبية لتجنّب 90% من المشاكل:
 
@@ -374,7 +378,7 @@ git push origin main      # أو ادمج فرع عملك في main أولاً
 1. راجع المتغيرات الخمسة مرة أخيرة.
 2. اضغط **Save and Deploy**.
 3. سترى سجل البناء (Building…) — يستغرق **2 – 4 دقائق**.
-4. عند النجاح: رابط `https://waathba.pages.dev` مع زر **Visit**.
+4. عند النجاح: رابط `https://<اسم-المشروع>.pages.dev` (مثل `waathba.pages.dev` أو `maaoun.pages.dev`) مع زر **Visit**.
 
 #### إذا فشل البناء (شاشة حمراء)
 
@@ -392,7 +396,7 @@ git push origin main      # أو ادمج فرع عملك في main أولاً
 
 ### الخطوة 11 — الاختبار على رابط pages.dev
 
-افتح رابطك (لنفترض `https://waathba.pages.dev`).
+افتح رابطك (مثل `https://waathba.pages.dev` أو `https://maaoun.pages.dev`).
 
 > 🔑 **مهم جداً — لماذا نستخدم `?store=` الآن؟**
 > على نطاق `.pages.dev` لا يمكن استخدام نطاقات فرعية حقيقية. لذلك `middleware.ts` في مشروعك يحاكيها عبر باراميتر `?store=`. هذا مؤقت، وسيختفي بعد ربط نطاقك الحقيقي في الخطوة 12.
@@ -418,14 +422,14 @@ git push origin main      # أو ادمج فرع عملك في main أولاً
 
 ---
 
-### الخطوة 12 — ربط نطاقك `waathba.com` والـ Wildcard
+### الخطوة 12 — ربط نطاقك `maaoun.com` والـ Wildcard
 
-هذه الخطوة تجعل `rshaf.waathba.com` يعمل مباشرة بلا `?store=`.
+هذه الخطوة تجعل `rshaf.maaoun.com` يعمل مباشرة بلا `?store=`.
 
-> **تحتاج أولاً:** أن يكون النطاق `waathba.com` مضافاً إلى Cloudflare كمنطقة (Zone)
+> **تحتاج أولاً:** أن يكون النطاق `maaoun.com` مضافاً إلى Cloudflare كمنطقة (Zone)
 > نشطة — أي أن Nameservers لدى مسجّل النطاق تشير إلى Cloudflare.
 
-#### ✅ استخدام نطاق غير `waathba.com`
+#### ✅ استخدام نطاق غير `maaoun.com`
 
 تم تعديل المشروع ليقرأ الدومين الرئيسي من متغير البيئة تلقائياً. فإذا أردت استخدام نطاق آخر (مثلاً `mystore.sa`):
 
@@ -443,23 +447,23 @@ git push origin main      # أو ادمج فرع عملك في main أولاً
 
 #### 12-أ) أضف النطاق في Cloudflare
 
-1. في لوحة Cloudflare: **Workers & Pages** → عامل `waathba` → **Settings → Domains & Routes**.
+1. في لوحة Cloudflare: **Workers & Pages** → العامل الحالي (`waathba` ما لم تُعد تسميته يدويًا) → **Settings → Domains & Routes**.
 2. أضف **Custom Domain**:
-   - `waathba.com`
-   - `www.waathba.com`
+   - `maaoun.com`
+   - `www.maaoun.com`
    Cloudflare ينشئ سجلات DNS والشهادة تلقائياً.
 
-#### 12-ب) إعداد النطاق العرضي `*.waathba.com`
+#### 12-ب) إعداد النطاق العرضي `*.maaoun.com`
 
-> ⚠️ Cloudflare **لا تدعم wildcard في Custom Domains**. متاجر العملاء `name.waathba.com`
+> ⚠️ Cloudflare **لا تدعم wildcard في Custom Domains**. متاجر العملاء `name.maaoun.com`
 > تحتاج أحد الحلين:
 
 **الحل الأسهل (Route + DNS):**
 
 | الإجراء | تطبيقه |
 |---|---|
-| سجل DNS `CNAME` باسم `*` يشير إلى `waathba.com` (بروكسي - سحابة برتقالية) | DNS للمنطقة |
-| **Route** بنمط `*waathba.com/*` مع `zone_name: waathba.com` | Settings → Domains & Routes للعامل |
+| سجل DNS `CNAME` باسم `*` يشير إلى `maaoun.com` (بروكسي - سحابة برتقالية) | DNS للمنطقة |
+| **Route** بنمط `*maaoun.com/*` مع `zone_name: maaoun.com` | Settings → Domains & Routes للعامل |
 
 **الحل الأقوى (عامل Wildcard صغير):** عامل يمرر `x-forwarded-host` (التطبيق يقرأها)
 للتعرف على النطاق الفرعي — الكود الجاهز في `docs/DEPLOY_CLOUDFLARE_AR.md` القسم 5.
@@ -472,11 +476,11 @@ git push origin main      # أو ادمج فرع عملك في main أولاً
 
 | الرابط | المتوقع |
 |---|---|
-| `https://waathba.com` | الموقع العام |
-| `https://waathba.com/admin` | لوحة المالك |
-| `https://rshaf.waathba.com` | متجر كافيه رشف — **بلا `?store=`** |
-| `https://rshaf.waathba.com/admin` | لوحة عميل رشف |
-| `https://oud.waathba.com` | متجر عود وروائح |
+| `https://maaoun.com` | الموقع العام |
+| `https://maaoun.com/admin` | لوحة المالك |
+| `https://rshaf.maaoun.com` | متجر كافيه رشف — **بلا `?store=`** |
+| `https://rshaf.maaoun.com/admin` | لوحة عميل رشف |
+| `https://oud.maaoun.com` | متجر عود وروائح |
 
 ---
 
@@ -540,7 +544,7 @@ select subdomain, status from public.stores;
 3. صور العرض في `public/seed` تُنشر مع التطبيق ولا علاقة لها بـ Supabase.
 
 ### 🔴 الـ Wildcard لا يعمل
-1. هل أضفت سجل DNS `CNAME *` (بروكسي) وRoute بنمط `*waathba.com/*` (أو عامل الـ Wildcard)؟ سجل DNS وحده **لا يكفي** — Cloudflare لا تدعم wildcard في Custom Domains.
+1. هل أضفت سجل DNS `CNAME *` (بروكسي) وRoute بنمط `*maaoun.com/*` (أو عامل الـ Wildcard)؟ سجل DNS وحده **لا يكفي** — Cloudflare لا تدعم wildcard في Custom Domains.
 2. هل حالة النطاق **Active** مع شهادة HTTPS صادرة؟
 3. هل قيمة `NEXT_PUBLIC_MAIN_DOMAIN` تطابق نطاقك بالضبط، وهل أعدت النشر بعد تغييرها؟
 
@@ -574,4 +578,4 @@ npm run dev
 7. ارفع الكود إلى `main` على GitHub.
 8. استورد المستودع في Cloudflare + أضف **5 متغيرات بيئة** (Build: `npm run cf-build`).
 9. Deploy → اختبر بـ `?store=rshaf`.
-10. أضف `waathba.com` كـ Custom Domain واضبط `*.waathba.com` (DNS + Route) → انتهى.
+10. أضف `maaoun.com` كـ Custom Domain واضبط `*.maaoun.com` (DNS + Route) → انتهى.

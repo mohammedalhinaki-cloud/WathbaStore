@@ -1,6 +1,6 @@
 // ============================================================
-// وثبة — إعدادات المتجر: روابط التواصل + رابط المطور + لون الفوتر + حسابات IBAN
-// (رابط المطور = DEVELOPER_URL — يغيّر توقيع «تطوير: waathba.com»)
+// معين — إعدادات المتجر: روابط التواصل + رابط المطور + لون الفوتر + حسابات IBAN
+// (رابط المطور = DEVELOPER_URL — يغيّر توقيع «تطوير: maaoun.com»)
 // ============================================================
 
 "use client";
@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import type { Store, StoreSettings } from "@/lib/types";
-import { developerUrl } from "@/lib/constants";
+import { developerUrl, mainDomain } from "@/lib/constants";
 import { Card, Field, inputCls, PrimaryBtn } from "./ui";
 import { FormAlerts } from "./use-api";
 
@@ -154,7 +154,7 @@ export default function StoreSettingsForm({ store, settings }: Props) {
       <Card>
         <h3 className="mb-1 font-extrabold text-ink-900">رابط الموقع المطور</h3>
         <p className="mb-5 text-xs text-ink-400">
-          يظهر أسفل المتجر: «تطوير: waathba.com» — الرابط يُفتح في تبويب جديد.
+          يظهر أسفل المتجر: «تطوير: maaoun.com» — الرابط يُفتح في تبويب جديد.
           (قيمة واحدة تُغيَّر هنا أو عبر متغير DEVELOPER_URL)
         </p>
         <Field label="DEVELOPER_URL">
