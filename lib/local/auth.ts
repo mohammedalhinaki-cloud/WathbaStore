@@ -74,7 +74,7 @@ export function verifySession(token: string): { uid: string } | null {
 /**
  * خيارات كوكي الجلسة في الوضع التجريبي.
  * `host` هو مضيف الطلب: على النطاق الحقيقي تُكتب الكوكي على النطاق الأب
- * (`.waathba.com`) ليعمل الدخول على كل النطاقات الفرعية، وعلى المعاينة
+ * (`.maaoun.com`) ليعمل الدخول على كل النطاقات الفرعية، وعلى المعاينة
  * المحلية تبقى كما هي.
  */
 export function sessionCookieOptions(host?: string | null) {

@@ -1,5 +1,5 @@
 -- ============================================================
--- وثبة waathba.com — مخطط قاعدة البيانات + RLS
+-- معين maaoun.com — مخطط قاعدة البيانات + RLS
 -- Supabase / PostgreSQL
 --
 -- البنية: Multi-Tenant حقيقية
@@ -424,7 +424,7 @@ create policy "site_write" on public.site_settings
   with check (public.is_platform_owner());
 
 insert into public.site_settings (id, whatsapp_number, developer_url, hero_title, hero_subtitle)
-values (1, '', 'https://waathba.com', 'متجرك الإلكتروني…', 'بثُبة واحدة');
+values (1, '', 'https://maaoun.com', 'متجرك الإلكتروني…', 'مع معين');
 
 -- ---------- pricing_plans ----------
 
@@ -520,7 +520,7 @@ create policy "store_assets_owner_delete" on storage.objects
 -- ملاحظة: المالك يُهيّئ حساب «مالك المنصة» يدويًا مرة واحدة:
 --   1) أنشئ المستخدم من Supabase Dashboard (Authentication → Users)
 --   2) نفّذ:
---      update public.profiles set role = 'owner' where email = 'you@waathba.com';
+--      update public.profiles set role = 'owner' where email = 'you@maaoun.com';
 --
 -- المسارات داخل bucket:
 --   stores/{store_id}/logo/...

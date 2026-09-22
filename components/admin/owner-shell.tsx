@@ -1,5 +1,5 @@
 // ============================================================
-// وثبة — هيكل لوحة المالك (الشريط الجانبي + الشريط العلوي)
+// معين — هيكل لوحة المالك (الشريط الجانبي + الشريط العلوي)
 // ============================================================
 
 "use client";
@@ -25,6 +25,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { APP_NAME } from "@/lib/constants";
 
 const NAV: { href: string; label: string; icon: React.ElementType; end?: boolean }[] = [
   { href: "/admin", label: "الرئيسية", icon: LayoutDashboard, end: true },
@@ -64,7 +65,7 @@ export default function OwnerShell({
           <Store className="h-5 w-5 text-white" />
         </span>
         <div>
-          <p className="text-base font-extrabold text-white">وثبة</p>
+          <p className="text-base font-extrabold text-white">{APP_NAME}</p>
           <p className="text-[10px] font-bold text-ink-400">لوحة الإدارة</p>
         </div>
       </div>
@@ -133,7 +134,7 @@ export default function OwnerShell({
         <button onClick={() => setOpen(true)} className="rounded-lg p-2 text-ink-600">
           <Menu className="h-5 w-5" />
         </button>
-        <span className="font-extrabold text-ink-900">لوحة وثبة</span>
+        <span className="font-extrabold text-ink-900">لوحة {APP_NAME}</span>
         <Link href="/" className="flex items-center gap-1 text-xs font-bold text-brand-600">
           الموقع
           <ArrowRight className="h-3.5 w-3.5" />

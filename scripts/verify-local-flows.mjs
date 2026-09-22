@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * ============================================================
- * وثبة — اختبار شامل للصلاحيات ولوحات الإدارة (الوضع المحلي/SQLite)
+ * معين — اختبار شامل للصلاحيات ولوحات الإدارة (الوضع المحلي/SQLite)
  * ============================================================
  *
  * يشغّل التطبيق المنشور محليًا (next start) على قاعدة البيانات التجريبية
@@ -33,7 +33,7 @@ const APP_PORT = Number(flag("--port", 3210));
 const BASE = `http://127.0.0.1:${APP_PORT}`;
 const DATA_DIR = path.join(APP_DIR, ".data");
 
-const OWNER = { email: "owner@waathba.com", password: "Wathba#2026" };
+const OWNER = { email: "owner@maaoun.com", password: "Maaoun#2026" };
 const RSHAF = { email: "rshaf@demo.com", password: "Rshaf#2026" };
 const STORE_RSHAF = "store-rshaf";
 const STORE_OUD = "store-oud";
@@ -53,7 +53,7 @@ async function login(creds, host = null) {
     headers: {
       "Content-Type": "application/json",
       // نمرّر المضيف كما يمرّره بروكسي النطاق على Cloudflare — لمحاكاة
-      // الدخول من waathba.com أو من نطاق متجر مثل rshaf.waathba.com
+      // الدخول من maaoun.com أو من نطاق متجر مثل rshaf.maaoun.com
       ...(host ? { "x-forwarded-host": host } : {}),
     },
     body: JSON.stringify(creds),
@@ -165,7 +165,7 @@ async function main() {
 
   const env = {
     ...process.env,
-    NEXT_PUBLIC_MAIN_DOMAIN: "waathba.com",
+    NEXT_PUBLIC_MAIN_DOMAIN: "maaoun.com",
     NEXT_TELEMETRY_DISABLED: "1",
   };
   // تأكد أننا في الوضع المحلي (بلا Supabase)
@@ -376,30 +376,30 @@ async function main() {
     const ownerPanel = await page("/admin");
     record("لوحة المالك الرئيسي", ownerPanel.status === 200 && ownerPanel.html.includes("إنشاء متجر"));
 
-    console.log("\n  ── 2ب) المالك من نطاق المتجر نفسه (rshaf.waathba.com) ──");
+    console.log("\n  ── 2ب) المالك من نطاق المتجر نفسه (rshaf.maaoun.com) ──");
     // دخول من الدومين الرئيسي → يجب أن تُكتب كوكي الجلسة على النطاق الأب
-    // (.waathba.com) حتى تصل إلى كل نطاق فرعي بلا تسجيل دخول ثانٍ.
-    const mainLogin = await login(OWNER, "waathba.com");
+    // (.maaoun.com) حتى تصل إلى كل نطاق فرعي بلا تسجيل دخول ثانٍ.
+    const mainLogin = await login(OWNER, "maaoun.com");
     const sessionCookieRaw = mainLogin.setCookie.find((c) => c.startsWith("wst_session=")) ?? "";
     record(
       "كوكي الجلسة مكتوبة على النطاق الأب (تعمل على كل النطاقات الفرعية)",
-      mainLogin.status === 200 && /Domain=\.waathba\.com/i.test(sessionCookieRaw),
+      mainLogin.status === 200 && /Domain=\.maaoun\.com/i.test(sessionCookieRaw),
       sessionCookieRaw ? sessionCookieRaw.replace(/wst_session=[^;]+/, "wst_session=…") : "لا كوكي"
     );
 
-    const storePanel = await page("/admin", { host: "rshaf.waathba.com" });
+    const storePanel = await page("/admin", { host: "rshaf.maaoun.com" });
     record(
       "المالك يفتح لوحة متجر رشف من نطاق المتجر (نفس واجهة صاحب المتجر)",
       storePanel.status === 200 && storePanel.html.includes("إضافة منتج") && storePanel.html.includes("كافيه رشف"),
       `HTTP ${storePanel.status}`
     );
-    const storeProducts = await page("/admin/products", { host: "rshaf.waathba.com" });
+    const storeProducts = await page("/admin/products", { host: "rshaf.maaoun.com" });
     record("لوحة منتجات المتجر على نطاق المتجر", storeProducts.status === 200, `HTTP ${storeProducts.status}`);
 
     // نفس الوظائف عبر النطاق الفرعي مباشرة (وليس ?store=)
     const slugOnHost = await api(`/api/stores/${STORE_RSHAF}`, {
       method: "PATCH",
-      host: "rshaf.waathba.com",
+      host: "rshaf.maaoun.com",
       body: JSON.stringify({ name: "كافيه رشف — من نطاق المتجر" }),
     });
     record("تعديل بيانات المتجر من نطاق المتجر", slugOnHost.status === 200, `HTTP ${slugOnHost.status}`);
@@ -450,14 +450,14 @@ async function main() {
     record("لا يقرأ نشاط متجر عود", memberActivityOther.status === 403, `HTTP ${memberActivityOther.status}`);
 
     // على النطاقات الحقيقية: صاحب رشف يدخل لوحة متجره ولا يدخل لوحة عود
-    res = await login(RSHAF, "rshaf.waathba.com");
-    const memberOnOwnHost = await page("/admin", { host: "rshaf.waathba.com" });
+    res = await login(RSHAF, "rshaf.maaoun.com");
+    const memberOnOwnHost = await page("/admin", { host: "rshaf.maaoun.com" });
     record(
       "صاحب المتجر يدخل لوحة متجره من نطاقه",
       memberOnOwnHost.status === 200 && memberOnOwnHost.html.includes("إضافة منتج"),
       `HTTP ${memberOnOwnHost.status}`
     );
-    const memberOnOudHost = await page("/admin", { host: "oud.waathba.com", redirect: "manual" });
+    const memberOnOudHost = await page("/admin", { host: "oud.maaoun.com", redirect: "manual" });
     record(
       "صاحب متجر رشف لا يدخل لوحة متجر عود (يُحوّل لتسجيل الدخول)",
       memberOnOudHost.status === 307 || memberOnOudHost.status === 302 || /تسجيل الدخول/.test(memberOnOudHost.html),
@@ -470,7 +470,7 @@ async function main() {
     const blockedOwnerPanel =
       memberOwnerPanel.status === 200 &&
       !memberOwnerPanel.html.includes("إنشاء متجر") &&
-      (memberOwnerPanel.html.includes("تسجيل الدخول") || memberOwnerPanel.html.includes("لوحة إدارة وثبة"));
+      (memberOwnerPanel.html.includes("تسجيل الدخول") || memberOwnerPanel.html.includes("لوحة إدارة معين"));
     record("لا يدخل لوحة المالك الرئيسي", blockedOwnerPanel, `HTTP ${memberOwnerPanel.status}`);
 
     const memberCreateStore = await api("/api/stores", {

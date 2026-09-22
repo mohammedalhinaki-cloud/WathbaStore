@@ -1,4 +1,4 @@
-// وثبة — تبويبات باني المتجر
+// معين — تبويبات باني المتجر
 "use client";
 
 import Link from "next/link";

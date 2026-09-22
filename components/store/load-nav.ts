@@ -1,4 +1,4 @@
-// وثبة — تحميل روابط تنقل المتجر (أقسام + صفحات)
+// معين — تحميل روابط تنقل المتجر (أقسام + صفحات)
 import { services } from "@/lib/services";
 import type { Category, StorePage } from "@/lib/types";
 

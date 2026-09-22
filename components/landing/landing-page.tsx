@@ -1,6 +1,6 @@
 // ============================================================
-// وثبة — الصفحة الرئيسية العامة (Landing Page)
-// تُعرض على waathba.com فقط — لا يظهر فيها أي شيء عن لوحة الإدارة
+// معين — الصفحة الرئيسية العامة (Landing Page)
+// تُعرض على maaoun.com فقط — لا يظهر فيها أي شيء عن لوحة الإدارة
 // ============================================================
 
 import Image from "next/image";
@@ -22,7 +22,7 @@ import {
   Zap,
 } from "lucide-react";
 import { services } from "@/lib/services";
-import { developerUrl, formatPrice } from "@/lib/constants";
+import { APP_NAME, developerUrl, formatPrice, mainDomain } from "@/lib/constants";
 import { waChatLink } from "@/lib/wa";
 import LandingNav from "./nav";
 import Faq from "./faq";
@@ -80,6 +80,7 @@ export default async function LandingPage() {
 
   const wa = settings.whatsappNumber ? waChatLink(settings.whatsappNumber) : "#";
   const devUrl = developerUrl(settings.developerUrl);
+  const domain = mainDomain();
 
   return (
     <div id="top" className="bg-ink-950">
@@ -104,7 +105,7 @@ export default async function LandingPage() {
             <h1 className="text-4xl font-extrabold leading-[1.2] text-white sm:text-5xl lg:text-[3.4rem]">
               {settings.heroTitle || "متجرك الإلكتروني…"}
               <span className="mt-2 block bg-gradient-to-l from-accent-400 to-accent-500 bg-clip-text text-transparent">
-                بثُبة واحدة
+                مع معين
               </span>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-8 text-ink-300">
@@ -142,7 +143,7 @@ export default async function LandingPage() {
             <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-tr from-brand-500/30 to-accent-500/20 blur-2xl" />
             <Image
               src="/seed/hero.jpg"
-              alt="معاينة متاجر وثبة"
+              alt="معاينة متاجر معين"
               width={1200}
               height={900}
               priority
@@ -161,21 +162,21 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* ============ عن وثبة ============ */}
+      {/* ============ عن معين ============ */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div className="order-2 lg:order-1">
-            <SectionBadge icon={<Globe className="h-4 w-4" />} text="ما هي وثبة؟" />
+            <SectionBadge icon={<Globe className="h-4 w-4" />} text="ما هو معين؟" />
             <h2 className="mt-4 text-3xl font-extrabold text-white sm:text-4xl">
               منصة أدير بها متاجر أعمالي… وأسلّمها جاهزة
             </h2>
             <p className="mt-5 text-lg leading-8 text-ink-300">
               {settings.aboutText ||
-                "وثبة منصة متكاملة أنشئ بها متاجر إلكترونية للعملاء على نطاقات فرعية خاصة، أجهزها بالكامل وأسلّم كل متجر لصاحبه ليديره بنفسه."}
+                "معين منصة متكاملة أنشئ بها متاجر إلكترونية للعملاء على نطاقات فرعية خاصة، أجهزها بالكامل وأسلّم كل متجر لصاحبه ليديره بنفسه."}
             </p>
             <ul className="mt-6 space-y-3">
               {[
-                "كل متجر على نطاق فرعي مستقل: name.waathba.com",
+                `كل متجر على نطاق فرعي مستقل: name.${domain}`,
                 "تصميم ومنتجات وSEO أجهزها أنا قبل التسليم",
                 "لوحة تحكم مستقلة لكل عميل بعد التسليم",
               ].map((t) => (
@@ -224,7 +225,7 @@ export default async function LandingPage() {
       <section id="portfolio" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
         <SectionHead
           badge="أعمالي"
-          title="متاجر بُنيت على وثبة"
+          title="متاجر بُنيت على معين"
           sub="عينات من المتاجر التي أنشأتها وجاهزتها"
           light
         />
@@ -390,7 +391,7 @@ export default async function LandingPage() {
       <section className="border-t border-white/5 bg-ink-900/40 py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHead
-            badge="لماذا وثبة؟"
+            badge="لماذا معين؟"
             title="مميزات تجعل الفرق"
             sub="بُنية مبنية لتتحمل نمو عدد المتاجر"
           />
@@ -455,7 +456,7 @@ export default async function LandingPage() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-violet-600">
                 <Store className="h-5 w-5 text-white" />
               </span>
-              <span className="text-xl font-extrabold text-white">وثبة</span>
+              <span className="text-xl font-extrabold text-white">{APP_NAME}</span>
             </div>
             <p className="mt-4 max-w-md text-sm leading-7 text-ink-400">
               {settings.aboutText || "منصة إنشاء المتاجر الإلكترونية على نطاقات فرعية — أنشئ، جهّز، وسلّم."}
@@ -483,7 +484,7 @@ export default async function LandingPage() {
               <li>
                 <a href={wa} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white">
                   <MessageCircle className="h-4 w-4 text-emerald-400" />
-                  واتساب وثبة
+                  واتساب {APP_NAME}
                 </a>
               </li>
               <li className="flex items-center gap-2">
@@ -494,9 +495,9 @@ export default async function LandingPage() {
           </div>
         </div>
         <div className="border-t border-white/10 py-5 text-center text-xs text-ink-500">
-          © {new Date().getFullYear()} وثبة waathba.com — جميع الحقوق محفوظة ·{" "}
+          © {new Date().getFullYear()} {APP_NAME} {domain} — جميع الحقوق محفوظة ·{" "}
           <a href={devUrl} target="_blank" rel="noopener noreferrer" className="text-ink-400 hover:text-white">
-            waathba.com
+            {domain}
           </a>
         </div>
       </footer>

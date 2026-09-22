@@ -1,10 +1,10 @@
 // ============================================================
-// وثبة — كشف المستأجر (الموقع العام أم متجر عميل)
+// معين — كشف المستأجر (الموقع العام أم متجر عميل)
 // middleware يضبط الترويسات: x-tenant / x-store-slug
 // ============================================================
 
 import { headers } from "next/headers";
-import { mainDomain } from "./constants";
+import { platformHostOf } from "./constants";
 import { services } from "./services";
 import { getCurrentUser } from "./session";
 import type { StoreBundle } from "./types";
@@ -20,7 +20,7 @@ export interface TenantCtx {
 export async function getTenant(): Promise<TenantCtx> {
   const h = await headers();
   // يُفضَّل x-forwarded-host إن وُجد: عند النشر خلف بروكسي (Cloudflare Worker
-  // يعيد توجيه *.waathba.com إلى الموقع) يحمل الترويسة النطاق الأصلي الذي
+  // يعيد توجيه *.maaoun.com إلى الموقع) يحمل الترويسة النطاق الأصلي الذي
   // طلبه الزائر بينما تُستبدل قيمة host إلى نطاق الموقع الداخلي.
   const rawHost =
     (h.get("x-forwarded-host") || "").split(",")[0].trim() ||
@@ -29,28 +29,21 @@ export async function getTenant(): Promise<TenantCtx> {
   const host = rawHost.replace(/:\d+$/, "").toLowerCase();
   const tenantHeader = (h.get("x-tenant") as "main" | "store") || "main";
   const slugHeader = h.get("x-store-slug");
-  const domain = mainDomain();
-  const onMainDomain = host === domain || host.endsWith(`.${domain}`);
+  const platform = platformHostOf(host);
 
-  // على النطاق الحقيقي تُشتق جهة الطلب مباشرة من النطاق الفرعي في Host
-  // (مثل rshaf.waathba.com) — حتى لو لم يصلنا ترويسة x-tenant لسببٍ ما.
+  // على النطاق الحقيقي (الحالي أو السابق) تُشتق جهة الطلب من النطاق الفرعي
+  // (مثل rshaf.maaoun.com) — حتى لو لم يصلنا ترويسة x-tenant لسببٍ ما.
   let tenant = tenantHeader;
   let slug = slugHeader;
-  if (onMainDomain) {
-    const mainHosts = [domain, `www.${domain}`];
-    if (!mainHosts.includes(host)) {
-      const sub = host.slice(0, -(domain.length + 1));
-      if (/^[a-z0-9](?:[a-z0-9-]{0,60}[a-z0-9])?$/.test(sub) && sub !== "www") {
-        tenant = "store";
-        slug = sub;
-      } else {
-        tenant = "main";
-        slug = null;
-      }
-    }
+  if (platform?.subdomain) {
+    tenant = "store";
+    slug = platform.subdomain;
+  } else if (platform) {
+    tenant = "main";
+    slug = null;
   }
 
-  const isPreview = !(onMainDomain && tenant === "store");
+  const isPreview = !platform?.subdomain;
   return { tenant, slug, host, isPreview };
 }
 

@@ -1,5 +1,5 @@
 // ============================================================
-// وثبة — هيكل لوحة العميل (نطاق متجره فقط)
+// معين — هيكل لوحة العميل (نطاق متجره فقط)
 // ============================================================
 
 "use client";
@@ -19,6 +19,7 @@ import {
   Tags,
   X,
 } from "lucide-react";
+import { mainDomain } from "@/lib/constants";
 import { ownerPanelHref } from "@/lib/store-links";
 import { useState } from "react";
 
@@ -66,7 +67,7 @@ export default function ClientShell({
         </span>
         <div className="min-w-0">
           <p className="truncate text-sm font-extrabold text-white">لوحة {storeName}</p>
-          <p className="text-[10px] font-bold text-ink-400">{subdomain}.waathba.com</p>
+          <p className="text-[10px] font-bold text-ink-400">{subdomain}.{mainDomain()}</p>
         </div>
       </div>
 

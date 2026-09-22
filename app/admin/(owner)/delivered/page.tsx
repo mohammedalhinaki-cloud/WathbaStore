@@ -1,4 +1,4 @@
-// وثبة — المتاجر المسلّمة
+// معين — المتاجر المسلّمة
 import type { Metadata } from "next";
 import { getTenant } from "@/lib/tenant";
 import { services } from "@/lib/services";

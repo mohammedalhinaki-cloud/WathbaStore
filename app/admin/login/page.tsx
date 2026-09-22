@@ -1,10 +1,11 @@
 // ============================================================
 // صفحة تسجيل الدخول:
-// - waathba.com/admin/login      → دخول المالك
-// - rshaf.waathba.com/admin/login → دخول صاحب المتجر
+// - maaoun.com/admin/login      → دخول المالك
+// - rshaf.maaoun.com/admin/login → دخول صاحب المتجر
 // ============================================================
 
 import type { Metadata } from "next";
+import { APP_NAME, mainDomain } from "@/lib/constants";
 import { getTenant, getStoreCtx } from "@/lib/tenant";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { Store, Lock, ShieldCheck } from "lucide-react";
@@ -39,7 +40,7 @@ export default async function LoginPage() {
             <p className="mt-2 text-sm text-ink-400">
               تسجيل دخول صاحب المتجر —{" "}
               <span className="font-mono text-xs" dir="ltr">
-                {store.subdomain}.waathba.com
+                {store.subdomain}.{mainDomain()}
               </span>
             </p>
           </div>
@@ -60,7 +61,7 @@ export default async function LoginPage() {
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-violet-600 shadow-xl shadow-brand-500/30">
             <Store className="h-7 w-7 text-white" />
           </span>
-          <h1 className="mt-4 text-2xl font-extrabold text-white">لوحة إدارة وثبة</h1>
+          <h1 className="mt-4 text-2xl font-extrabold text-white">لوحة إدارة {APP_NAME}</h1>
           <p className="mt-2 flex items-center gap-1.5 text-sm text-ink-400">
             <ShieldCheck className="h-4 w-4 text-emerald-400" />
             هذه اللوحة خاصة بمالك المنصة فقط
@@ -74,7 +75,7 @@ export default async function LoginPage() {
               بيانات التجربة (الوضع المحلي)
             </p>
             <p className="mt-1" dir="ltr">
-              owner@waathba.com / Wathba#2026
+              owner@maaoun.com / Maaoun#2026
             </p>
             <p className="mt-2 text-[11px] text-ink-500">
               ولوحة العميل: rshaf@demo.com / Rshaf#2026 (على نطاق متجر رشف)

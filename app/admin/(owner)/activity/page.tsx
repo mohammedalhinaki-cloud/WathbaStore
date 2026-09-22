@@ -1,4 +1,4 @@
-// وثبة — سجل النشاطات (المنصة كلها)
+// معين — سجل النشاطات (المنصة كلها)
 import type { Metadata } from "next";
 import { services } from "@/lib/services";
 import { PageHeader } from "@/components/admin/ui";

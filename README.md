@@ -1,9 +1,9 @@
-# وثبة — waathba.com
+# معين — maaoun.com
 
 منصة متكاملة لإنشاء وتجهيز وتسليم المتاجر الإلكترونية على **نطاقات فرعية**، مع عزل Multi-Tenant حقيقي على مستوى قاعدة البيانات.
 
 ```text
-                    waathba.com
+                    maaoun.com
                            │
               ┌────────────┴────────────┐
               │                         │
@@ -14,10 +14,10 @@
               │                         │
       ┌───────┼─────────────────────────┼──────────────────┐
       ▼       ▼                         ▼                  ▼
-rshaf.waathba.com   mohammed.waathba.com   … (متاجر العملاء)
+rshaf.maaoun.com   mohammed.maaoun.com   … (متاجر العملاء)
       │
       ▼
-  لوحة العميل (rshaf.waathba.com/admin)
+  لوحة العميل (rshaf.maaoun.com/admin)
 ```
 
 ---
@@ -26,10 +26,10 @@ rshaf.waathba.com   mohammed.waathba.com   … (متاجر العملاء)
 
 | الجزء | الرابط | لمن؟ |
 |---|---|---|
-| الموقع العام | `waathba.com` | الزوار (خدمات، أعمال، أسعار، عروض، FAQ، واتساب) |
-| لوحة المالك | `waathba.com/admin` | أنت فقط (إنشاء، تجهيز، اختبار، تسليم، إدارة) |
-| متاجر العملاء | `name.waathba.com` | زوار كل متجر (منتجات، أقسام، صفحات، واتساب) |
-| لوحة العميل | `name.waathba.com/admin` | صاحب المتجر فقط (منتجاته، أقسامه، مظهره) |
+| الموقع العام | `maaoun.com` | الزوار (خدمات، أعمال، أسعار، عروض، FAQ، واتساب) |
+| لوحة المالك | `maaoun.com/admin` | أنت فقط (إنشاء، تجهيز، اختبار، تسليم، إدارة) |
+| متاجر العملاء | `name.maaoun.com` | زوار كل متجر (منتجات، أقسام، صفحات، واتساب) |
+| لوحة العميل | `name.maaoun.com/admin` | صاحب المتجر فقط (منتجاته، أقسامه، مظهره) |
 
 لا يوجد: تسجيل عام، إنشاء متجر ذاتي، أو شراء دومين لكل عميل.
 الدورة: **أنا → أنشئ → أجهّز → أختبر → أسلم → العميل يدير متجره.**
@@ -53,7 +53,7 @@ npm run dev
 
 | الدور | البريد | كلمة المرور |
 |---|---|---|
-| المالك | `owner@waathba.com` | `Wathba#2026` |
+| المالك | `owner@maaoun.com` | `Maaoun#2026` |
 | عميل (كافيه رشف) | `rshaf@demo.com` | `Rshaf#2026` |
 | عميل (عود وروائح) | `oud@demo.com` | `Oud#2026` |
 
@@ -63,35 +63,35 @@ npm run dev
 
 | النطاق الحقيقي | المكافئ في التطوير |
 |---|---|
-| `rshaf.waathba.com` | `/?store=rshaf` |
-| `rshaf.waathba.com/products/latte` | `/products/latte?store=rshaf` |
-| `rshaf.waathba.com/checkout` | `/checkout?store=rshaf` |
-| `rshaf.waathba.com/admin` | `/admin?store=rshaf` |
-| `waathba.com/admin` | `/admin` |
+| `rshaf.maaoun.com` | `/?store=rshaf` |
+| `rshaf.maaoun.com/products/latte` | `/products/latte?store=rshaf` |
+| `rshaf.maaoun.com/checkout` | `/checkout?store=rshaf` |
+| `rshaf.maaoun.com/admin` | `/admin?store=rshaf` |
+| `maaoun.com/admin` | `/admin` |
 
 عند النشر على الدومين الحقيقي، يقوم الـ Middleware بقراءة الـ Host تلقائيًا
-(`rshaf.waathba.com` → متجر رشف فقط) — نفس الكود بدون أي تغيير.
+(`rshaf.maaoun.com` → متجر رشف فقط) — نفس الكود بدون أي تغيير.
 
 > **مهم:** في وضع المعاينة يجب أن يحمل **كل** رابط داخل المتجر المعامل `?store=`،
 > وإلا اعتُبر الطلب تابعًا للموقع العام وتظهر «الصفحة غير موجودة».
 > لذلك تُبنى الروابط عبر `lib/store-links.ts` (`withStore` / `storeHomeHref` / `checkoutHref`)
 > ولا تُكتب يدويًا. وكشبكة أمان، يحفظ الـ Middleware آخر متجر مُزار في كوكي
-> `wathba_preview_store`، فإذا فُتح مسار يخص المتاجر فقط (`/checkout`، `/products/…`، …)
+> `wathba_preview_store` (اسم داخلي قديم، ليس الاسم التجاري)، فإذا فُتح مسار يخص المتاجر فقط (`/checkout`، `/products/…`، …)
 > بدون المعامل يُعاد توجيهه تلقائيًا إلى الرابط الصحيح.
 >
-> السلة معزولة لكل متجر بمفتاح `wathba-cart:<النطاق الفرعي>` حتى لا تختلط
+> السلة معزولة لكل متجر بمفتاح `wathba-cart:<النطاق الفرعي>` (مفتاح تخزين داخلي) حتى لا تختلط
 > منتجات متجر بمتجر أثناء المعاينة على نطاق واحد.
 
 ## السيناريو الكامل (كما في المتطلبات)
 
-1. ادخل `waathba.com/admin` وسجّل دخولك كمالك.
+1. ادخل `maaoun.com/admin` وسجّل دخولك كمالك.
 2. اضغط **إنشاء متجر** → بيانات العميل → اسم المتجر + النطاق الفرعي (مع فحص التوفر فوريًا: يمنع المسافات والرموز والمكرر والمحجوز).
-3. اختر التصميم (قالب/خط/ألوان) — يظهر الرابط `rshaf.waathba.com` تلقائيًا.
+3. اختر التصميم (قالب/خط/ألوان) — يظهر الرابط `rshaf.maaoun.com` تلقائيًا.
 4. من باني المتجر: صمّم، ارفع الشعار والغلاف، أضف الأقسام والمنتجات (صور متعددة)، اضبط الصفحات، SEO، وواتساب المتجر.
 5. **معاينة** المتجر مباشرة من أي لحظة.
 6. **اختبار** (يغيّر الحالة إلى «جاهز للاختبار» ويفتح المتجر).
 7. اضغط **تسليم المتجر** → يُنشأ حساب العميل + تُولَّد كلمة مرور + تتغير الحالة إلى «مسلّم» + تظهر نافذة ببيانات الدخول للتسليم.
-8. العميل يدخل على `rshaf.waathba.com/admin` ببياناته → يضيف منتجًا → يظهر فورًا في المتجر.
+8. العميل يدخل على `rshaf.maaoun.com/admin` ببياناته → يضيف منتجًا → يظهر فورًا في المتجر.
 9. العميل **لا يستطيع** الوصول إلى: لوحة المالك، متجر عميل آخر، أو أي إعداد نظام — حتى بتعديل الطلبات يدويًا (التحقق في الخادم + RLS).
 
 ## الأمان والعزل (Multi-Tenant)
@@ -103,7 +103,7 @@ npm run dev
   - `site_settings/pricing_plans/offers/portfolio_items`: قراءة عامة + كتابة للمالك فقط.
 - **المالك الرئيسي Master Owner** (`profiles.role = 'owner'`): يملك **كل** صلاحيات صاحب المتجر على **كل** المتاجر
   وأعلى منها (إنشاء، تسليم، تغيير النطاق الفرعي، تغيير الحالة، الحذف) — ولا توجد وظيفة يستطيع صاحب المتجر
-  تنفيذها ولا يستطيع المالك تنفيذها. يدخل لوحة أي متجر بنفس واجهة صاحب المتجر (`name.waathba.com/admin`)
+  تنفيذها ولا يستطيع المالك تنفيذها. يدخل لوحة أي متجر بنفس واجهة صاحب المتجر (`name.maaoun.com/admin`)
   أو من باني المتجر في لوحة المالك، ويعمل ذلك لأي حالة متجر (قيد التجهيز أو مسلّم).
   التفاصيل: [`docs/MASTER_OWNER_AND_UPLOAD_FIX_AR.md`](docs/MASTER_OWNER_AND_UPLOAD_FIX_AR.md).
 - **تحقق مزدوج في الخادم**: كل API route يفحص المستخدم وصلاحياته على `store_id` قبل أي عملية (لا تعتمد الواجهة على إخفاء الأزرار).
@@ -126,21 +126,22 @@ npm run dev
    وسياسات كتابة التخزين لصاحب المتجر، وإنشاء/إصلاح خزنة `store-assets` (آمن للتكرار).
 3. أنشئ مستخدمك من **Authentication → Users**، ثم حوّله إلى مالك:
    ```sql
-   update public.profiles set role = 'owner' where email = 'you@waathba.com';
+   update public.profiles set role = 'owner' where email = 'you@maaoun.com';
    ```
-4. اختياريًا، شغّل `supabase/migrations/0002_demo_data.sql` لإضافة المتاجر والمنتجات والباقات العربية الجاهزة.
+4. على قاعدة **جديدة فارغة** فقط، يمكن تشغيل `supabase/migrations/0002_demo_data.sql` لإضافة المتاجر والمنتجات والباقات العربية الجاهزة. **لا تُعد تشغيل 0002 على قاعدة فيها بيانات.**
+   على قاعدة الإنتاج الحالية شغّل مرة واحدة `supabase/migrations/0006_rebrand_maaoun.sql` — يعيد كتابة روابط `waathba.com` ونصوص الموقع العام إلى معين / `maaoun.com` دون حذف صفوف أو تغيير حسابات الدخول أو النطاقات الفرعية.
 5. عبّئ متغيرات البيئة على **Cloudflare → Workers & Pages → Settings → Variables and Secrets**:
    ```env
    NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co   # رابط المشروع فقط — بلا /rest/v1 وبلا تنصيص
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
    SUPABASE_SECRET_KEY=sb_secret_...   # خادم فقط: إنشاء حسابات العملاء عند التسليم
-   NEXT_PUBLIC_MAIN_DOMAIN=waathba.com
-   DEVELOPER_URL=https://waathba.com
+   NEXT_PUBLIC_MAIN_DOMAIN=maaoun.com
+   DEVELOPER_URL=https://maaoun.com
    ```
    اسما `NEXT_PUBLIC_SUPABASE_ANON_KEY` و`SUPABASE_SERVICE_ROLE_KEY` القديمـان ما زالا مدعومين للتوافق.
 6. انشر على Cloudflare (`npm run cf-build` ثم `npm run cf-deploy`، أو اربط المستودع من لوحة Cloudflare).
-7. أضف النطاق `waathba.com` (و`www`) كـ **Custom Domains** للعامل، واضبط النطاق العرضي
-   `*.waathba.com` (سجل DNS `CNAME *` + Route `*waathba.com/*` أو عامل Wildcard) — التفاصيل في الدليل أعلاه.
+7. أضف النطاق `maaoun.com` (و`www`) كـ **Custom Domains** للعامل، واضبط النطاق العرضي
+   `*.maaoun.com` (سجل DNS `CNAME *` + Route `*maaoun.com/*` أو عامل Wildcard) — التفاصيل في الدليل أعلاه.
 
 > بدون متغيرات Supabase يعمل النظام تلقائيًا بالوضع التجريبي المحلي (SQLite) — مفيد للتطوير والمعاينة على جهازك فقط.
 > **على Cloudflare Workers** الوضع المحلي غير مدعوم (نظام ملفات/`node:sqlite`)، لذا يعرض التطبيق رسالة واضحة تطلب ضبط Supabase.
@@ -149,9 +150,9 @@ npm run dev
 
 | الإعداد | مكانه |
 |---|---|
-| واتساب وثبة (الموقع العام) | لوحة المالك → الإعدادات |
+| واتساب معين (الموقع العام) | لوحة المالك → الإعدادات |
 | واتساب كل متجر | باني المتجر / إعدادات المتجر (العميل يعدّله) |
-| **DEVELOPER_URL** (توقيع «تطوير: waathba.com» أسفل كل متجر) | إعدادات كل متجر أو متغير البيئة — قيمة واحدة |
+| **DEVELOPER_URL** (توقيع «تطوير: maaoun.com» أسفل كل متجر) | إعدادات كل متجر أو متغير البيئة — قيمة واحدة |
 | النطاق الرئيسي | `NEXT_PUBLIC_MAIN_DOMAIN` |
 | الأسعار / العروض / الأعمال / FAQ / المميزات | أقسام لوحة المالك |
 

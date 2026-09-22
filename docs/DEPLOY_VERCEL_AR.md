@@ -1,15 +1,15 @@
-# نشر وثبة — (نُقل إلى Cloudflare)
+# نشر معين — (نُقل إلى Cloudflare)
 
 > ⚠️ **هذا الدليل قديم.** كانت المنصة تُنشر سابقًا على Vercel، وأصبحت الآن على
-> **Cloudflare** (Workers & Pages عبر OpenNext) تحت النطاق الرسمي `waathba.com`.
+> **Cloudflare** (Workers & Pages عبر OpenNext) تحت النطاق الرسمي `maaoun.com`.
 
 الكود والإعدادات تم تحديثها بالكامل للعمل على Cloudflare:
 
 - محوّل **OpenNext** (`@opennextjs/cloudflare` + `wrangler`) بدلًا من وظائف Vercel.
 - ملفات الإعداد: `wrangler.jsonc` و`open-next.config.ts` و`public/_headers`.
 - أوامر النشر: `npm run cf-build` / `npm run cf-deploy` / `npm run cf-preview`.
-- النطاق الرئيسي: `waathba.com` (عبر `NEXT_PUBLIC_MAIN_DOMAIN`).
-- النطاق العرضي `*.waathba.com` يعمل عبر عمال Cloudflare ودعم `x-forwarded-host`.
+- النطاق الرئيسي: `maaoun.com` (عبر `NEXT_PUBLIC_MAIN_DOMAIN`).
+- النطاق العرضي `*.maaoun.com` يعمل عبر عمال Cloudflare ودعم `x-forwarded-host`.
 
 **لخطوات النشر الكاملة:** راجع [`docs/DEPLOY_CLOUDFLARE_AR.md`](DEPLOY_CLOUDFLARE_AR.md).
 

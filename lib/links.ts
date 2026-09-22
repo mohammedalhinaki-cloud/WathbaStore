@@ -1,5 +1,5 @@
 // ============================================================
-// وثبة — توليد الروابط (يُعامل النطاق الفرعي الحقيقي ومعاينة ?store=)
+// معين — توليد الروابط (يُعامل النطاق الفرعي الحقيقي ومعاينة ?store=)
 // ============================================================
 
 import { mainDomain, storeUrl } from "./constants";
@@ -7,7 +7,7 @@ import { getTenant } from "./tenant";
 
 /**
  * رابط متجه لمتجر:
- * - على الدومين الحقيقي: rshaf.waathba.com/path
+ * - على الدومين الحقيقي: rshaf.maaoun.com/path
  * - في المعاينة/التطوير: /path?store=rshaf
  */
 export async function storeHref(subdomain: string, path = "/"): Promise<string> {

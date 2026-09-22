@@ -1,11 +1,16 @@
 // ============================================================
-// وثبة — تنفيذ الخدمات على Supabase (الوضع الإنتاجي)
+// معين — تنفيذ الخدمات على Supabase (الوضع الإنتاجي)
 // يعتمد على Supabase Auth + Row Level Security للعزل الكامل
 // ============================================================
 
 import { supabaseAdmin, supabaseServer, supabaseUrl, STORAGE_BUCKET } from "../supabase/client";
 import { supabaseSecretKey } from "../supabase/env";
-import { mainDomain } from "../constants";
+import {
+  generateDeliveryPassword,
+  presentSiteSettings,
+  replaceLegacyPlatformDomain,
+  rewriteStoredStoreUrl,
+} from "../constants";
 import type {
   ActivityLog,
   AppUser,
@@ -335,9 +340,6 @@ export class SupabaseServices implements Services {
    */
   private async rewritePortfolioStoreUrls(oldSub: string, newSub: string): Promise<void> {
     try {
-      const domain = mainDomain();
-      const oldHost = `${oldSub}.${domain}`;
-      const newHost = `${newSub}.${domain}`;
       const sb = await supabaseServer();
       const { data: items } = await sb
         .from("portfolio_items")
@@ -345,18 +347,9 @@ export class SupabaseServices implements Services {
       for (const item of items ?? []) {
         const r = item as Record<string, unknown>;
         const url = typeof r.store_url === "string" ? r.store_url : "";
-        if (!url) continue;
-        let host = "";
-        try {
-          host = new URL(/^https?:\/\//i.test(url) ? url : `https://${url}`).hostname;
-        } catch {
-          continue;
-        }
-        if (host !== oldHost) continue;
-        await sb
-          .from("portfolio_items")
-          .update({ store_url: url.replace(oldHost, newHost) })
-          .eq("id", r.id as string);
+        const next = rewriteStoredStoreUrl(url, oldSub, newSub);
+        if (!next || next === url) continue;
+        await sb.from("portfolio_items").update({ store_url: next }).eq("id", r.id as string);
       }
     } catch (e) {
       console.warn("تعذر تحديث روابط معرض الأعمال بعد تغيير النطاق الفرعي", e);
@@ -383,7 +376,7 @@ export class SupabaseServices implements Services {
     if (!store.ownerName) return { ok: false, error: "أدخل اسم العميل أولاً" };
 
     const email = store.ownerEmail.trim().toLowerCase();
-    const password = "Wathba@" + Math.random().toString(36).slice(2, 6) + Math.floor(Math.random() * 90 + 10);
+    const password = generateDeliveryPassword();
 
     try {
       const user = await this.createUser({ email, password, name: store.ownerName });
@@ -436,7 +429,7 @@ export class SupabaseServices implements Services {
       socialSnapchat: (r.social_snapchat as string) ?? "",
       socialTiktok: (r.social_tiktok as string) ?? "",
       socialWhatsApp: (r.social_whatsapp as string) ?? "",
-      developerUrl: (r.developer_url as string) ?? "",
+      developerUrl: replaceLegacyPlatformDomain((r.developer_url as string) ?? ""),
       footerBgColor: (r.footer_bg_color as string) ?? "",
       ibanRajhi: (r.iban_rajhi as string) ?? "",
       ibanAlinmaa: (r.iban_alinmaa as string) ?? "",
@@ -446,7 +439,7 @@ export class SupabaseServices implements Services {
       seoKeywords: (r.seo_keywords as string) ?? "",
       seoOgImage: (r.seo_og_image as string) ?? "",
       seoFavicon: (r.seo_favicon as string) ?? "",
-      seoCanonical: (r.seo_canonical as string) ?? "",
+      seoCanonical: replaceLegacyPlatformDomain((r.seo_canonical as string) ?? ""),
       updatedAt: (r.updated_at as string) ?? new Date().toISOString(),
     };
   }
@@ -888,7 +881,7 @@ export class SupabaseServices implements Services {
         updatedAt: new Date().toISOString(),
       };
     }
-    return this.mapSite(data as Record<string, unknown>);
+    return presentSiteSettings(this.mapSite(data as Record<string, unknown>));
   }
 
   async updateSiteSettings(patch: Partial<SiteSettings>): Promise<SiteSettings> {
@@ -1032,7 +1025,7 @@ export class SupabaseServices implements Services {
       title: r.title as string,
       description: (r.description as string) ?? "",
       imageUrl: r.image_url as string,
-      storeUrl: (r.store_url as string) ?? "",
+      storeUrl: replaceLegacyPlatformDomain((r.store_url as string) ?? ""),
       tags: (r.tags as string) ?? "",
       isVisible: Boolean(r.is_visible),
       sortOrder: r.sort_order as number,

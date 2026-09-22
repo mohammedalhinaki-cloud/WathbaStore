@@ -3,7 +3,7 @@
 @theme {
   --font-sans: "Cairo", "Tajawal", ui-sans-serif, system-ui, sans-serif;
 
-  /* هوية وثبة (الموقع العام + لوحة الإدارة) */
+  /* هوية معين (الموقع العام + لوحة الإدارة) */
   --color-brand-50: #eef2ff;
   --color-brand-100: #e0e7ff;
   --color-brand-200: #c7d2fe;

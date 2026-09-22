@@ -1,8 +1,8 @@
 // ============================================================
-// وثبة — Middleware: كشف المستأجر من النطاق (subdomain)
+// معين — Middleware: كشف المستأجر من النطاق (subdomain)
 //
-// rshaf.waathba.com  →  x-tenant: store, x-store-slug: rshaf
-// waathba.com        →  x-tenant: main
+// rshaf.maaoun.com  →  x-tenant: store, x-store-slug: rshaf
+// maaoun.com        →  x-tenant: main
 //
 // الدومين الرئيسي قابل للتهيئة عبر NEXT_PUBLIC_MAIN_DOMAIN
 // المعاينة (نطاق واحد): /?store=rshaf تحاكي النطاق الفرعي
@@ -13,26 +13,17 @@
 // ============================================================
 
 import { NextResponse, type NextRequest } from "next/server";
+import { platformHostOf } from "@/lib/constants";
 
 /**
- * الدومين الرئيسي يُقرأ من متغير البيئة NEXT_PUBLIC_MAIN_DOMAIN،
- * مع العودة إلى waathba.com إن لم يُضبط.
- *
+ * الدومين يُقرأ عبر platformHostOf (النطاق الحالي + النطاقات السابقة).
  * ملاحظة: Next.js يستبدل متغيرات NEXT_PUBLIC_ وقت البناء، لذلك أي تغيير
- * لقيمة المتغير في Cloudflare يحتاج إعادة بناء كي يسري.
+ * لقيمة NEXT_PUBLIC_MAIN_DOMAIN في Cloudflare يحتاج إعادة بناء كي يسري.
  */
-const MAIN_DOMAIN = (process.env.NEXT_PUBLIC_MAIN_DOMAIN || "waathba.com")
-  .trim()
-  .toLowerCase()
-  .replace(/^https?:\/\//, "")
-  .replace(/\/.*$/, "")
-  .replace(/:\d+$/, "")
-  .replace(/^\.+|\.+$/g, "");
 
-const MAIN_HOSTS = [MAIN_DOMAIN, `www.${MAIN_DOMAIN}`];
 const SUB_RE = /^[a-z0-9](?:[a-z0-9-]{0,60}[a-z0-9])?$/;
 
-/** كوكي يحفظ آخر متجر في وضع المعاينة (نطاق واحد) */
+/** كوكي داخلية لوضع المعاينة — ليست الاسم التجاري، ولا تُعاد تسميتها حتى لا تضيع آخر زيارة */
 const PREVIEW_STORE_COOKIE = "wathba_preview_store";
 const PREVIEW_COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 يومًا
 
@@ -48,21 +39,17 @@ export async function middleware(request: NextRequest) {
   // ليحافظ على النطاق الفرعي الأصلي للزائر بعد إعادة توجيه الطلب داخليًا.
   const forwarded = (request.headers.get("x-forwarded-host") || "").split(",")[0].trim();
   const host = (forwarded || request.headers.get("host") || "").replace(/:\d+$/, "").toLowerCase();
-  const onMainHost = host === MAIN_DOMAIN || host.endsWith(`.${MAIN_DOMAIN}`);
+  const platform = platformHostOf(host);
 
   let tenant: "main" | "store" = "main";
   let slug: string | null = null;
   let isPreviewMode = false;
 
-  if (onMainHost) {
-    const isMain = MAIN_HOSTS.includes(host);
-    if (!isMain) {
-      const sub = host.slice(0, -(MAIN_DOMAIN.length + 1));
-      if (SUB_RE.test(sub)) {
-        tenant = "store";
-        slug = sub;
-      }
-    }
+  if (platform?.subdomain) {
+    tenant = "store";
+    slug = platform.subdomain;
+  } else if (platform) {
+    tenant = "main";
   } else {
     // وضع المعاينة/التطوير: نطاق واحد — نحاكي النطاق الفرعي عبر ?store=
     isPreviewMode = true;

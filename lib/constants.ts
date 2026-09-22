@@ -1,20 +1,27 @@
 // ============================================================
-// وثبة — ثوابت عامة
+// معين — ثوابت عامة
 // ============================================================
 
-import type { StoreStatus } from "./types";
+import type { SiteSettings, StoreStatus } from "./types";
 import { STORE_STATUS_LABELS } from "./types";
 
-export const APP_NAME = "وثبة";
-export const APP_EN = "waathba.com";
+export const APP_NAME = "معين";
+export const APP_EN = "maaoun.com";
 
 /** النطاق الافتراضي للمنصة إن لم يُضبط NEXT_PUBLIC_MAIN_DOMAIN */
-export const DEFAULT_MAIN_DOMAIN = "waathba.com";
+export const DEFAULT_MAIN_DOMAIN = "maaoun.com";
+
+/**
+ * نطاقات سابقة ما زالت تُعاد كتابتها في الروابط والنصوص المخزّنة
+ * حتى لا تبقى روابط waathba.com / wathbastore.com بعد إعادة التسمية.
+ * الإبقاء عليها هنا مقصود: هي مفاتيح بحث، لا الاسم الحالي.
+ */
+export const LEGACY_MAIN_DOMAINS = ["waathba.com", "wathbastore.com"] as const;
 
 /**
  * الدومين الرئيسي للمنصة، مقروءًا من NEXT_PUBLIC_MAIN_DOMAIN.
  * يُنظَّف من البروتوكول والمسار والمنفذ والنقاط الزائدة حتى يعمل
- * حتى لو كتب المستخدم القيمة بصيغة مثل "https://waathba.com/".
+ * حتى لو كتب المستخدم القيمة بصيغة مثل "https://maaoun.com/".
  */
 export function mainDomain(): string {
   const raw = (process.env.NEXT_PUBLIC_MAIN_DOMAIN || "").trim().toLowerCase();
@@ -26,33 +33,144 @@ export function mainDomain(): string {
   return cleaned || DEFAULT_MAIN_DOMAIN;
 }
 
+/** النطاق الحالي ثم النطاقات السابقة (بلا تكرار) */
+export function knownPlatformDomains(): string[] {
+  const current = mainDomain();
+  return [current, ...LEGACY_MAIN_DOMAINS.filter((d) => d !== current)];
+}
+
+/** يستبدل أي نطاق منصة قديم بالنطاق الحالي داخل نص أو رابط */
+export function replaceLegacyPlatformDomain(value: string): string {
+  if (!value) return value;
+  const current = mainDomain();
+  let out = value;
+  for (const legacy of LEGACY_MAIN_DOMAINS) {
+    if (legacy === current || !out.includes(legacy)) continue;
+    out = out.split(legacy).join(current);
+  }
+  return out;
+}
+
+/**
+ * يعيد صياغة نصوص المنصة المخزّنة (الموقع العام) بعد تغيير الاسم التجاري.
+ * لا يُستخدم على أوصاف متاجر العملاء حتى لا يُمسّ محتوى ليس اسم المنصة.
+ */
+export function rewritePlatformMarketing(value: string): string {
+  if (!value) return value;
+  let out = replaceLegacyPlatformDomain(value);
+  out = out.split("بثُبة واحدة").join("مع معين");
+  out = out.split("بوثبة واحدة").join("مع معين");
+  out = out.split("بثبة واحدة").join("مع معين");
+  out = out.split("ما هي وثبة").join("ما هو معين");
+  out = out.split("لماذا وثبة").join("لماذا معين");
+  out = out.split("وثبة").join("معين");
+  out = out.split("instagram.com/waathba").join("instagram.com/maaoun");
+  out = out.split("tiktok.com/@waathba").join("tiktok.com/@maaoun");
+  const handle = out.trim().toLowerCase();
+  if (handle === "waathba" || handle === "@waathba") return "maaoun";
+  return out;
+}
+
+/** مضيفات متجر معروفة (الحالي + القديمة) لمطابقة الروابط المخزّنة */
+export function storeHostVariants(subdomain: string): string[] {
+  const sub = subdomain.trim().toLowerCase();
+  return knownPlatformDomains().map((domain) => `${sub}.${domain}`);
+}
+
+/**
+ * يحدّث رابط متجر مخزّنًا من نطاق فرعي قديم إلى الجديد على الدومين الحالي.
+ * يطابق أيضًا الروابط التي ما زالت على نطاق منصة سابق.
+ */
+export function rewriteStoredStoreUrl(url: string, oldSub: string, newSub: string): string | null {
+  if (!url || !oldSub || !newSub || oldSub === newSub) return null;
+  let host = "";
+  try {
+    host = new URL(/^https?:\/\//i.test(url) ? url : `https://${url}`).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+  if (!storeHostVariants(oldSub).includes(host)) return null;
+  return url.replace(host, `${newSub}.${mainDomain()}`);
+}
+
+const PLATFORM_SUB_RE = /^[a-z0-9](?:[a-z0-9-]{0,60}[a-z0-9])?$/;
+
+/**
+ * يتعرف على مضيف المنصة الحالي أو أي نطاق سابق.
+ * أثناء النقل تبقى المتاجر تعمل على النطاق القديم إلى أن يُحدَّث DNS،
+ * بينما الروابط المولَّدة تبقى على النطاق الحالي.
+ */
+export function platformHostOf(host: string | null | undefined): {
+  domain: string;
+  subdomain: string | null;
+} | null {
+  const h = (host || "").trim().toLowerCase().replace(/:\d+$/, "");
+  if (!h) return null;
+  for (const domain of knownPlatformDomains()) {
+    if (h === domain || h === `www.${domain}`) return { domain, subdomain: null };
+    const suffix = `.${domain}`;
+    if (!h.endsWith(suffix)) continue;
+    const sub = h.slice(0, -suffix.length);
+    if (PLATFORM_SUB_RE.test(sub) && sub !== "www") return { domain, subdomain: sub };
+  }
+  return null;
+}
+
+/** يزيل لاحقة الشعار لأن الصفحة الرئيسية تعرضها في سطر مستقل */
+function stripLandingAccent(title: string): string {
+  return title.replace(/\s*(?:مع معين|بثُبة واحدة|بوثبة واحدة|بثبة واحدة)\s*$/u, "").trim();
+}
+
+/** عرض إعدادات الموقع العام بعد إعادة التسمية، دون كتابة فوق محتوى المتاجر */
+export function presentSiteSettings(settings: SiteSettings): SiteSettings {
+  return {
+    ...settings,
+    developerUrl: replaceLegacyPlatformDomain(settings.developerUrl),
+    aboutText: rewritePlatformMarketing(settings.aboutText),
+    heroTitle: stripLandingAccent(rewritePlatformMarketing(settings.heroTitle)),
+    heroSubtitle: rewritePlatformMarketing(settings.heroSubtitle),
+    features: (settings.features ?? []).map((item) => ({
+      title: rewritePlatformMarketing(item.title ?? ""),
+      desc: rewritePlatformMarketing(item.desc ?? ""),
+    })),
+    faq: (settings.faq ?? []).map((item) => ({
+      q: rewritePlatformMarketing(item.q ?? ""),
+      a: rewritePlatformMarketing(item.a ?? ""),
+    })),
+    socialInstagram: rewritePlatformMarketing(settings.socialInstagram),
+    socialSnapchat: rewritePlatformMarketing(settings.socialSnapchat),
+    socialTiktok: rewritePlatformMarketing(settings.socialTiktok),
+  };
+}
+
 /**
  * نطاق الكوكي المشترك بين نطاقات المنصة الفرعية.
  *
- * لماذا؟ المالك الرئيسي يُسجّل الدخول مرة واحدة في `waathba.com/admin`، ثم
- * يفتح `rshaf.waathba.com/admin` ليدير المتجر بنفس واجهة صاحبه. الكوكي
+ * لماذا؟ المالك الرئيسي يُسجّل الدخول مرة واحدة في `maaoun.com/admin`، ثم
+ * يفتح `rshaf.maaoun.com/admin` ليدير المتجر بنفس واجهة صاحبه. الكوكي
  * الافتراضية تُكتب للمضيف الذي سجّل الدخول فقط، فلا تُرسَل إلى النطاق الفرعي
  * ويظهر للمالك أنه غير مسجَّل (أو تُطلب منه بيانات الدخول مرة أخرى).
- * لذلك نكتب كوكي الجلسة على النطاق الأب `.waathba.com` فتُرسل لكل النطاقات
+ * لذلك نكتب كوكي الجلسة على النطاق الأب `.maaoun.com` فتُرسل لكل النطاقات
  * الفرعية — وتبقى فحوص الصلاحيات (RLS + الدور) هي الحاجز الحقيقي.
  *
  * يُرجع undefined لأي مضيف آخر (المعاينة على نطاق واحد، أو تطوير محلي)
  * حتى لا يتأثر وضع المعاينة أو الاختبارات المحلية بأي تغيير.
  */
 export function sharedCookieDomain(host?: string | null): string | undefined {
-  const main = mainDomain();
-  const h = (host || "").trim().toLowerCase().replace(/:\d+$/, "");
-  if (!h) return undefined;
-  if (h !== main && !h.endsWith(`.${main}`)) return undefined;
-  return `.${main}`;
+  const info = platformHostOf(host);
+  if (!info) return undefined;
+  // على النطاق السابق تُكتب الكوكي لأبيه حتى لا يرفضها المتصفح أثناء النقل.
+  return `.${info.domain}`;
 }
 
 export function developerUrl(fallback?: string | null): string {
-  return (
-    process.env.DEVELOPER_URL ||
-    fallback ||
-    "https://" + mainDomain()
-  );
+  const raw = process.env.DEVELOPER_URL || fallback || "https://" + mainDomain();
+  return replaceLegacyPlatformDomain(raw);
+}
+
+/** كلمة مرور التسليم الجديدة — لا تُعيد كتابة كلمات المرور المخزّنة سابقًا */
+export function generateDeliveryPassword(): string {
+  return "Maaoun@" + Math.random().toString(36).slice(2, 6) + Math.floor(Math.random() * 90 + 10);
 }
 
 /** نطاقات فرعية محجوزة — لا يمكن تخصيصها لمتجر */
@@ -67,6 +185,7 @@ export const RESERVED_SUBDOMAINS = [
   "new", "create", "add", "test", "testing", "demo", "dev", "development",
   "staging", "preview", "beta", "sandbox",
   "media", "img", "images", "files", "uploads", "storage",
+  "maaoun", "maoun", "moeen", "mueen", "ma3in",
   "wathba", "wathbastore", "waathba", "system", "root", "default", "home", "main",
   "portal", "dashboard", "dashboard2", "internal", "private", "secure",
   "status", "monitor", "metrics", "logs", "analytics", "stats",
