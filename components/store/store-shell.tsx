@@ -5,8 +5,8 @@
 
 import type { StoreBundle } from "@/lib/types";
 import { FONTS } from "@/lib/types";
-import { developerUrl, mainDomain, storeUrl } from "@/lib/constants";
-import { waChatLink } from "@/lib/wa";
+import { developerUrl, storeUrl } from "@/lib/constants";
+import { isDarkColor } from "@/lib/colors";
 import SocialLinks from "@/components/social-links";
 import StoreHeader from "./store-header";
 import { CartProvider } from "./cart-context";
@@ -50,7 +50,13 @@ export default function StoreShell({ bundle, query, navLinks, children }: Props)
   }
 
   const wa = store.whatsapp || settings.socialWhatsApp;
-  const footerBg = settings.footerBgColor || undefined;
+  const footerBg = settings.footerBgColor?.trim() || "";
+  /**
+   * خلفية الفوتر داكنة؟ إذا كذلك تصبح نصوص الفوتر (الاسم والوصف) بيضاء
+   * صريحة (#FFFFFF) أو أوف-وايت (#F3F4F6) بلا أي شفافية — وتبقى داكنة
+   * عندما تكون خلفية الفوتر فاتحة أو غير مضبوطة.
+   */
+  const footerIsDark = footerBg !== "" && isDarkColor(footerBg);
 
   return (
     <CartProvider storeKey={store.subdomain} adoptLegacy={!query}>
@@ -82,47 +88,48 @@ export default function StoreShell({ bundle, query, navLinks, children }: Props)
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={store.logoUrl} alt={store.name} className="h-9 w-9 rounded-lg object-cover" />
                 )}
-                <span className="text-lg font-extrabold text-ink-900">{store.name}</span>
+                {/* اسم المتجر: أبيض صريح فوق الخلفيات الداكنة */}
+                <span
+                  className={`text-lg font-extrabold ${
+                    footerIsDark ? "text-white" : "text-ink-900"
+                  }`}
+                >
+                  {store.name}
+                </span>
               </div>
               {store.description && (
-                <p className="max-w-md text-sm leading-6 text-ink-500">{store.description}</p>
+                /* النص الفرعي: أوف-وايت صريح بلا شفافية فوق الخلفيات الداكنة */
+                <p
+                  className={`max-w-md text-sm leading-6 ${
+                    footerIsDark ? "text-[#F3F4F6]" : "text-ink-500"
+                  }`}
+                >
+                  {store.description}
+                </p>
               )}
+              {/* التواصل الاجتماعي: أيقونات العلامات الأصلية الملونة
+                  (إنستغرام، سناب شات، تيك توك، واتساب) — واتساب هنا فقط */}
               <SocialLinks
                 instagram={settings.socialInstagram}
                 snapchat={settings.socialSnapchat}
                 tiktok={settings.socialTiktok}
                 whatsapp={wa}
               />
-              {wa && (
-                <a
-                  href={waChatLink(wa)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-extrabold text-white"
-                  style={{ backgroundColor: "#25D366" }}
-                >
-                  💬 تواصل معنا عبر واتساب
-                </a>
-              )}
-            </div>
-
-            {/* توقيع المطور — يُضبط من الإعدادات (DEVELOPER_URL) وليس ثابتًا في الكود */}
-            <div className="mt-8 border-t border-ink-200 pt-5 text-center">
-              <p className="text-xs text-ink-400">
-                تطوير:{" "}
-                <a
-                  href={devUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold text-ink-500 transition-colors hover:text-[var(--store-primary)]"
-                >
-                  waathba.com
-                </a>{" "}
-                · {mainDomain()}
-              </p>
             </div>
           </div>
         </footer>
+
+        {/* ===== شريط حقوق التطوير — منفصل تمامًا عن جسم الفوتر ===== */}
+        <div className="border-t border-white/10 bg-ink-950 py-3 text-center">
+          <a
+            href={devUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-ink-400 transition-colors hover:text-ink-200"
+          >
+            تطوير waathba.com © {new Date().getFullYear()}
+          </a>
+        </div>
 
         {/* ===== درج السلة ===== */}
         <CartDrawer query={query} />
