@@ -30,6 +30,14 @@ export function mainDomain(): string {
     .replace(/\/.*$/, "")
     .replace(/:\d+$/, "")
     .replace(/^\.+|\.+$/g, "");
+
+  // لا تسمح قيمة بيئة قديمة بإعادة الدومين السابق إلى الروابط المولّدة.
+  // يمكن إبقاء المتغير في بيئة النشر أثناء الانتقال، لكن الناتج العام
+  // (sitemap، canonical، Open Graph وروابط المتاجر) يجب أن يبقى maaoun.com.
+  const withoutWww = cleaned.replace(/^www\./, "");
+  if (LEGACY_MAIN_DOMAINS.includes(withoutWww as (typeof LEGACY_MAIN_DOMAINS)[number])) {
+    return DEFAULT_MAIN_DOMAIN;
+  }
   return cleaned || DEFAULT_MAIN_DOMAIN;
 }
 
@@ -45,8 +53,10 @@ export function replaceLegacyPlatformDomain(value: string): string {
   const current = mainDomain();
   let out = value;
   for (const legacy of LEGACY_MAIN_DOMAINS) {
-    if (legacy === current || !out.includes(legacy)) continue;
-    out = out.split(legacy).join(current);
+    if (legacy === current) continue;
+    // البيانات القديمة قد تحتوي على أحرف كبيرة؛ لا نريد أن يتسرّب أي
+    // اختلاف في حالة الأحرف إلى canonical أو Open Graph أو sitemap.
+    out = out.replace(new RegExp(legacy.replace(/\./g, "\\."), "gi"), current);
   }
   return out;
 }
@@ -193,7 +203,9 @@ export const RESERVED_SUBDOMAINS = [
 ];
 
 export function storeUrl(subdomain: string, path = "/"): string {
-  return `https://${subdomain}.${mainDomain()}${path}`;
+  // نقطة توليد روابط المتاجر كلها: المتجر والمنتج والقسم والصفحة.
+  // التطبيع الدفاعي يمنع أي اسم نطاق قديم من الوصول إلى sitemap أو SEO.
+  return replaceLegacyPlatformDomain(`https://${subdomain}.${mainDomain()}${path}`);
 }
 
 export function statusTone(status: StoreStatus): string {
