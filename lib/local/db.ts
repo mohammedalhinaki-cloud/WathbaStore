@@ -69,7 +69,7 @@ function initSchema(db: DatabaseSync): void {
     font TEXT NOT NULL DEFAULT 'cairo',
     primary_color TEXT NOT NULL DEFAULT '#4F46E5',
     secondary_color TEXT NOT NULL DEFAULT '#F59E0B',
-    section_order TEXT NOT NULL DEFAULT '["hero","categories","products","pages","footer"]',
+    section_order TEXT NOT NULL DEFAULT '["hero","products","pages","footer"]',
     about_text TEXT,
     social_instagram TEXT,
     social_snapchat TEXT,
@@ -265,7 +265,7 @@ function seedIfEmpty(db: DatabaseSync): void {
 
   insSettings.run(
     "store-rshaf", "modern", "cairo", "#8B5E34", "#D97706",
-    '["hero","categories","products","pages","footer"]',
+    '["hero","products","pages","footer"]',
     "كافيه رشف وجهةٌ لعشّاق القهوة المختصة؛ نختاري حبوبنا بعناية ونحضر مشروباتنا أمامك بحب.",
     "https://instagram.com/rshaf.cafe", "rshaf_cafe", "https://tiktok.com/@rshaf.cafe", "",
     "https://waathba.com",
@@ -276,7 +276,7 @@ function seedIfEmpty(db: DatabaseSync): void {
   );
   insSettings.run(
     "store-oud", "classic", "almarai", "#4A2C17", "#C2884E",
-    '["hero","categories","products","footer"]',
+    '["hero","products","footer"]',
     "في عود وروائح نختار أجود أنواع العود والعطور من شمول تايلاند والهند وفيتنام، بخلطات عريقة.",
     "https://instagram.com/oud.roua3", "oud_roua3", "", "",
     "https://waathba.com",
@@ -287,7 +287,7 @@ function seedIfEmpty(db: DatabaseSync): void {
   );
   insSettings.run(
     "store-sweets", "modern", "tajawal", "#BE185D", "#F59E0B",
-    '["hero","categories","products","footer"]',
+    '["hero","products","footer"]',
     "", "", "", "", "",
     "https://waathba.com",
     "دار رشف للحلويات", "حلويات فاخرة ومخبوزات يومية.", "", "", "", "", ago(1)
@@ -464,7 +464,7 @@ export const DEFAULT_SETTINGS: Omit<StoreSettings, "storeId" | "updatedAt"> = {
   font: "cairo",
   primaryColor: "#4F46E5",
   secondaryColor: "#F59E0B",
-  sectionOrder: ["hero", "categories", "products", "pages", "footer"],
+  sectionOrder: ["hero", "products", "pages", "footer"],
   aboutText: "",
   socialInstagram: "",
   socialSnapchat: "",
