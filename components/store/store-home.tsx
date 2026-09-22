@@ -11,12 +11,17 @@
 // 3) الغلاف يملأ الشاشة بالكامل (hero-fullscreen = 100vh/100svh) على
 //    الجوال والكمبيوتر عند الدخول الأول، وزر «تسوّق الآن» يمرّر الشاشة
 //    تمريرًا سلسًا إلى قسم «منتجاتنا» (#products) مباشرة.
+// 4) الهيدر العلوي شفاف ومتراكب فوق الغلاف (position: fixed) — تُفعّله
+//    app/page.tsx عبر overlayHeader بنفس شرط showHero أدناه. لذا يأخذ
+//    الغلاف حشوًا علويًا بمقدار ارتفاع الهيدر الفعلي (--store-header-h)
+//    حتى لا يختفي اسم المتجر خلفه، وصورة الغلاف تمتد خلف الهيدر إلى
+//    أعلى نقطة في الشاشة بلا فراغ أبيض.
 // ============================================================
 
 import Image from "next/image";
 import { services } from "@/lib/services";
 import { isOptimizableSrc, pickFirstImage } from "@/lib/images";
-import type { StoreBundle } from "@/lib/types";
+import { isHeroEnabled, type StoreBundle } from "@/lib/types";
 import ProductsGrid from "./products-grid";
 import HeroCtaButton from "./hero-cta-button";
 
@@ -38,7 +43,7 @@ export default async function StoreHome({ bundle, query }: Props) {
   const wa = store.whatsapp || settings.socialWhatsApp;
 
   const sections = settings.sectionOrder;
-  const showHero = sections.length === 0 || sections.includes("hero");
+  const showHero = isHeroEnabled(sections);
 
   /**
    * صورة الغلاف الفعلية: صورة المتجر أولًا، ثم صورة SEO إن ضُبطت،
@@ -50,9 +55,10 @@ export default async function StoreHome({ bundle, query }: Props) {
 
   return (
     <div>
-      {/* ===== صورة الغلاف (البطل) — ملء الشاشة بالكامل ===== */}
+      {/* ===== صورة الغلاف (البطل) — ملء الشاشة بالكامل خلف الهيدر الشفاف ===== */}
       {showHero && (
         <section
+          id="top"
           className="hero-fullscreen relative isolate flex items-center overflow-hidden"
           style={{ backgroundColor: "var(--store-primary)" }}
         >
@@ -84,7 +90,9 @@ export default async function StoreHome({ bundle, query }: Props) {
             </>
           )}
 
-          <div className="relative mx-auto w-full max-w-6xl px-4 py-14 sm:py-20">
+          {/* الحشو العلوي (hero-inner) = ارتفاع الهيدر الشفاف + هامش مريح:
+              يضمن بقاء الاسم والوصف وزر «تسوّق الآن» تحت الهيدر لا خلفه */}
+          <div className="hero-inner relative mx-auto w-full max-w-6xl px-4 pb-16 sm:pb-20">
             <div className="max-w-xl">
               {store.logoUrl && (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -110,11 +118,13 @@ export default async function StoreHome({ bundle, query }: Props) {
         </section>
       )}
 
-      {/* ===== المنتجات ===== */}
+      {/* ===== المنتجات =====
+          store-scroll-anchor: إزاحة تمرير = ارتفاع الهيدر الثابت + هامش،
+          حتى لا يغطّي الهيدر عنوان القسم عند الضغط على «تسوّق الآن» */}
       {sections.includes("products") && (
         <section
           id="products"
-          className="mx-auto max-w-6xl scroll-mt-28 px-4 pt-12 md:scroll-mt-20"
+          className="store-scroll-anchor mx-auto max-w-6xl px-4 pt-12"
         >
           <div className="mb-6 flex items-center gap-3">
             <span className="h-7 w-1.5 rounded-full" style={{ backgroundColor: "var(--store-primary)" }} />

@@ -19,10 +19,22 @@ interface Props {
   query: string;
   /** روابط الأقسام: { href, label } */
   navLinks: { href: string; label: string }[];
+  /**
+   * الهيدر الشفاف المتراكب فوق صورة الغلاف (الصفحة الرئيسية فقط).
+   * يُفعَّل عندما يكون قسم الغلاف ظاهرًا، فيصبح الهيدر position: fixed
+   * شفافًا فوق الصورة وتمتد الصورة خلفه إلى أعلى الشاشة (100svh).
+   */
+  overlayHeader?: boolean;
   children: React.ReactNode;
 }
 
-export default function StoreShell({ bundle, query, navLinks, children }: Props) {
+export default function StoreShell({
+  bundle,
+  query,
+  navLinks,
+  overlayHeader = false,
+  children,
+}: Props) {
   const { store, settings } = bundle;
   const font = FONTS.find((f) => f.key === settings.font)?.family ?? "Cairo";
   const devUrl = developerUrl(settings.developerUrl);
@@ -64,7 +76,9 @@ export default function StoreShell({ bundle, query, navLinks, children }: Props)
       <StoreJsonLd bundle={bundle} />
 
       <div
-        className="store-root flex min-h-screen flex-col bg-white"
+        className={`store-root flex min-h-screen flex-col bg-white ${
+          overlayHeader ? "store-root--hero-overlay" : ""
+        }`}
         style={
           {
             fontFamily: font,
@@ -73,8 +87,14 @@ export default function StoreShell({ bundle, query, navLinks, children }: Props)
           } as React.CSSProperties
         }
       >
-        {/* ===== الهيدر ===== */}
-        <StoreHeader bundle={bundle} query={query} navLinks={navLinks} />
+        {/* ===== الهيدر =====
+            overlayHeader = شفاف وثابت فوق صورة الغلاف (الرئيسية فقط) */}
+        <StoreHeader
+          bundle={bundle}
+          query={query}
+          navLinks={navLinks}
+          overlay={overlayHeader}
+        />
 
         {/* ===== المحتوى ===== */}
         <main className="flex-1">{children}</main>

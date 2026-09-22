@@ -38,6 +38,13 @@ html {
   scroll-behavior: smooth;
 }
 
+/* احترام تفضيل «تقليل الحركة» في نظام المستخدم */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 body {
   @apply bg-ink-50 text-ink-900 antialiased;
   font-feature-settings: "ss01";
@@ -57,16 +64,45 @@ body {
 .store-root {
   --store-primary: #4f46e5;
   --store-secondary: #f59e0b;
+  /*
+   * ارتفاع الهيدر العلوي: قيمة افتراضية آمنة قبل تفعيل جافاسكربت،
+   * ثم يستبدلها components/store/store-header.tsx بالارتفاع الفعلي
+   * المقاس كنمط مضمّن على هذا العنصر نفسه (يشمل شريط تبويبات الجوال
+   * إن وُجد) — فيرثها الغلاف (#top) وقسم المنتجات (#products).
+   */
+  --store-header-h: 7.5rem;
 }
 
 /*
  * قسم الغلاف (Hero): ملء الشاشة بالكامل عند الدخول الأول للموقع.
  * 100vh للجميع، ثم 100svh للمتصفحات الحديثة (الجوال: الارتفاع المرئي
  * الفعلي مع وجود شريط العنوان، حتى لا تمتد الغلاف تحت الشريط).
+ * min-height وليس height: ليتمدد القسم بدل قصّ المحتوى في الشاشات
+ * القصيرة جدًا (جوال أفقي / لوحة مفاتيح ظاهرة).
+ *
+ * الهيدر الشفاف position: fixed فوقه، لذا يبدأ الغلاف من أعلى نقطة في
+ * الشاشة (y = 0) وتمتد صورة الغلاف خلفه بالكامل — بلا فراغ أبيض.
  */
 .hero-fullscreen {
   min-height: 100vh;
   min-height: 100svh;
+  margin-top: 0;
+}
+
+/*
+ * الحشو العلوي لمحتوى الغلاف = ارتفاع الهيدر الشفاف + هامش مريح.
+ * يُطبَّق فقط عندما يكون الهيدر متراكبًا فوق الغلاف (الصفحة الرئيسية).
+ */
+.store-root--hero-overlay .hero-fullscreen .hero-inner {
+  padding-top: calc(var(--store-header-h) + 2.5rem);
+}
+
+/*
+ * إزاحة التمرير (scroll offset) للأقسام المستهدفة بروابط مثل #products:
+ * تمنع الهيدر الثابت من تغطية عنوان القسم بعد التمرير السلس.
+ */
+.store-scroll-anchor {
+  scroll-margin-top: calc(var(--store-header-h) + 1rem);
 }
 
 /* إخفاء سكرول أفقي خفيف */

@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getStoreCtx } from "@/lib/tenant";
 import { storePageMetadata } from "@/lib/seo";
+import { isHeroEnabled } from "@/lib/types";
 import LandingPage from "@/components/landing/landing-page";
 import StoreShell from "@/components/store/store-shell";
 import StoreHome from "@/components/store/store-home";
@@ -44,8 +45,20 @@ export default async function HomePage() {
         .map((p) => ({ href: `/pages/${encodeURIComponent(p.slug)}${query}`, label: p.title })),
     ];
 
+    /**
+     * الهيدر الشفاف المتراكب يُفعَّل فقط عندما يظهر قسم الغلاف في
+     * الرئيسية — بنفس الشرط الموجود داخل StoreHome (دالة مشتركة) حتى
+     * لا يصبح الهيدر ثابتًا فوق محتوى أبيض بلا غلاف خلفه.
+     */
+    const overlayHeader = isHeroEnabled(settings.sectionOrder);
+
     return (
-      <StoreShell bundle={ctx.bundle} query={query} navLinks={navLinks}>
+      <StoreShell
+        bundle={ctx.bundle}
+        query={query}
+        navLinks={navLinks}
+        overlayHeader={overlayHeader}
+      >
         <StoreHome bundle={ctx.bundle} query={query} />
       </StoreShell>
     );
