@@ -100,6 +100,22 @@ export function normalizeSectionOrder(value: unknown): SectionKey[] {
   return out;
 }
 
+/**
+ * هل يظهر قسم الغلاف (البطل) في الصفحة الرئيسية؟
+ *
+ * دالة واحدة مشتركة يستخدمها كل من:
+ * - app/page.tsx        → لتفعيل الهيدر الشفاف المتراكب فوق الغلاف
+ * - components/store/store-home.tsx → لعرض قسم الغلاف نفسه
+ * حتى لا يختلف القرار بينهما (هيدر شفاف بلا غلاف = محتوى مخفي).
+ *
+ * القاعدة: القائمة الفارغة تعني «الترتيب الافتراضي» (الغلاف ظاهر)،
+ * ونفس المنطق مطبّق داخل normalizeSectionOrder.
+ */
+export function isHeroEnabled(sectionOrder: SectionKey[] | null | undefined): boolean {
+  const order = Array.isArray(sectionOrder) ? sectionOrder : [];
+  return order.length === 0 || order.includes("hero");
+}
+
 export interface Store {
   id: string;
   name: string;
