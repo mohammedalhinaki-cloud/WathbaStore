@@ -7,7 +7,7 @@
 
 import type { MetadataRoute } from "next";
 import { headers } from "next/headers";
-import { mainDomain } from "@/lib/constants";
+import { mainDomain, replaceLegacyPlatformDomain } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,9 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     .split(",")[0]
     .trim();
   const host = rawHost.replace(/:\d+$/, "").toLowerCase();
-  const origin = host ? `https://${host}` : `https://${mainDomain()}`;
+  // حتى إذا طُلب robots عبر اسم النطاق القديم أثناء الانتقال، لا نعيد
+  // نشره داخل host أو أي رابط SEO آخر.
+  const origin = replaceLegacyPlatformDomain(host ? `https://${host}` : `https://${mainDomain()}`);
 
   return {
     rules: [

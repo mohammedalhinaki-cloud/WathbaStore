@@ -31,9 +31,13 @@ export const metadata: Metadata = {
   description:
     `منصة ${APP_NAME} أنشئ بها متجرًا إلكترونيًا متكاملًا على نطاق فرعي خاص بك — تصميم، منتجات، SEO، وتسليم جاهز للإدارة.`,
   keywords: ["متاجر إلكترونية", APP_NAME, domain, "إنشاء متاجر", "متجر إلكتروني"],
+  alternates: {
+    canonical: `https://${domain}`,
+  },
   openGraph: {
     title: `${APP_NAME} | ${domain}`,
     description: `متجرك الإلكتروني مع ${APP_NAME} — أنشئه وأجهزه وسلّمه جاهزًا.`,
+    url: `https://${domain}`,
     locale: "ar_SA",
     type: "website",
   },

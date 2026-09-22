@@ -12,7 +12,10 @@ import { services } from "./services";
 /** الرابط الأساسي للمتجر: يفضّل seoCanonical المضبوط، وإلا يُبنى من النطاق الفرعي */
 export function storeBaseUrl(bundle: StoreBundle): string {
   const { store, settings } = bundle;
-  return settings.seoCanonical?.trim() || `https://${store.subdomain}.${mainDomain()}`;
+  const fallback = `https://${store.subdomain}.${mainDomain()}`;
+  // seoCanonical قديم محفوظ في قاعدة البيانات لا يُعاد كتابته فيها هنا؛
+  // نطبّع الناتج عند التوليد حتى يخرج canonical/OG/JSON-LD بالدومين الجديد.
+  return replaceLegacyPlatformDomain(settings.seoCanonical?.trim() || fallback);
 }
 
 /** الرابط الكنسي (نفس الأساس للمتجر الرئيسي) */
@@ -40,7 +43,8 @@ export async function getStoreFavicon(subdomain: string): Promise<string | null>
     const store = await services().getStoreBySubdomain(subdomain.trim().toLowerCase());
     if (!store) return null;
     const settings = await services().getStoreSettings(store.id);
-    return settings.seoFavicon?.trim() || store.logoUrl || null;
+    const favicon = settings.seoFavicon?.trim() || store.logoUrl || null;
+    return favicon ? replaceLegacyPlatformDomain(favicon) : null;
   } catch {
     return null;
   }
@@ -62,8 +66,8 @@ export function buildStoreJsonLd(bundle: StoreBundle): Record<string, unknown> {
   const url = storeBaseUrl(bundle);
   const name = store.name;
   const description = storeDescription(bundle);
-  const logo = settings.seoFavicon?.trim() || store.logoUrl || null;
-  const image = store.coverUrl || settings.seoOgImage || logo || null;
+  const logo = replaceLegacyPlatformDomain(settings.seoFavicon?.trim() || store.logoUrl || "") || null;
+  const image = replaceLegacyPlatformDomain(store.coverUrl || settings.seoOgImage || logo || "") || null;
   const telephone = (store.whatsapp || store.ownerPhone || "").replace(/[^\d+]/g, "");
 
   const business: Record<string, unknown> = {
@@ -118,7 +122,7 @@ export function storePageMetadata(
   const title = opts?.title ?? storeTitle(bundle);
   const description = (opts?.description ?? storeDescription(bundle)) || undefined;
   const images = opts?.images?.length
-    ? opts.images.map((u) => ({ url: u }))
+    ? opts.images.map((u) => ({ url: replaceLegacyPlatformDomain(u) }))
     : undefined;
 
   const keywords = opts?.keywords?.length
