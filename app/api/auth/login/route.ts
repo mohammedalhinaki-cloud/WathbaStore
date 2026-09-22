@@ -22,7 +22,11 @@ export async function POST(req: NextRequest) {
 
     if (!isSupabaseConfigured()) {
       const c = await cookies();
-      c.set(SESSION_COOKIE, signSession(user.id), sessionCookieOptions());
+      const host =
+        req.headers.get("x-forwarded-host")?.split(",")[0]?.trim() ||
+        req.headers.get("host") ||
+        "";
+      c.set(SESSION_COOKIE, signSession(user.id), sessionCookieOptions(host));
     }
 
     await svc.logActivity(

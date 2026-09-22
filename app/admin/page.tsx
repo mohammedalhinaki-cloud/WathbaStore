@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
 import { getTenant, getStoreCtx } from "@/lib/tenant";
 import { getCurrentUser } from "@/lib/session";
+import { canAccessStorePanel, isMasterOwner } from "@/lib/authorize";
 import { services } from "@/lib/services";
 import { storeHref } from "@/lib/links";
 import { mainDomain } from "@/lib/constants";
@@ -42,10 +43,19 @@ export default async function AdminHome() {
     const ctx = await getStoreCtx();
     if (!ctx?.bundle) notFound();
     const { store } = ctx.bundle;
-    if (!user || !user.memberships.some((m) => m.storeId === store.id)) {
+    // المالك الرئيسي يدخل لوحة أي متجر بنفس واجهة صاحب المتجر
+    if (!user) redirect("/admin/login");
+    if (!canAccessStorePanel(user, store.id)) {
       redirect("/admin/login");
     }
-    return <ClientDashboard user={user} storeId={store.id} storeUrlHref={await storeHref(store.subdomain)} />;
+    return (
+      <ClientDashboard
+        user={user}
+        storeId={store.id}
+        storeUrlHref={await storeHref(store.subdomain)}
+        masterOwner={isMasterOwner(user)}
+      />
+    );
   }
 
   // موقع رئيسي: لوحة المالك
@@ -201,10 +211,12 @@ async function ClientDashboard({
   user,
   storeId,
   storeUrlHref,
+  masterOwner = false,
 }: {
   user: { name: string; email: string };
   storeId: string;
   storeUrlHref: string;
+  masterOwner?: boolean;
 }) {
   const [store, products, categories, logs] = await Promise.all([
     services().getStore(storeId),
@@ -224,6 +236,7 @@ async function ClientDashboard({
       subdomain={store.subdomain}
       user={user}
       storeUrl={storeUrlHref}
+      masterOwner={masterOwner}
     >
       <PageHeader
         title={`أهلًا ${user.name || store.ownerName} 👋`}

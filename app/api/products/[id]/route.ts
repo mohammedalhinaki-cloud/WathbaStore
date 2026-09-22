@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { services } from "@/lib/services";
-import { ok, badRequest, requireStoreActor } from "@/lib/api-utils";
+import { ok, badRequest, requireStoreActor, serverError } from "@/lib/api-utils";
 import { z } from "zod";
 
 const PATCH_SCHEMA = z
@@ -37,69 +37,81 @@ export async function GET(
   _req: NextRequest,
   ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await ctx.params;
-  const product = await findProduct(decodeURIComponent(id));
-  if (!product) return badRequest("المنتج غير موجود");
-  // القراءة العامة للمنتج مسموحة (المتجر العام) لكن نضمن التملك عبر المسار أدناه
-  return ok({ product });
+  try {
+    const { id } = await ctx.params;
+    const product = await findProduct(decodeURIComponent(id));
+    if (!product) return badRequest("المنتج غير موجود");
+    // القراءة العامة للمنتج مسموحة (المتجر العام) لكن نضمن التملك عبر المسار أدناه
+    return ok({ product });
+  } catch (e) {
+    return serverError(e);
+  }
 }
 
 export async function PATCH(
   req: NextRequest,
   ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await ctx.params;
-  const product = await findProduct(decodeURIComponent(id));
-  if (!product) return badRequest("المنتج غير موجود");
+  try {
+    const { id } = await ctx.params;
+    const product = await findProduct(decodeURIComponent(id));
+    if (!product) return badRequest("المنتج غير موجود");
 
-  const actor = await requireStoreActor(product.storeId);
-  if (actor instanceof NextResponse) return actor;
+    const actor = await requireStoreActor(product.storeId);
+    if (actor instanceof NextResponse) return actor;
 
-  const parsed = PATCH_SCHEMA.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return badRequest("بيانات غير صالحة");
-  const patch = parsed.data;
-  const finalPrice = patch.price ?? product.price;
-  const finalOld = patch.oldPrice !== undefined ? patch.oldPrice : product.oldPrice;
-  if (finalOld != null && finalOld <= finalPrice) {
-    return badRequest("السعر السابق يجب أن يكون أعلى من السعر الحالي");
+    const parsed = PATCH_SCHEMA.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) return badRequest("بيانات غير صالحة");
+    const patch = parsed.data;
+    const finalPrice = patch.price ?? product.price;
+    const finalOld = patch.oldPrice !== undefined ? patch.oldPrice : product.oldPrice;
+    if (finalOld != null && finalOld <= finalPrice) {
+      return badRequest("السعر السابق يجب أن يكون أعلى من السعر الحالي");
+    }
+
+    const updated = await services().updateProduct(product.id, {
+      name: patch.name,
+      description: patch.description,
+      price: patch.price,
+      oldPrice: patch.oldPrice,
+      stock: patch.stock,
+      isVisible: patch.isVisible,
+      categoryId: patch.categoryId,
+      images: patch.images,
+    });
+    await services().logActivity(
+      { id: actor.id, email: actor.email },
+      product.storeId,
+      "product.updated",
+      { name: updated.name }
+    );
+    return ok({ product: updated });
+  } catch (e) {
+    return serverError(e);
   }
-
-  const updated = await services().updateProduct(product.id, {
-    name: patch.name,
-    description: patch.description,
-    price: patch.price,
-    oldPrice: patch.oldPrice,
-    stock: patch.stock,
-    isVisible: patch.isVisible,
-    categoryId: patch.categoryId,
-    images: patch.images,
-  });
-  await services().logActivity(
-    { id: actor.id, email: actor.email },
-    product.storeId,
-    "product.updated",
-    { name: updated.name }
-  );
-  return ok({ product: updated });
 }
 
 export async function DELETE(
   _req: NextRequest,
   ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await ctx.params;
-  const product = await findProduct(decodeURIComponent(id));
-  if (!product) return badRequest("المنتج غير موجود");
+  try {
+    const { id } = await ctx.params;
+    const product = await findProduct(decodeURIComponent(id));
+    if (!product) return badRequest("المنتج غير موجود");
 
-  const actor = await requireStoreActor(product.storeId);
-  if (actor instanceof NextResponse) return actor;
+    const actor = await requireStoreActor(product.storeId);
+    if (actor instanceof NextResponse) return actor;
 
-  await services().deleteProduct(product.id);
-  await services().logActivity(
-    { id: actor.id, email: actor.email },
-    product.storeId,
-    "product.deleted",
-    { name: product.name }
-  );
-  return ok({ ok: true });
+    await services().deleteProduct(product.id);
+    await services().logActivity(
+      { id: actor.id, email: actor.email },
+      product.storeId,
+      "product.deleted",
+      { name: product.name }
+    );
+    return ok({ ok: true });
+  } catch (e) {
+    return serverError(e);
+  }
 }

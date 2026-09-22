@@ -3,7 +3,8 @@
 // يعتمد على Supabase Auth + Row Level Security للعزل الكامل
 // ============================================================
 
-import { supabaseAdmin, supabaseServer, STORAGE_BUCKET } from "../supabase/client";
+import { supabaseAdmin, supabaseServer, supabaseUrl, STORAGE_BUCKET } from "../supabase/client";
+import { supabaseSecretKey } from "../supabase/env";
 import { mainDomain } from "../constants";
 import type {
   ActivityLog,
@@ -21,14 +22,16 @@ import type {
   StoreSettings,
   StoreStatus,
 } from "../types";
-import type {
-  CategoryInput,
-  ClientRow,
-  CreateStoreInput,
-  PageInput,
-  ProductInput,
-  Services,
-  StoreInput,
+import {
+  StorageError,
+  type CategoryInput,
+  type ClientRow,
+  type CreateStoreInput,
+  type PageInput,
+  type ProductInput,
+  type Services,
+  type StorageHealth,
+  type StoreInput,
 } from "./types";
 
 const DEFAULT_SECTION_ORDER: StoreSettings["sectionOrder"] = [
@@ -824,15 +827,25 @@ export class SupabaseServices implements Services {
 
   // ---------------- النشاطات ----------------
 
+  /**
+   * تسجيل النشاط بجلسة المستخدم (RLS: logs_insert) لا بالمفتاح السري.
+   * وفشل التسجيل **لا يُسقط العملية الأصلية** — كان يُسقطها سابقًا فيظهر
+   * للمستخدم «فشل الحفظ/الرفع» مع أن التغيير حُفظ فعلًا.
+   */
   async logActivity(
     actor: { id: string | null; email: string },
     storeId: string | null,
     action: string,
     details?: Record<string, unknown>
   ): Promise<void> {
-    await supabaseAdmin()
-      .from("activity_logs")
-      .insert({ store_id: storeId, user_id: actor.id, actor_email: actor.email, action, details: details ?? {} });
+    try {
+      const { error } = await (await supabaseServer())
+        .from("activity_logs")
+        .insert({ store_id: storeId, user_id: actor.id, actor_email: actor.email, action, details: details ?? {} });
+      if (error) console.warn("[activity] تعذر تسجيل النشاط:", error.message);
+    } catch (e) {
+      console.warn("[activity] تعذر تسجيل النشاط:", e instanceof Error ? e.message : e);
+    }
   }
 
   async listActivity(opts: { storeId?: string | null; limit?: number }): Promise<ActivityLog[]> {
@@ -1107,6 +1120,18 @@ export class SupabaseServices implements Services {
 
   // ---------------- الملفات ----------------
 
+  /**
+   * رفع صورة داخل مسار المتجر.
+   *
+   * التصميم الصحيح: الرفع يتم **بجلسة المستخدم نفسه** فيمر الطلب عبر RLS
+   * (المالك الرئيسي يكتب في أي متجر، وصاحب المتجر في متجره فقط). لم يعد
+   * الرفع يعتمد على SUPABASE_SECRET_KEY — وكان غيابه/خطؤه في الإنتاج سببًا
+   * مباشرًا لرسالة «فشل الرفع» بلا أي تفسير.
+   *
+   * احتياط واحد فقط: إن رفضت RLS الكتابة (قاعدة بيانات لم يُنفَّذ عليها
+   * الترحيل 0003 بعد) وكان مفتاح الخادم متاحًا، نُعيد المحاولة به — وصلاحية
+   * الفاعل مُتحقَّق منها أصلًا في طبقة API قبل الوصول إلى هنا.
+   */
   async uploadImage(
     storeId: string,
     folder: "logo" | "cover" | "products" | "pages",
@@ -1119,15 +1144,137 @@ export class SupabaseServices implements Services {
         .replace(/[^a-z0-9._-]/g, "-")
         .slice(0, 80) || "image";
     const objectPath = `stores/${storeId}/${folder}/${Date.now()}-${safe}`;
-    const ext = safe.split(".").pop() ?? "";
-    const contentType =
-      ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : ext === "gif" ? "image/gif" : "image/jpeg";
-    const { error } = await supabaseAdmin()
-      .storage.from(STORAGE_BUCKET)
-      .upload(objectPath, buffer, { contentType, upsert: false });
-    if (error) throw new Error(error.message);
-    const { data } = supabaseAdmin().storage.from(STORAGE_BUCKET).getPublicUrl(objectPath);
-    return data.publicUrl;
+    const contentType = imageContentType(safe);
+
+    const session = await supabaseServer();
+    const first = await session.storage
+      .from(STORAGE_BUCKET)
+      .upload(objectPath, buffer, { contentType, upsert: false, cacheControl: "31536000" });
+    if (!first.error) return this.storagePublicUrl(objectPath);
+
+    const primary = mapStorageError(first.error);
+    const hasServerKey = Boolean(supabaseSecretKey());
+
+    if (primary.code === "permission_denied" && hasServerKey) {
+      console.warn("[storage] رفضت RLS الرفع بجلسة المستخدم — نحاول بمفتاح الخادم:", first.error?.message);
+      let admin;
+      try {
+        admin = supabaseAdmin();
+      } catch (e) {
+        throw mapStorageError(e);
+      }
+      const retry = await admin.storage
+        .from(STORAGE_BUCKET)
+        .upload(objectPath, buffer, { contentType, upsert: false, cacheControl: "31536000" });
+      if (!retry.error) return this.storagePublicUrl(objectPath);
+      throw mapStorageError(retry.error);
+    }
+
+    throw primary;
+  }
+
+  /** حذف صورة مرفوعة (استبدال أو حذف نهائي) — بالجلسة نفسها عبر RLS */
+  async deleteImage(url: string): Promise<boolean> {
+    const objectPath = storagePathFromUrl(url);
+    if (!objectPath) return false;
+    try {
+      const sb = await supabaseServer();
+      const { error } = await sb.storage.from(STORAGE_BUCKET).remove([objectPath]);
+      if (error) {
+        console.warn("[storage] تعذر حذف الصورة:", error.message);
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.warn("[storage] تعذر حذف الصورة:", e instanceof Error ? e.message : e);
+      return false;
+    }
+  }
+
+  /** فحص طبقة التخزين كاملة — يظهر للمالك الرئيسي في لوحة المتجر */
+  async storageHealth(storeId?: string): Promise<StorageHealth> {
+    const notes: string[] = [];
+    const serverKeyPresent = Boolean(supabaseSecretKey());
+    const health: StorageHealth = {
+      mode: "supabase",
+      bucket: STORAGE_BUCKET,
+      serverKeyPresent,
+      bucketExists: null,
+      bucketPublic: null,
+      fileSizeLimit: null,
+      allowedMimeTypes: null,
+      sessionUploadOk: null,
+      sessionUploadError: null,
+      sessionDeleteOk: null,
+      notes,
+    };
+
+    if (!serverKeyPresent) {
+      notes.push(
+        "مفتاح الخادم السري (SUPABASE_SECRET_KEY) غير مضبوط — لا يؤثر على رفع الصور الآن (الرفع بالجلسة عبر RLS)، لكنه مطلوب لتسليم المتاجر (إنشاء حساب العميل)."
+      );
+    }
+
+    const sb = await supabaseServer();
+    try {
+      const { data: bucket, error } = await sb.storage.getBucket(STORAGE_BUCKET);
+      if (error) {
+        const msg = error.message ?? "";
+        if (/not found|does not exist|Bucket not found/i.test(msg)) {
+          health.bucketExists = false;
+          notes.push(
+            `خزنة «${STORAGE_BUCKET}» غير موجودة في Supabase Storage — نفّذ الترحيل supabase/migrations/0003_master_owner_permissions.sql (يُنشئها) أو أنشئها من لوحة Supabase (Public bucket).`
+          );
+        } else {
+          notes.push(`تعذر قراءة بيانات الخزنة: ${msg}`);
+        }
+      } else if (bucket) {
+        health.bucketExists = true;
+        health.bucketPublic = Boolean(bucket.public);
+        health.fileSizeLimit = bucket.file_size_limit ?? null;
+        health.allowedMimeTypes = bucket.allowed_mime_types ?? null;
+        if (!bucket.public) {
+          notes.push("الخزنة غير عامة → الصور لن تظهر في المتجر. اجعلها Public من إعدادات التخزين.");
+        }
+      }
+    } catch (e) {
+      notes.push(`تعذر فحص الخزنة: ${e instanceof Error ? e.message : String(e)}`);
+    }
+
+    if (storeId) {
+      // اختبار رفع/حذف فعلي بحساب الجلسة (كشف RLS ومسار stores/<id>/…)
+      const probePath = `stores/${storeId}/.health/probe-${Date.now()}.png`;
+      const png = Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+        "base64"
+      );
+      try {
+        const { error } = await sb.storage
+          .from(STORAGE_BUCKET)
+          .upload(probePath, png, { contentType: "image/png", upsert: true });
+        if (error) {
+          health.sessionUploadOk = false;
+          health.sessionUploadError = error.message;
+          notes.push(`اختبار الرفع بحساب الجلسة فشل: ${error.message}`);
+        } else {
+          health.sessionUploadOk = true;
+          const { error: delError } = await sb.storage.from(STORAGE_BUCKET).remove([probePath]);
+          health.sessionDeleteOk = !delError;
+          if (delError) notes.push(`اختبار الحذف فشل: ${delError.message}`);
+        }
+      } catch (e) {
+        health.sessionUploadOk = false;
+        health.sessionUploadError = e instanceof Error ? e.message : String(e);
+        notes.push(`اختبار الرفع بحساب الجلسة فشل: ${health.sessionUploadError}`);
+      }
+    }
+
+    return health;
+  }
+
+  private storagePublicUrl(objectPath: string): string {
+    // getPublicUrl لا يحتاج أي صلاحية — يُبنى الرابط رياضيًا
+    return `${supabaseUrl()}/storage/v1/object/public/${STORAGE_BUCKET}/${objectPath}`;
   }
 }
 
@@ -1136,3 +1283,105 @@ export function getSupabaseServices(): Services {
   if (!_instance) _instance = new SupabaseServices();
   return _instance;
 }
+
+// ------------------------------------------------------------
+// أدوات التخزين (مشتركة داخل هذا الملف)
+// ------------------------------------------------------------
+
+function imageContentType(filename: string): string {
+  const ext = filename.split(".").pop()?.toLowerCase() ?? "";
+  switch (ext) {
+    case "png":
+      return "image/png";
+    case "webp":
+      return "image/webp";
+    case "gif":
+      return "image/gif";
+    case "svg":
+      return "image/svg+xml";
+    case "avif":
+      return "image/avif";
+    default:
+      return "image/jpeg";
+  }
+}
+
+/** رابط الصورة العامة → مسار الكائن داخل الخزنة (أو null إن لم يكن من تخزيننا) */
+function storagePathFromUrl(url: string): string | null {
+  if (!url) return null;
+  const marker = `/storage/v1/object/public/${STORAGE_BUCKET}/`;
+  const idx = url.indexOf(marker);
+  if (idx === -1) return null;
+  const path = url.slice(idx + marker.length).split("?")[0];
+  try {
+    return decodeURIComponent(path);
+  } catch {
+    return path;
+  }
+}
+
+/** تحويل أخطاء التخزين إلى أخطاء مفهومة قابلة للعرض */
+function mapStorageError(error: unknown): StorageError {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "object" && error !== null && "message" in error
+        ? String((error as { message?: unknown }).message ?? "")
+        : String(error ?? "");
+  const statusCode = Number(
+    (typeof error === "object" && error !== null
+      ? (error as { statusCode?: number | string }).statusCode
+      : undefined) ?? 0
+  );
+  const haystack = `${message} ${statusCode}`.toLowerCase();
+
+  if (haystack.includes("secret key") || haystack.includes("مفتاح supabase السري")) {
+    return new StorageError(
+      "server_key_missing",
+      "مفتاح الخادم السري (SUPABASE_SECRET_KEY) غير مضبوط في بيئة النشر.",
+      { status: 500, detail: message }
+    );
+  }
+  if (haystack.includes("bucket not found") || haystack.includes("bucket does not exist")) {
+    return new StorageError(
+      "bucket_missing",
+      "خزنة الصور «store-assets» غير موجودة في Supabase Storage — نفّذ الترحيل 0003 أو أنشئها (Public).",
+      { status: 500, detail: message }
+    );
+  }
+  if (
+    statusCode === 403 ||
+    haystack.includes("row-level security") ||
+    haystack.includes("violates row-level security") ||
+    haystack.includes("unauthorized")
+  ) {
+    return new StorageError(
+      "permission_denied",
+      "التخزين رفض الكتابة لهذا المسار (RLS). تأكد من تنفيذ الترحيل 0003 الذي يمنح المالك الرئيسي كل المسارات وصاحب المتجر مسار متجره.",
+      { status: 403, detail: message }
+    );
+  }
+  if (haystack.includes("exceeded the maximum allowed size") || statusCode === 413) {
+    return new StorageError("too_large", "حجم الصورة يتجاوز الحد المسموح في التخزين (5MB).", {
+      status: 400,
+      detail: message,
+    });
+  }
+  if (haystack.includes("mime type") || haystack.includes("invalid mime")) {
+    return new StorageError("mime_not_allowed", "نوع الصورة غير مسموح في التخزين.", {
+      status: 400,
+      detail: message,
+    });
+  }
+  if (haystack.includes("fetch failed") || haystack.includes("network") || haystack.includes("timeout")) {
+    return new StorageError("network", "تعذر الوصول إلى خدمة التخزين (شبكة/مهلة).", {
+      status: 502,
+      detail: message,
+    });
+  }
+  return new StorageError("unexpected", `فشل الرفع إلى التخزين: ${message || "خطأ غير معروف"}`, {
+    status: 500,
+    detail: message,
+  });
+}
+

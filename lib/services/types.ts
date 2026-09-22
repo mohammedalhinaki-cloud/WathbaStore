@@ -18,6 +18,51 @@ import type {
   StoreStatus,
 } from "../types";
 
+/**
+ * رموز أخطاء التخزين — تصل للواجهة كي لا تضيع الحقيقة خلف «فشل الرفع».
+ */
+export type StorageErrorCode =
+  | "server_key_missing"
+  | "bucket_missing"
+  | "permission_denied"
+  | "not_authenticated"
+  | "too_large"
+  | "mime_not_allowed"
+  | "network"
+  | "unexpected";
+
+export class StorageError extends Error {
+  code: StorageErrorCode;
+  status: number;
+  detail?: string;
+
+  constructor(code: StorageErrorCode, message: string, opts?: { status?: number; detail?: string }) {
+    super(message);
+    this.name = "StorageError";
+    this.code = code;
+    this.status = opts?.status ?? 500;
+    this.detail = opts?.detail;
+  }
+}
+
+/** نتيجة فحص طبقة التخزين (تُعرض للمالك الرئيسي في الإعدادات) */
+export interface StorageHealth {
+  mode: "supabase" | "local";
+  bucket: string;
+  /** هل مفتاح الخادم السري مضبوط؟ (لم يعد مطلوبًا لرفع الصور — للعلم فقط) */
+  serverKeyPresent: boolean;
+  bucketExists: boolean | null;
+  bucketPublic: boolean | null;
+  fileSizeLimit: number | null;
+  allowedMimeTypes: string[] | null;
+  /** اختبار رفع فعلي بحساب الجلسة نفسه (يكشف RLS) */
+  sessionUploadOk: boolean | null;
+  sessionUploadError: string | null;
+  /** اختبار حذف فعلي (تنظيف) */
+  sessionDeleteOk: boolean | null;
+  notes: string[];
+}
+
 export interface StoreInput {
   name: string;
   subdomain: string;
@@ -148,5 +193,10 @@ export interface Services {
   getClient(storeId: string): Promise<ClientRow | null>;
 
   // ----- الملفات -----
+  /** رفع صورة داخل مسار المتجر stores/{storeId}/{folder}/... */
   uploadImage(storeId: string, folder: "logo" | "cover" | "products" | "pages", buffer: Buffer, filename: string): Promise<string>;
+  /** حذف صورة مرفوعة (استبدال/حذف) — يُرجع false إن لم تكن من تخزيننا */
+  deleteImage(url: string): Promise<boolean>;
+  /** فحص طبقة التخزين: الخزنة، الإعدادات، وصلاحية الرفع/الحذف بحساب الجلسة */
+  storageHealth(storeId?: string): Promise<StorageHealth>;
 }

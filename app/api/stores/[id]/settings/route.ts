@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { services } from "@/lib/services";
-import { ok, badRequest, requireStoreActor } from "@/lib/api-utils";
+import { ok, badRequest, requireStoreActor, serverError } from "@/lib/api-utils";
 import { isOwner } from "@/lib/authorize";
 import { z } from "zod";
 
@@ -38,31 +38,35 @@ export async function PATCH(
   req: NextRequest,
   ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await ctx.params;
-  const actor = await requireStoreActor(id);
-  if (actor instanceof NextResponse) return actor;
+  try {
+    const { id } = await ctx.params;
+    const actor = await requireStoreActor(id);
+    if (actor instanceof NextResponse) return actor;
 
-  const parsed = SCHEMA.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return badRequest("بيانات غير صالحة");
-  let patch = parsed.data;
+    const parsed = SCHEMA.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) return badRequest("بيانات غير صالحة");
+    let patch = parsed.data;
 
-  if (!isOwner(actor)) {
-    const restricted: Record<string, unknown> = {};
-    for (const f of MEMBER_FIELDS) {
-      if (patch[f] !== undefined) restricted[f] = patch[f];
+    if (!isOwner(actor)) {
+      const restricted: Record<string, unknown> = {};
+      for (const f of MEMBER_FIELDS) {
+        if (patch[f] !== undefined) restricted[f] = patch[f];
+      }
+      patch = restricted;
+      if (Object.keys(restricted).length === 0) {
+        return badRequest("هذه الحقول مقيدة للمالك");
+      }
     }
-    patch = restricted;
-    if (Object.keys(restricted).length === 0) {
-      return badRequest("هذه الحقول مقيدة للمالك");
-    }
+
+    const settings = await services().updateStoreSettings(id, patch);
+    await services().logActivity(
+      { id: actor.id, email: actor.email },
+      id,
+      "settings.updated",
+      { fields: Object.keys(patch) }
+    );
+    return ok({ settings });
+  } catch (e) {
+    return serverError(e);
   }
-
-  const settings = await services().updateStoreSettings(id, patch);
-  await services().logActivity(
-    { id: actor.id, email: actor.email },
-    id,
-    "settings.updated",
-    { fields: Object.keys(patch) }
-  );
-  return ok({ settings });
 }

@@ -173,6 +173,7 @@ export const ACTIVITY_LABELS: Record<string, string> = {
   "page.updated": "تعديل صفحة",
   "page.deleted": "حذف صفحة",
   "image.uploaded": "رفع صورة",
+  "image.deleted": "حذف صورة",
   "owner.login": "دخول المالك",
   "member.login": "دخول صاحب متجر",
 };

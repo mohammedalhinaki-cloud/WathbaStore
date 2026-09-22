@@ -12,6 +12,7 @@ import {
   Eye,
   FlaskConical,
   Gift,
+  LayoutDashboard,
   Settings2,
   X,
   Check,
@@ -37,6 +38,9 @@ export default function StoresTable({ stores, host }: Props) {
   const isRealHost = host.endsWith(mainDomain());
   const previewPath = (subdomain: string) =>
     isRealHost ? `https://${subdomain}.${mainDomain()}` : `/?store=${subdomain}`;
+  // لوحة المتجر بنفس واجهة صاحب المتجر — المالك الرئيسي يدخلها لأي متجر
+  const panelPath = (subdomain: string) =>
+    isRealHost ? `https://${subdomain}.${mainDomain()}/admin` : `/admin?store=${subdomain}`;
 
   async function act(fn: () => Promise<void>, key: string) {
     setBusy(key);
@@ -208,6 +212,16 @@ export default function StoresTable({ stores, host }: Props) {
                     >
                       <Eye className="h-3.5 w-3.5" />
                       معاينة
+                    </a>
+                    <a
+                      href={panelPath(s.subdomain)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="دخول لوحة المتجر بنفس واجهة صاحب المتجر"
+                      className="flex items-center gap-1 rounded-lg bg-violet-50 px-2.5 py-1.5 text-xs font-bold text-violet-700 hover:bg-violet-100"
+                    >
+                      <LayoutDashboard className="h-3.5 w-3.5" />
+                      لوحة المتجر
                     </a>
                     <button
                       onClick={() => testStore(s)}

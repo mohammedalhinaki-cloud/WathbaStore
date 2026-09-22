@@ -12,15 +12,18 @@
     "cf-deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy && node scripts/verify-deploy.mjs",
     "cf-upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload && node scripts/verify-deploy.mjs",
     "cf-verify": "node scripts/verify-deploy.mjs",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "test:rls": "node scripts/verify-rls.mjs",
+    "test:flows": "node scripts/verify-local-flows.mjs",
+    "test:upload": "node scripts/repro-upload.mjs"
   },
   "dependencies": {
     "@fontsource/almarai": "^5.2.5",
     "@fontsource/cairo": "^5.2.5",
     "@fontsource/ibm-plex-sans-arabic": "^5.2.5",
     "@fontsource/tajawal": "^5.2.5",
-    "@supabase/supabase-js": "^2.50.0",
     "@supabase/ssr": "^0.6.1",
+    "@supabase/supabase-js": "^2.50.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.525.0",
     "next": "^15.4.0",
@@ -30,6 +33,7 @@
     "zod": "^3.25.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@opennextjs/cloudflare": "^1.0.0",
     "@tailwindcss/postcss": "^4.1.0",
     "@types/node": "^22.15.0",

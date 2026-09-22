@@ -7,6 +7,7 @@ import path from "node:path";
 import { db, DEFAULT_SETTINGS, newId, rowToStore, type RawStoreRow } from "../local/db";
 import { mainDomain } from "../constants";
 import { hashPassword, verifyPassword } from "../local/auth";
+import { StorageError, type StorageHealth } from "./types";
 import type {
   ActivityLog,
   AppUser,
@@ -680,9 +681,14 @@ export class LocalServices implements Services {
     action: string,
     details?: Record<string, unknown>
   ): Promise<void> {
-    db().prepare(
-      "INSERT INTO activity_logs (store_id, user_id, actor_email, action, details, created_at) VALUES (?,?,?,?,?,?)"
-    ).run(storeId, actor.id, actor.email, action, details ? JSON.stringify(details) : null, now());
+    // فشل تسجيل النشاط لا يُسقط العملية الأصلية (نفس سلوك طبقة Supabase)
+    try {
+      db().prepare(
+        "INSERT INTO activity_logs (store_id, user_id, actor_email, action, details, created_at) VALUES (?,?,?,?,?,?)"
+      ).run(storeId, actor.id, actor.email, action, details ? JSON.stringify(details) : null, now());
+    } catch (e) {
+      console.warn("[activity] تعذر تسجيل النشاط:", e instanceof Error ? e.message : e);
+    }
   }
 
   async listActivity(opts: { storeId?: string | null; limit?: number }): Promise<ActivityLog[]> {
@@ -958,12 +964,87 @@ export class LocalServices implements Services {
       .toLowerCase()
       .replace(/[^a-z0-9._-]/g, "-")
       .slice(0, 80) || "image";
-    const dir = path.join(process.cwd(), ".data", UPLOAD_ROOT, storeId, folder);
-    fs.mkdirSync(dir, { recursive: true });
-    const name = `${Date.now()}-${safe}`;
-    fs.writeFileSync(path.join(dir, name), buffer);
-    return `/${UPLOAD_ROOT}/${storeId}/${folder}/${name}`;
+    const dir = path.join(uploadRoot(), storeId, folder);
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+      const name = `${Date.now()}-${safe}`;
+      fs.writeFileSync(path.join(dir, name), buffer);
+      return `/${UPLOAD_ROOT}/${storeId}/${folder}/${name}`;
+    } catch (e) {
+      throw new StorageError(
+        "unexpected",
+        `فشل حفظ الصورة على القرص: ${e instanceof Error ? e.message : String(e)}`,
+        { status: 500 }
+      );
+    }
   }
+
+  /** حذف صورة مرفوعة من .data/uploads (استبدال/حذف نهائي) */
+  async deleteImage(url: string): Promise<boolean> {
+    const objectPath = localUploadPath(url);
+    if (!objectPath) return false;
+    const root = uploadRoot();
+    const full = path.resolve(path.join(root, ...objectPath.split("/")));
+    if (!full.startsWith(path.resolve(root))) return false;
+    try {
+      if (!fs.existsSync(full)) return false;
+      fs.unlinkSync(full);
+      return true;
+    } catch (e) {
+      console.warn("[storage] تعذر حذف الصورة:", e instanceof Error ? e.message : e);
+      return false;
+    }
+  }
+
+  /** فحص التخزين في الوضع المحلي (نفس شكل فحص Supabase) */
+  async storageHealth(storeId?: string): Promise<StorageHealth> {
+    const notes = [
+      "الوضع التجريبي المحلي: الصور تُحفظ في .data/uploads وتُخدَم من /uploads/...",
+    ];
+    const root = uploadRoot();
+    const health: StorageHealth = {
+      mode: "local",
+      bucket: UPLOAD_ROOT,
+      serverKeyPresent: false,
+      bucketExists: fs.existsSync(root),
+      bucketPublic: true,
+      fileSizeLimit: 5 * 1024 * 1024,
+      allowedMimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"],
+      sessionUploadOk: null,
+      sessionUploadError: null,
+      sessionDeleteOk: null,
+      notes,
+    };
+    try {
+      fs.mkdirSync(root, { recursive: true });
+      health.bucketExists = true;
+      const probeDir = path.join(root, storeId ?? "site", ".health");
+      fs.mkdirSync(probeDir, { recursive: true });
+      const probe = path.join(probeDir, `probe-${Date.now()}.tmp`);
+      fs.writeFileSync(probe, "ok");
+      health.sessionUploadOk = true;
+      fs.unlinkSync(probe);
+      health.sessionDeleteOk = true;
+    } catch (e) {
+      health.sessionUploadOk = false;
+      health.sessionUploadError = e instanceof Error ? e.message : String(e);
+      notes.push(`اختبار الكتابة فشل: ${health.sessionUploadError}`);
+    }
+    return health;
+  }
+}
+
+/** مسار تخزين الصور في الوضع المحلي */
+function uploadRoot(): string {
+  return path.join(process.cwd(), ".data", UPLOAD_ROOT);
+}
+
+/** /uploads/{storeId}/{folder}/{file} → {storeId}/{folder}/{file} */
+function localUploadPath(url: string): string | null {
+  if (!url || !url.startsWith(`/${UPLOAD_ROOT}/`)) return null;
+  const rest = url.slice(UPLOAD_ROOT.length + 2).split("?")[0];
+  if (!rest || rest.includes("..")) return null;
+  return rest;
 }
 
 export const localServices = new LocalServices();

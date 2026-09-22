@@ -26,6 +26,27 @@ export function mainDomain(): string {
   return cleaned || DEFAULT_MAIN_DOMAIN;
 }
 
+/**
+ * نطاق الكوكي المشترك بين نطاقات المنصة الفرعية.
+ *
+ * لماذا؟ المالك الرئيسي يُسجّل الدخول مرة واحدة في `waathba.com/admin`، ثم
+ * يفتح `rshaf.waathba.com/admin` ليدير المتجر بنفس واجهة صاحبه. الكوكي
+ * الافتراضية تُكتب للمضيف الذي سجّل الدخول فقط، فلا تُرسَل إلى النطاق الفرعي
+ * ويظهر للمالك أنه غير مسجَّل (أو تُطلب منه بيانات الدخول مرة أخرى).
+ * لذلك نكتب كوكي الجلسة على النطاق الأب `.waathba.com` فتُرسل لكل النطاقات
+ * الفرعية — وتبقى فحوص الصلاحيات (RLS + الدور) هي الحاجز الحقيقي.
+ *
+ * يُرجع undefined لأي مضيف آخر (المعاينة على نطاق واحد، أو تطوير محلي)
+ * حتى لا يتأثر وضع المعاينة أو الاختبارات المحلية بأي تغيير.
+ */
+export function sharedCookieDomain(host?: string | null): string | undefined {
+  const main = mainDomain();
+  const h = (host || "").trim().toLowerCase().replace(/:\d+$/, "");
+  if (!h) return undefined;
+  if (h !== main && !h.endsWith(`.${main}`)) return undefined;
+  return `.${main}`;
+}
+
 export function developerUrl(fallback?: string | null): string {
   return (
     process.env.DEVELOPER_URL ||
