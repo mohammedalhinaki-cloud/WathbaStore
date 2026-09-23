@@ -19,23 +19,28 @@ const domain = mainDomain();
 
 export const metadata: Metadata = {
   metadataBase: new URL(`https://${domain}`),
-  // أيقونة المفضلة ديناميكية حسب النطاق (app/icon/route.ts)
   icons: {
-    icon: "/icon",
-    apple: "/icon",
+    icon: [
+      { url: "/icon", sizes: "any" },
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
   },
   title: {
-    default: `${APP_NAME} | ${domain} — متجرك الإلكتروني مع ${APP_NAME}`,
+    default: `${APP_NAME} — متجرك الإلكتروني مع ${APP_NAME}`,
     template: `%s | ${APP_NAME}`,
   },
   description:
     `منصة ${APP_NAME} أنشئ بها متجرًا إلكترونيًا متكاملًا على نطاق فرعي خاص بك — تصميم، منتجات، SEO، وتسليم جاهز للإدارة.`,
   keywords: ["متاجر إلكترونية", APP_NAME, domain, "إنشاء متاجر", "متجر إلكتروني"],
+  applicationName: APP_NAME,
   alternates: {
     canonical: `https://${domain}`,
   },
   openGraph: {
-    title: `${APP_NAME} | ${domain}`,
+    title: `${APP_NAME} — متجرك الإلكتروني مع ${APP_NAME}`,
     description: `متجرك الإلكتروني مع ${APP_NAME} — أنشئه وأجهزه وسلّمه جاهزًا.`,
     url: `https://${domain}`,
     locale: "ar_SA",
