@@ -32,6 +32,7 @@ export function db(): DatabaseSync {
   initSchema(db);
   seedIfEmpty(db);
   migrateLegacyPlatformData(db);
+  completeSweetsShowcase(db);
   _db = db;
   return db;
 }
@@ -292,6 +293,65 @@ function migrateLegacyPlatformData(database: DatabaseSync): void {
 }
 
 // ------------------------------------------------------------
+// بيانات متجر العرض المكتمل «دار رشف للحلويات» (sweets.maaoun.com)
+// تُستخدم مرة واحدة هنا: في البذر الأولي للقواعد الجديدة، وفي
+// completeSweetsShowcase لإكمال القواعد المحلية القديمة التي بُذرت
+// قبل اكتمال المتجر — بنفس محتوى supabase/migrations/0007.
+// ------------------------------------------------------------
+
+/** [id, name, slug, sortOrder] */
+const SWEETS_CATEGORIES: [string, string, string, number][] = [
+  ["cat-s-eastern", "حلويات شرقية", "eastern-sweets", 0],
+  ["cat-s-cakes", "كيك وتورت", "cakes", 1],
+  ["cat-s-bakery", "مخبوزات", "bakery", 2],
+  ["cat-s-gifts", "هدايا ومناسبات", "gifts", 3],
+];
+
+/** [id, categoryId, slug, name, description, price, oldPrice, stock, image] */
+const SWEETS_PRODUCTS: [string, string, string, string, string, number, number | null, number, string][] = [
+  ["prod-s-kunafa", "cat-s-eastern", "kunafa-nabulsia", "كنافة نابلسية بالجبن", "كنافة نابلسية أصيلة: عجينة شعيرية مقرمشة، جبن عكاوي مطاطي، قطر خفيف، وفستق حلبي. تُقدَّم دافئة.", 45, 55, 20, "/seed/s-kunafa.jpg"],
+  ["prod-s-baklava", "cat-s-eastern", "baklava-pistachio", "بقلاوة بالفستق الحلبي", "طبقات رقيقة من عجينة الفيلو محشوة بالفستق الحلبي، مخبوزة بالسمن البلدي ومسقاة بالقطر.", 60, null, 15, "/seed/s-baklava.jpg"],
+  ["prod-s-basbousa", "cat-s-eastern", "basbousa-ashta", "بسبوسة بالقشطة", "بسبوسة سميد طرية مغطاة بالقشطة الطازجة، مزينة باللوز والقطر الخفيف.", 38, null, 25, "/seed/s-basbousa.jpg"],
+  ["prod-s-chococake", "cat-s-cakes", "belgian-chocolate-cake", "كيك الشوكولاتة البلجيكية", "طبقات غنية من كيك الكاكاو مع غاناش الشوكولاتة البلجيكية الداكنة وبروش شوكولاتة.", 55, 70, 12, "/seed/s-choco-cake.jpg"],
+  ["prod-s-cheesecake", "cat-s-cakes", "berry-cheesecake", "تشيز كيك التوت الأحمر", "تشيز كيك نيويورك كريمي مع صوص التوت الأحمر الطبيعي وحبات توت طازجة.", 48, null, 14, "/seed/s-cheesecake-berry.jpg"],
+  ["prod-s-cinnamon", "cat-s-bakery", "cinnamon-roll", "سينابون بالقرفة", "لفائف سينابون هشة بقرفة سيلانية مع تغليفة جبن كريمي ذائبة.", 25, null, 30, "/seed/s-cinnamon.jpg"],
+  ["prod-s-cookies", "cat-s-bakery", "oatmeal-cookies", "كوكيز الشوفان والزبيب", "كوكيز مقرمش من الخارج وطري من الداخل، بشوفان كامل وزبيب ومحلّى قليلًا بدبس التمر.", 20, null, 40, "/seed/s-cookies.jpg"],
+  ["prod-s-giftbox", "cat-s-gifts", "sweets-gift-box", "صندوق هدايا دار رشف", "علبة هدايا فاخرة بتشكيلة مختارة: بقلاوة، كاسات كنافة، وتمور مغلّفة بالشوكولاتة — بعلبة أنيقة ورباط ذهبي.", 120, 150, 10, "/seed/s-giftbox.jpg"],
+];
+
+/** [id, title, slug, content, sortOrder] */
+const SWEETS_PAGES: [string, string, string, string, number][] = [
+  ["page-sweets-about", "من نحن", "about", "بدأت دار رشف للحلويات من مطبخ منزلي صغير عام 2014، وكبرت بثقة عملائها حتى أصبحت دار حلويات متكاملة.\nنحضّر كل صباح حلوياتنا طازجة: شرقية بالسمن البلدي والفستق الحلبي، وغربية بالشوكولاتة البلجيكية والكريمة الطبيعية.\nوعدنا لكم: جودة ثابتة، حلاوة متوازنة، وتقديم أنيق يليق بمناسباتكم.", 0],
+  ["page-sweets-shipping", "التوصيل والشحن", "shipping", "نوصّل يوميًا داخل المدينة من 4 عصرًا حتى 11 مساءً.\nالتوصيل داخل المدينة: 15 ر.س — ومجانًا للطلبات فوق 150 ر.س.\nطلبات الكيك والمناسبات تحتاج تجهيزًا مسبقًا 48 ساعة.\nتصلك الحلويات في علب مبرّدة تحفظ طراوتها حتى الاستلام.", 1],
+  ["page-sweets-policies", "سياسة الاستبدال والاسترجاع", "policies", "جودة منتجاتنا مسؤوليتنا: إذا وصلك منتج تالف أو غير مطابق للطلب نستبدله أو نعيد قيمته خلال 24 ساعة.\nلا نقبل الاسترجاع لتغيّر الرأي في المنتجات الطازجة لأنها تُحضَّر حسب الطلب، لكن رضاكم غايتنا دائمًا.\nلديك حساسية غذائية؟ نبّهنا عند الطلب — جميع منتجاتنا قد تحتوي مكسرات أو غلوتين أو ألبان.", 2],
+  ["page-sweets-occasions", "مناسبات وأفراح", "occasions", "نستقبل طلبات الأفراح والخطوبات والتخرج وهدايا الشركات بكميات من 50 إلى 2000 قطعة.\nيشمل كل طلب: تذوق مجاني قبل التأكيد، تصميم خاص بألوان مناسبتك، وبطاقات مطبوعة باسمكم.\nللاستفسار وطلب عرض سعر تواصلوا معنا عبر واتساب أو إنستغرام.", 3],
+];
+
+const SWEETS_SETTINGS = {
+  template: "modern",
+  font: "tajawal",
+  primaryColor: "#9F1239",
+  secondaryColor: "#D4AF37",
+  sectionOrder: '["hero","products","pages","footer"]',
+  aboutText: "في دار رشف نصنع الحلويات بشغف يتجاوز عشر سنوات: كنافة وبقلاوة وبسبوسة على الطريقة الأصيلة، وكيك وتشيز كيك بأسلوب عصري. نختار السمن البلدي والفستق الحلبي والشوكولاتة البلجيكية، ونخبز يوميًا بكميات محدودة ليصلك كل شيء طازجًا.",
+  instagram: "https://instagram.com/rshaf.sweets",
+  snapchat: "rshaf_sweets",
+  tiktok: "https://tiktok.com/@rshaf.sweets",
+  whatsapp: "966507778899",
+  footerBgColor: "#450A1A",
+  /** آيبانات وهمية للعرض فقط (نمط SA + 22 خانة) — ليست حسابات حقيقية */
+  ibanRajhi: "SA0380000000608010167519",
+  ibanAlinmaa: "SA9211500000012345678901",
+  ibanAlahli: "SA4410000000012345678902",
+  seoTitle: "دار رشف للحلويات | حلويات شرقية وغربية فاخرة",
+  seoDescription: "كنافة وبقلاوة وبسبوسة طازجة، كيك وتشيز كيك، ومخبوزات يومية من دار رشف للحلويات. اطلب الآن عبر واتساب وتوصيل لجميع الأحياء.",
+  seoKeywords: "حلويات, كنافة, بقلاوة, بسبوسة, كيك, تشيز كيك, مخبوزات, دار رشف",
+  seoOgImage: "/seed/sweets-cover.jpg",
+  seoFavicon: "/seed/sweets-logo.png",
+  seoCanonical: "https://sweets.maaoun.com",
+};
+
+// ------------------------------------------------------------
 // البيانات الأولية (Demo Seed)
 // ------------------------------------------------------------
 
@@ -333,25 +393,28 @@ function seedIfEmpty(db: DatabaseSync): void {
     ago(10), ago(14), ago(4)
   );
   insStore.run(
-    "store-sweets", "دار رشف للحلويات", "sweets", "preparing",
+    "store-sweets", "دار رشف للحلويات", "sweets", "delivered",
     "سارة القحطاني", "0507778899", "sara@demo.com", "966507778899",
-    "حلويات فاخرة ومخبوزات يومية.",
-    null, null, null, null, ago(2), ago(1)
+    "حلويات شرقية وغربية فاخرة تُصنع طازجة يوميًا — كنافة، بقلاوة، كيك، ومخبوزات تصلك إلى بابك ومناسباتك.",
+    "/seed/sweets-logo.png", "/seed/sweets-cover.jpg",
+    JSON.stringify({ email: "sara@demo.com", password: "Sara#2026" }),
+    ago(1), ago(2), ago(1)
   );
 
   // ----- إعدادات المتاجر -----
   const insSettings = db.prepare(`INSERT INTO store_settings
     (store_id, template, font, primary_color, secondary_color, section_order, about_text,
      social_instagram, social_snapchat, social_tiktok, social_whatsapp, developer_url,
+     footer_bg_color, iban_rajhi, iban_alinmaa, iban_alahli,
      seo_title, seo_description, seo_keywords, seo_og_image, seo_favicon, seo_canonical, updated_at)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
 
   insSettings.run(
     "store-rshaf", "modern", "cairo", "#8B5E34", "#D97706",
     '["hero","products","pages","footer"]',
     "كافيه رشف وجهةٌ لعشّاق القهوة المختصة؛ نختاري حبوبنا بعناية ونحضر مشروباتنا أمامك بحب.",
     "https://instagram.com/rshaf.cafe", "rshaf_cafe", "https://tiktok.com/@rshaf.cafe", "",
-    "https://maaoun.com",
+    "https://maaoun.com", "", "", "", "",
     "كافيه رشف | القهوة والحلويات",
     "قهوة مختصة، مشروبات باردة، وحلويات طازجة في كافيه رشف. اطلب الآن عبر واتساب.",
     "قهوة, لاتيه, حلويات, كافيه رشف, قهوة مختصة",
@@ -362,18 +425,22 @@ function seedIfEmpty(db: DatabaseSync): void {
     '["hero","products","footer"]',
     "في عود وروائح نختار أجود أنواع العود والعطور من شمول تايلاند والهند وفيتنام، بخلطات عريقة.",
     "https://instagram.com/oud.roua3", "oud_roua3", "", "",
-    "https://maaoun.com",
+    "https://maaoun.com", "", "", "", "",
     "عود وروائح | عطور وعود فاخر",
     "تشكيلة فاخرة من العود والعطور الأصلية. جودة مضمونة وتسليم سريع.",
     "عود, عطور, عود تايلاند, عطر فاخر",
     "/seed/portfolio-perfume.jpg", "", "", ago(4)
   );
   insSettings.run(
-    "store-sweets", "modern", "tajawal", "#BE185D", "#F59E0B",
-    '["hero","products","footer"]',
-    "", "", "", "", "",
+    "store-sweets",
+    SWEETS_SETTINGS.template, SWEETS_SETTINGS.font, SWEETS_SETTINGS.primaryColor, SWEETS_SETTINGS.secondaryColor,
+    SWEETS_SETTINGS.sectionOrder, SWEETS_SETTINGS.aboutText,
+    SWEETS_SETTINGS.instagram, SWEETS_SETTINGS.snapchat, SWEETS_SETTINGS.tiktok, SWEETS_SETTINGS.whatsapp,
     "https://maaoun.com",
-    "دار رشف للحلويات", "حلويات فاخرة ومخبوزات يومية.", "", "", "", "", ago(1)
+    SWEETS_SETTINGS.footerBgColor, SWEETS_SETTINGS.ibanRajhi, SWEETS_SETTINGS.ibanAlinmaa, SWEETS_SETTINGS.ibanAlahli,
+    SWEETS_SETTINGS.seoTitle, SWEETS_SETTINGS.seoDescription, SWEETS_SETTINGS.seoKeywords,
+    SWEETS_SETTINGS.seoOgImage, SWEETS_SETTINGS.seoFavicon, SWEETS_SETTINGS.seoCanonical,
+    ago(1)
   );
 
   // ----- الأقسام -----
@@ -386,6 +453,9 @@ function seedIfEmpty(db: DatabaseSync): void {
   insCat.run("cat-oud", "store-oud", "عود", "oud", 0, 1, ago(14));
   insCat.run("cat-perfume", "store-oud", "عطور", "perfumes", 1, 1, ago(14));
   insCat.run("cat-gift", "store-oud", "هدايا", "gifts", 2, 1, ago(14));
+  for (const [id, name, slug, sort] of SWEETS_CATEGORIES) {
+    insCat.run(id, "store-sweets", name, slug, sort, 1, ago(2));
+  }
 
   // ----- المنتجات -----
   const insProd = db.prepare(`INSERT INTO products
@@ -408,6 +478,10 @@ function seedIfEmpty(db: DatabaseSync): void {
     insProd.run(id, sid, slug, cat, name, desc, price, old, stock, 1, 0, ago(20), ago(5));
     insImg.run(`img-${id}`, id, sid, img, 0);
   }
+  for (const [i, [id, cat, slug, name, desc, price, old, stock, img]] of SWEETS_PRODUCTS.entries()) {
+    insProd.run(id, "store-sweets", slug, cat, name, desc, price, old, stock, 1, i, ago(2), ago(1));
+    insImg.run(`img-${id}`, id, "store-sweets", img, 0);
+  }
 
   // ----- الصفحات -----
   const insPage = db.prepare(
@@ -428,6 +502,9 @@ function seedIfEmpty(db: DatabaseSync): void {
     "عشر سنوات في سوق العود والعطور أكسبتنا ثقة عملائنا؛ نختار الخامات من مصادرها الأصلية ونختبر كل دفعة قبل طرحها.",
     1, 0, ago(14)
   );
+  for (const [id, title, slug, content, sort] of SWEETS_PAGES) {
+    insPage.run(id, "store-sweets", title, slug, content, 1, sort, ago(2));
+  }
 
   // ----- الأعضاء -----
   const insMember = db.prepare(
@@ -435,6 +512,7 @@ function seedIfEmpty(db: DatabaseSync): void {
   );
   insMember.run("mem-1", "store-rshaf", "user-rshaf", "owner", ago(18));
   insMember.run("mem-2", "store-oud", "user-oud", "owner", ago(10));
+  insMember.run("mem-3", "store-sweets", "user-sara", "owner", ago(1));
 
   // ----- إعدادات الموقع العام -----
   db.prepare(`INSERT INTO site_settings
@@ -488,6 +566,7 @@ function seedIfEmpty(db: DatabaseSync): void {
     (id, title, description, image_url, store_url, tags, is_visible, sort_order, created_at) VALUES (?,?,?,?,?,?,?,?,?)`);
   insPortfolio.run("pf-rshaf", "كافيه رشف", "متجر قهوة مختصة وحلويات بقالب عصري وألوان دافئة.", "/seed/rshaf-cover.jpg", "https://rshaf.maaoun.com", "قهوة, حلويات, متجر طعام", 1, 0, ago(18));
   insPortfolio.run("pf-oud", "عود وروائح", "متجر عطور وعود فاخر بهوية كلاسيكية راقية.", "/seed/portfolio-perfume.jpg", "https://oud.maaoun.com", "عطور, عود, متجر فاخر", 1, 1, ago(10));
+  insPortfolio.run("pf-sweets", "دار رشف للحلويات", "متجر حلويات شرقية وغربية بهوية توتية ذهبية: كتالوج كامل، طلب عبر واتساب، وحسابات تحويل بنكي.", "/seed/sweets-cover.jpg", "https://sweets.maaoun.com", "حلويات, مناسبات, متجر طعام", 1, 2, ago(1));
 
   // ----- سجل النشاطات -----
   const insLog = db.prepare(
@@ -498,6 +577,129 @@ function seedIfEmpty(db: DatabaseSync): void {
   insLog.run("store-rshaf", "user-owner", ownerEmail, "product.created", JSON.stringify({ name: "كيك الشوكولاتة" }), ago(5));
   insLog.run("store-oud", "user-owner", ownerEmail, "store.delivered", JSON.stringify({ subdomain: "oud" }), ago(10));
   insLog.run("store-rshaf", "user-owner", ownerEmail, "store.delivered", JSON.stringify({ subdomain: "rshaf" }), ago(18));
+  insLog.run("store-sweets", "user-owner", ownerEmail, "store.delivered", JSON.stringify({ subdomain: "sweets" }), ago(1));
+  insLog.run("store-sweets", "user-owner", ownerEmail, "product.created", JSON.stringify({ name: "كنافة نابلسية بالجبن" }), ago(2));
+}
+
+// ------------------------------------------------------------
+// إكمال متجر «دار رشف للحلويات» في القواعد المحلية القديمة
+// ------------------------------------------------------------
+//
+// القواعد المحلية (‎.data/wathba.db) التي بُذرت قبل اكتمال متجر العرض تبقى
+// تحمل المتجر بحالة «preparing» وبلا محتوى. هذه الدالة تُكملها مرة واحدة
+// بنفس بيانات البذر (المطابقة لـ supabase/migrations/0007) دون لمس أي تعديل
+// أجراه المستخدم: لا تعمل إلا إذا كان المتجر ما يزال بلا نص «عن المتجر»
+// وبلا منتجات، وجميع إدراجاتها INSERT OR IGNORE بمعرّفات ثابتة.
+
+function completeSweetsShowcase(database: DatabaseSync): void {
+  const store = database
+    .prepare("SELECT id FROM stores WHERE subdomain = 'sweets'")
+    .get() as { id: string } | undefined;
+  if (!store) return;
+
+  const settings = database
+    .prepare("SELECT about_text FROM store_settings WHERE store_id = ?")
+    .get(store.id) as { about_text: string | null } | undefined;
+  const prodRow = database
+    .prepare("SELECT COUNT(*) AS c FROM products WHERE store_id = ?")
+    .get(store.id) as { c: number };
+  const incomplete = (settings?.about_text ?? "") === "" || prodRow.c === 0;
+  if (!incomplete) return;
+
+  const nowIso = new Date().toISOString();
+  const ago = (days: number) => new Date(Date.now() - days * 86400000).toISOString();
+
+  database.prepare(`UPDATE stores SET
+      status = 'delivered',
+      delivered_at = COALESCE(delivered_at, ?),
+      logo_url = ?, cover_url = ?, description = ?, updated_at = ?
+    WHERE id = ?`).run(
+    ago(1), "/seed/sweets-logo.png", "/seed/sweets-cover.jpg",
+    "حلويات شرقية وغربية فاخرة تُصنع طازجة يوميًا — كنافة، بقلاوة، كيك، ومخبوزات تصلك إلى بابك ومناسباتك.",
+    nowIso, store.id
+  );
+
+  database.prepare(`INSERT INTO store_settings
+      (store_id, template, font, primary_color, secondary_color, section_order, about_text,
+       social_instagram, social_snapchat, social_tiktok, social_whatsapp, developer_url,
+       footer_bg_color, iban_rajhi, iban_alinmaa, iban_alahli,
+       seo_title, seo_description, seo_keywords, seo_og_image, seo_favicon, seo_canonical, updated_at)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    ON CONFLICT(store_id) DO UPDATE SET
+      template = excluded.template, font = excluded.font,
+      primary_color = excluded.primary_color, secondary_color = excluded.secondary_color,
+      section_order = excluded.section_order, about_text = excluded.about_text,
+      social_instagram = excluded.social_instagram, social_snapchat = excluded.social_snapchat,
+      social_tiktok = excluded.social_tiktok, social_whatsapp = excluded.social_whatsapp,
+      developer_url = excluded.developer_url,
+      footer_bg_color = excluded.footer_bg_color, iban_rajhi = excluded.iban_rajhi,
+      iban_alinmaa = excluded.iban_alinmaa, iban_alahli = excluded.iban_alahli,
+      seo_title = excluded.seo_title, seo_description = excluded.seo_description,
+      seo_keywords = excluded.seo_keywords, seo_og_image = excluded.seo_og_image,
+      seo_favicon = excluded.seo_favicon, seo_canonical = excluded.seo_canonical,
+      updated_at = excluded.updated_at`).run(
+    store.id,
+    SWEETS_SETTINGS.template, SWEETS_SETTINGS.font, SWEETS_SETTINGS.primaryColor, SWEETS_SETTINGS.secondaryColor,
+    SWEETS_SETTINGS.sectionOrder, SWEETS_SETTINGS.aboutText,
+    SWEETS_SETTINGS.instagram, SWEETS_SETTINGS.snapchat, SWEETS_SETTINGS.tiktok, SWEETS_SETTINGS.whatsapp,
+    "https://maaoun.com",
+    SWEETS_SETTINGS.footerBgColor, SWEETS_SETTINGS.ibanRajhi, SWEETS_SETTINGS.ibanAlinmaa, SWEETS_SETTINGS.ibanAlahli,
+    SWEETS_SETTINGS.seoTitle, SWEETS_SETTINGS.seoDescription, SWEETS_SETTINGS.seoKeywords,
+    SWEETS_SETTINGS.seoOgImage, SWEETS_SETTINGS.seoFavicon, SWEETS_SETTINGS.seoCanonical,
+    nowIso
+  );
+
+  const insCat = database.prepare(
+    "INSERT OR IGNORE INTO categories (id, store_id, name, slug, sort_order, is_visible, created_at) VALUES (?,?,?,?,?,1,?)"
+  );
+  for (const [id, name, slug, sort] of SWEETS_CATEGORIES) {
+    insCat.run(id, store.id, name, slug, sort, ago(2));
+  }
+
+  const insProd = database.prepare(`INSERT OR IGNORE INTO products
+      (id, store_id, slug, category_id, name, description, price, old_price, stock, is_visible, sort_order, created_at, updated_at)
+    VALUES (?,?,?,?,?,?,?,?,?,1,?,?,?)`);
+  const insImg = database.prepare(
+    "INSERT OR IGNORE INTO product_images (id, product_id, store_id, url, sort_order) VALUES (?,?,?,?,0)"
+  );
+  for (const [i, [id, cat, slug, name, desc, price, old, stock, img]] of SWEETS_PRODUCTS.entries()) {
+    insProd.run(id, store.id, slug, cat, name, desc, price, old, stock, i, ago(2), nowIso);
+    insImg.run(`img-${id}`, id, store.id, img);
+  }
+
+  const insPage = database.prepare(
+    "INSERT OR IGNORE INTO pages (id, store_id, title, slug, content, is_visible, sort_order, updated_at) VALUES (?,?,?,?,?,1,?,?)"
+  );
+  for (const [id, title, slug, content, sort] of SWEETS_PAGES) {
+    insPage.run(id, store.id, title, slug, content, sort, ago(2));
+  }
+
+  const sara = database
+    .prepare("SELECT id FROM local_users WHERE lower(email) = 'sara@demo.com'")
+    .get() as { id: string } | undefined;
+  if (sara) {
+    database.prepare(
+      "INSERT OR IGNORE INTO store_members (id, store_id, user_id, role, created_at) VALUES (?,?,?,?,?)"
+    ).run("mem-3", store.id, sara.id, "owner", ago(1));
+  }
+
+  database.prepare(`INSERT OR IGNORE INTO portfolio_items
+      (id, title, description, image_url, store_url, tags, is_visible, sort_order, created_at)
+    VALUES (?,?,?,?,?,?,1,?,?)`).run(
+    "pf-sweets", "دار رشف للحلويات",
+    "متجر حلويات شرقية وغربية بهوية توتية ذهبية: كتالوج كامل، طلب عبر واتساب، وحسابات تحويل بنكي.",
+    "/seed/sweets-cover.jpg", "https://sweets.maaoun.com", "حلويات, مناسبات, متجر طعام", 2, ago(1)
+  );
+
+  const hasLog = database.prepare(
+    "SELECT 1 AS x FROM activity_logs WHERE store_id = ? AND action = 'store.delivered' LIMIT 1"
+  ).get(store.id) as { x: number } | undefined;
+  if (!hasLog) {
+    const ownerEmail = process.env.LOCAL_OWNER_EMAIL || "owner@maaoun.com";
+    database.prepare(
+      "INSERT INTO activity_logs (store_id, user_id, actor_email, action, details, created_at) VALUES (?,?,?,?,?,?)"
+    ).run(store.id, null, ownerEmail, "store.delivered", JSON.stringify({ subdomain: "sweets" }), ago(1));
+  }
 }
 
 // ------------------------------------------------------------
