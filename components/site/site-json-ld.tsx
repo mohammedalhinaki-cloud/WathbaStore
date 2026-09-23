@@ -16,6 +16,7 @@ export default function SiteJsonLd() {
         "@id": `${url}#website`,
         url,
         name: APP_NAME,
+        alternateName: "Maaoun",
         inLanguage: "ar",
         publisher: { "@id": `${url}#organization` },
       },
@@ -23,8 +24,8 @@ export default function SiteJsonLd() {
         "@type": "Organization",
         "@id": `${url}#organization`,
         name: APP_NAME,
+        alternateName: "Maaoun",
         url,
-        alternateName: mainDomain(),
       },
     ],
   };
