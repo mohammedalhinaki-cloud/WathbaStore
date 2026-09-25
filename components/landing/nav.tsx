@@ -1,9 +1,9 @@
-// معين — شريط تنقل الموقع العام
+// معون — شريط تنقل الموقع العام
 "use client";
 
 import { useState } from "react";
-import { Menu, X, Store, ArrowLeft } from "lucide-react";
-import { APP_NAME, mainDomain } from "@/lib/constants";
+import { Menu, X, ArrowLeft } from "lucide-react";
+import { APP_NAME, APP_TAGLINE, mainDomain } from "@/lib/constants";
 
 const LINKS = [
   { href: "#services", label: "الخدمات" },
@@ -19,14 +19,22 @@ export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-ink-950/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <a href="#top" className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-violet-600 shadow-lg shadow-brand-500/30">
-            <Store className="h-5 w-5 text-white" />
-          </span>
-          <span className="text-xl font-extrabold tracking-tight text-white">
-            {APP_NAME}
-            <span className="mr-1.5 rounded-md bg-accent-500/15 px-1.5 py-0.5 text-[10px] font-bold text-accent-400">
-              {mainDomain()}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/mark.svg"
+            alt={APP_NAME}
+            width={36}
+            height={36}
+            className="h-9 w-9 shrink-0 drop-shadow-[0_2px_8px_rgba(245,158,11,0.35)]"
+          />
+          <span className="flex flex-col leading-tight">
+            <span className="flex items-center gap-1.5">
+              <span className="text-xl font-extrabold tracking-tight text-white">{APP_NAME}</span>
+              <span className="rounded-md bg-accent-500/15 px-1.5 py-0.5 text-[10px] font-bold text-accent-400">
+                {mainDomain()}
+              </span>
             </span>
+            <span className="hidden text-[11px] font-semibold text-ink-400 sm:block">{APP_TAGLINE}</span>
           </span>
         </a>
 

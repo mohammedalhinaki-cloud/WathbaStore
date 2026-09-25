@@ -1,6 +1,6 @@
 {
   // ============================================================
-  // معين maaoun.com — إعداد Cloudflare (OpenNext + Workers)
+  // معون maaoun.com — إعداد Cloudflare (OpenNext + Workers)
   // عبر الأدوات الرسمية: opennextjs-cloudflare build / deploy
   // ============================================================
   "$schema": "node_modules/wrangler/config-schema.json",

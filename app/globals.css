@@ -3,18 +3,19 @@
 @theme {
   --font-sans: "Cairo", "Tajawal", ui-sans-serif, system-ui, sans-serif;
 
-  /* هوية معين (الموقع العام + لوحة الإدارة) */
-  --color-brand-50: #eef2ff;
-  --color-brand-100: #e0e7ff;
-  --color-brand-200: #c7d2fe;
-  --color-brand-300: #a5b4fc;
-  --color-brand-400: #818cf8;
-  --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
-  --color-brand-700: #4338ca;
-  --color-brand-800: #3730a3;
-  --color-brand-900: #312e81;
-  --color-brand-950: #1e1b4b;
+  /* هوية معون (الموقع العام + لوحة الإدارة) — منسّقة مع الشعار:
+     برتقالي للعلامة + كحلي عميق للخلفيات + أبيض للنصوص */
+  --color-brand-50: #fff7ed;
+  --color-brand-100: #ffedd5;
+  --color-brand-200: #fed7aa;
+  --color-brand-300: #fdba74;
+  --color-brand-400: #fb923c;
+  --color-brand-500: #f97316;
+  --color-brand-600: #ea580c;
+  --color-brand-700: #c2410c;
+  --color-brand-800: #9a3412;
+  --color-brand-900: #7c2d12;
+  --color-brand-950: #431407;
 
   --color-accent-300: #fcd34d;
   --color-accent-400: #fbbf24;
@@ -29,9 +30,9 @@
   --color-ink-500: #6b7394;
   --color-ink-600: #535a78;
   --color-ink-700: #424760;
-  --color-ink-800: #23263b;
-  --color-ink-900: #12141f;
-  --color-ink-950: #0a0c14;
+  --color-ink-800: #1e2740;
+  --color-ink-900: #141d33;
+  --color-ink-950: #0f1a2e;
 }
 
 html {

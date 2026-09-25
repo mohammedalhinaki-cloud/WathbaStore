@@ -1,4 +1,4 @@
-// معين — صفحة 404 (تتكيف: متجر أم الموقع العام)
+// معون — صفحة 404 (تتكيف: متجر أم الموقع العام)
 import Link from "next/link";
 import { APP_NAME, mainDomain } from "@/lib/constants";
 import { getTenant } from "@/lib/tenant";
@@ -38,7 +38,7 @@ export default async function NotFound() {
       </p>
       <Link
         href="/"
-        className="mt-8 rounded-xl bg-gradient-to-l from-brand-500 to-violet-600 px-6 py-3 text-sm font-extrabold text-white"
+        className="mt-8 rounded-xl bg-gradient-to-l from-brand-500 to-accent-600 px-6 py-3 text-sm font-extrabold text-white"
       >
         العودة إلى {APP_NAME}
       </Link>

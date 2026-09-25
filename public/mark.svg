@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="og" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <!-- مقبض الحقيبة (تدرّج برتقالي) -->
+  <path d="M21 28c0-7.5 4.6-13 11-13s11 5.5 11 13" stroke="url(#og)" stroke-width="5.2" stroke-linecap="round"/>
+  <!-- جسم الحقيبة (أبيض) -->
+  <path d="M16.5 25h31l-2.4 25.6a6 6 0 0 1-6 5.4H24.9a6 6 0 0 1-6-5.4L16.5 25Z" fill="#F8FAFC"/>
+  <!-- سهم النمو داخل الحقيبة (تدرّج برتقالي) -->
+  <path d="M25.5 48 37.5 36" stroke="url(#og)" stroke-width="4.6" stroke-linecap="round"/>
+  <path d="M31.5 36h6v6" stroke="url(#og)" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

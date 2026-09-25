@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 import { APP_NAME, mainDomain } from "@/lib/constants";
 import { getTenant, getStoreCtx } from "@/lib/tenant";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
-import { Store, Lock, ShieldCheck } from "lucide-react";
+import { Lock, ShieldCheck } from "lucide-react";
 import LoginForm from "./login-form";
 
 export const metadata: Metadata = { title: "تسجيل الدخول" };
@@ -58,9 +58,8 @@ export default async function LoginPage() {
       <div className="pointer-events-none absolute -top-40 left-1/2 h-[420px] w-[700px] -translate-x-1/2 rounded-full bg-brand-600/20 blur-[110px]" />
       <div className="relative w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-violet-600 shadow-xl shadow-brand-500/30">
-            <Store className="h-7 w-7 text-white" />
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/mark.svg" alt={APP_NAME} width={56} height={56} className="h-14 w-14 drop-shadow-[0_4px_16px_rgba(245,158,11,0.35)]" />
           <h1 className="mt-4 text-2xl font-extrabold text-white">لوحة إدارة {APP_NAME}</h1>
           <p className="mt-2 flex items-center gap-1.5 text-sm text-ink-400">
             <ShieldCheck className="h-4 w-4 text-emerald-400" />

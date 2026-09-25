@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { APP_NAME, mainDomain } from "@/lib/constants";
+import { APP_NAME, APP_TAGLINE, mainDomain } from "@/lib/constants";
 import "./globals.css";
 import "@fontsource/cairo/400.css";
 import "@fontsource/cairo/500.css";
@@ -29,27 +29,30 @@ export const metadata: Metadata = {
     apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
   },
   title: {
-    default: `${APP_NAME} — متجرك الإلكتروني مع ${APP_NAME}`,
+    default: `${APP_NAME} — ${APP_TAGLINE}`,
     template: `%s | ${APP_NAME}`,
   },
   description:
-    `منصة ${APP_NAME} أنشئ بها متجرًا إلكترونيًا متكاملًا على نطاق فرعي خاص بك — تصميم، منتجات، SEO، وتسليم جاهز للإدارة.`,
+    `منصة ${APP_NAME} — ${APP_TAGLINE}. أنشئ متجرك الإلكتروني المتكامل على نطاق فرعي خاص بك: تصميم، منتجات، SEO، وتسليم جاهز للإدارة.`,
   keywords: ["متاجر إلكترونية", APP_NAME, domain, "إنشاء متاجر", "متجر إلكتروني"],
   applicationName: APP_NAME,
   alternates: {
     canonical: `https://${domain}`,
   },
   openGraph: {
-    title: `${APP_NAME} — متجرك الإلكتروني مع ${APP_NAME}`,
-    description: `متجرك الإلكتروني مع ${APP_NAME} — أنشئه وأجهزه وسلّمه جاهزًا.`,
+    title: `${APP_NAME} — ${APP_TAGLINE}`,
+    description: `${APP_TAGLINE} مع ${APP_NAME} — منصة إنشاء وتجهيز وتسليم المتاجر الإلكترونية على نطاقات فرعية.`,
     url: `https://${domain}`,
     locale: "ar_SA",
     type: "website",
+    images: [
+      { url: "/og-image.png", width: 1200, height: 630, alt: `${APP_NAME} — ${APP_TAGLINE}` },
+    ],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0c14",
+  themeColor: "#0f1a2e",
   width: "device-width",
   initialScale: 1,
 };

@@ -1,5 +1,5 @@
 -- ============================================================
--- معين maaoun.com — مخطط قاعدة البيانات + RLS
+-- معون maaoun.com — مخطط قاعدة البيانات + RLS
 -- Supabase / PostgreSQL
 --
 -- البنية: Multi-Tenant حقيقية
@@ -424,7 +424,7 @@ create policy "site_write" on public.site_settings
   with check (public.is_platform_owner());
 
 insert into public.site_settings (id, whatsapp_number, developer_url, hero_title, hero_subtitle)
-values (1, '', 'https://maaoun.com', 'متجرك الإلكتروني…', 'مع معين');
+values (1, '', 'https://maaoun.com', 'متجرك الإلكتروني…', 'مع معون');
 
 -- ---------- pricing_plans ----------
 

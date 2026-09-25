@@ -1,5 +1,5 @@
 // ============================================================
-// معين — الصفحة الرئيسية العامة (Landing Page)
+// معون — الصفحة الرئيسية العامة (Landing Page)
 // تُعرض على maaoun.com فقط — لا يظهر فيها أي شيء عن لوحة الإدارة
 // ============================================================
 
@@ -22,7 +22,7 @@ import {
   Zap,
 } from "lucide-react";
 import { services } from "@/lib/services";
-import { APP_NAME, developerUrl, formatPrice, mainDomain } from "@/lib/constants";
+import { APP_NAME, APP_TAGLINE, developerUrl, formatPrice, mainDomain } from "@/lib/constants";
 import { waChatLink } from "@/lib/wa";
 import LandingNav from "./nav";
 import Faq from "./faq";
@@ -114,7 +114,7 @@ export default async function LandingPage() {
             <h1 className="text-4xl font-extrabold leading-[1.2] text-white sm:text-5xl lg:text-[3.4rem]">
               {settings.heroTitle || "متجرك الإلكتروني…"}
               <span className="mt-2 block bg-gradient-to-l from-accent-400 to-accent-500 bg-clip-text text-transparent">
-                مع معين
+                مع معون
               </span>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-8 text-ink-300">
@@ -148,7 +148,7 @@ export default async function LandingPage() {
             <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-tr from-brand-500/30 to-accent-500/20 blur-2xl" />
             <Image
               src="/seed/hero.jpg"
-              alt="معاينة متاجر معين"
+              alt="معاينة متاجر معون"
               width={1200}
               height={900}
               priority
@@ -167,17 +167,17 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* ============ عن معين ============ */}
+      {/* ============ عن معون ============ */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div className="order-2 lg:order-1">
-            <SectionBadge icon={<Globe className="h-4 w-4" />} text="ما هو معين؟" />
+            <SectionBadge icon={<Globe className="h-4 w-4" />} text="ما هو معون؟" />
             <h2 className="mt-4 text-3xl font-extrabold text-white sm:text-4xl">
               منصة أدير بها متاجر أعمالي… وأسلّمها جاهزة
             </h2>
             <p className="mt-5 text-lg leading-8 text-ink-300">
               {settings.aboutText ||
-                "معين منصة متكاملة أنشئ بها متاجر إلكترونية للعملاء على نطاقات فرعية خاصة، أجهزها بالكامل وأسلّم كل متجر لصاحبه ليديره بنفسه."}
+                "معون منصة متكاملة أنشئ بها متاجر إلكترونية للعملاء على نطاقات فرعية خاصة، أجهزها بالكامل وأسلّم كل متجر لصاحبه ليديره بنفسه."}
             </p>
             <ul className="mt-6 space-y-3">
               {[
@@ -215,7 +215,7 @@ export default async function LandingPage() {
                 key={s.title}
                 className="group rounded-3xl border border-white/8 bg-white/[0.03] p-6 transition-all hover:-translate-y-1 hover:border-brand-400/30 hover:bg-white/[0.05]"
               >
-                <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500/20 to-violet-500/20 ring-1 ring-brand-400/20">
+                <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500/20 to-accent-500/20 ring-1 ring-brand-400/20">
                   <s.icon className="h-6 w-6 text-brand-300" />
                 </span>
                 <h3 className="text-lg font-bold text-white">{s.title}</h3>
@@ -230,7 +230,7 @@ export default async function LandingPage() {
       <section id="portfolio" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
         <SectionHead
           badge="أعمالي"
-          title="متاجر بُنيت على معين"
+          title="متاجر بُنيت على معون"
           sub="عينات من المتاجر التي أنشأتها وجاهزتها"
           light
         />
@@ -396,7 +396,7 @@ export default async function LandingPage() {
       <section className="border-t border-white/5 bg-ink-900/40 py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHead
-            badge="لماذا معين؟"
+            badge="لماذا معون؟"
             title="مميزات تجعل الفرق"
             sub="بُنية مبنية لتتحمل نمو عدد المتاجر"
           />
@@ -435,7 +435,7 @@ export default async function LandingPage() {
 
       {/* ============ CTA ============ */}
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6">
-        <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-l from-brand-700 via-brand-600 to-violet-700 px-6 py-14 text-center sm:px-12">
+        <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-l from-brand-600 via-brand-500 to-accent-600 px-6 py-14 text-center sm:px-12">
           <div className="pointer-events-none absolute -top-24 right-1/4 h-64 w-64 rounded-full bg-accent-400/20 blur-3xl" />
           <h2 className="text-3xl font-extrabold text-white sm:text-4xl">جاهز تنطلق بثقتك؟</h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-brand-100">
@@ -458,10 +458,12 @@ export default async function LandingPage() {
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-violet-600">
-                <Store className="h-5 w-5 text-white" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/mark.svg" alt={APP_NAME} width={36} height={36} className="h-9 w-9" />
+              <span className="flex flex-col leading-tight">
+                <span className="text-xl font-extrabold text-white">{APP_NAME}</span>
+                <span className="text-[11px] font-semibold text-ink-400">{APP_TAGLINE}</span>
               </span>
-              <span className="text-xl font-extrabold text-white">{APP_NAME}</span>
             </div>
             <p className="mt-4 max-w-md text-sm leading-7 text-ink-400">
               {settings.aboutText || "منصة إنشاء المتاجر الإلكترونية على نطاقات فرعية — أنشئ، جهّز، وسلّم."}

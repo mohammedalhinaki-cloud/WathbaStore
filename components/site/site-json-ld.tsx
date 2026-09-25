@@ -1,5 +1,5 @@
 // ============================================================
-// معين — Structured Data (schema.org) للموقع العام (maaoun.com)
+// معون — Structured Data (schema.org) للموقع العام (maaoun.com)
 // WebSite + Organization حتى يفهم Google هوية المنصة الرئيسية
 // بشكل مستقل عن متاجر النطاقات الفرعية.
 // ============================================================
@@ -26,6 +26,8 @@ export default function SiteJsonLd() {
         name: APP_NAME,
         alternateName: "Maaoun",
         url,
+        logo: `${url}/logo.png`,
+        image: `${url}/og-image.png`,
       },
     ],
   };

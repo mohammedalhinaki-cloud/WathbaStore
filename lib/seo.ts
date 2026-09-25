@@ -1,5 +1,5 @@
 // ============================================================
-// معين — مساعدات SEO الديناميكية لكل متجر
+// معون — مساعدات SEO الديناميكية لكل متجر
 // كل القيم تُشتق من Supabase حسب النطاق الفرعي (hostname)،
 // دون أي اسم متجر ثابت في الكود — يعمل تلقائيًا لأي متجر جديد.
 // ============================================================
@@ -23,7 +23,7 @@ export function storeCanonicalUrl(bundle: StoreBundle): string {
   return storeBaseUrl(bundle);
 }
 
-/** اسم العرض في <title>: نحترم عنوان SEO الصريح إن وُجد، وإلا «اسم المتجر | معين» */
+/** اسم العرض في <title>: نحترم عنوان SEO الصريح إن وُجد، وإلا «اسم المتجر | معون» */
 export function storeTitle(bundle: StoreBundle): string {
   const { store, settings } = bundle;
   const seo = settings.seoTitle?.trim();
@@ -102,7 +102,7 @@ export function buildStoreJsonLd(bundle: StoreBundle): Record<string, unknown> {
 
 /**
  * يبني كائن Metadata لمتجر بناءً على بياناته الديناميكية.
- * - العنوان يُضبط كـ absolute لمنع تكرار لاحقة العلامة (تجنّب «اسم | متجر | معين»).
+ * - العنوان يُضبط كـ absolute لمنع تكرار لاحقة العلامة (تجنّب «اسم | متجر | معون»).
  * - الرابط الكنسي والـ Open Graph يُشتقّان من النطاق/ seoCanonical.
  */
 export function storePageMetadata(

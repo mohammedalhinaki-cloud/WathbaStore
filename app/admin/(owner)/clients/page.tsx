@@ -1,4 +1,4 @@
-// معين — قائمة العملاء (المالك)
+// معون — قائمة العملاء (المالك)
 import type { Metadata } from "next";
 import Link from "next/link";
 import { services } from "@/lib/services";

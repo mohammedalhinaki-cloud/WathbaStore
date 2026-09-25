@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * ============================================================
- * معين — اختبار RLS الحقيقي (PostgreSQL عبر PGlite/WASM)
+ * معون — اختبار RLS الحقيقي (PostgreSQL عبر PGlite/WASM)
  * ============================================================
  *
  * ينفّذ ترحيلات المشروع فعليًا على قاعدة PostgreSQL حقيقية:
@@ -400,7 +400,7 @@ async function main() {
   );
   record(
     "0006 يحوّل «بوثبة واحدة» قبل الاستبدال العام",
-    String(site.hero_title).includes("مع معين") && !String(site.hero_title).includes("وثبة"),
+    String(site.hero_title).includes("مع معون") && !String(site.hero_title).includes("وثبة"),
     site.hero_title
   );
   record(
@@ -408,7 +408,7 @@ async function main() {
     site.social_instagram === "https://instagram.com/maaoun" &&
       site.social_snapchat === "maaoun" &&
       site.social_tiktok === "https://tiktok.com/@maaoun" &&
-      String(site.faq).includes("ما هو معين") &&
+      String(site.faq).includes("ما هو معون") &&
       String(site.features).includes("maaoun.com")
   );
   const settingsRow = (await db.query("select developer_url, seo_canonical from public.store_settings where store_id = $1", [S_A])).rows[0];

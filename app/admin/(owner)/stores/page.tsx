@@ -1,4 +1,4 @@
-// معين — قائمة المتاجر (المالك)
+// معون — قائمة المتاجر (المالك)
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTenant } from "@/lib/tenant";

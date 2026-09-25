@@ -1,4 +1,4 @@
-# نشر معين — (نُقل إلى Cloudflare)
+# نشر معون — (نُقل إلى Cloudflare)
 
 > ⚠️ **هذا الدليل قديم.** كانت المنصة تُنشر سابقًا على Vercel، وأصبحت الآن على
 > **Cloudflare** (Workers & Pages عبر OpenNext) تحت النطاق الرسمي `maaoun.com`.

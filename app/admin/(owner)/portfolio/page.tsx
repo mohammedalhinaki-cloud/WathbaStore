@@ -1,4 +1,4 @@
-// معين — الأعمال المعروضة في الموقع
+// معون — الأعمال المعروضة في الموقع
 import type { Metadata } from "next";
 import { services } from "@/lib/services";
 import { PageHeader } from "@/components/admin/ui";
