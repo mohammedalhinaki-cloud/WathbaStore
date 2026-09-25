@@ -86,7 +86,8 @@ export default function HeroStats({ items }: { items: HeroStat[] }) {
   }, []);
 
   return (
-    <div ref={ref} className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:grid-cols-4 sm:gap-4">
+    // مسافة واسعة فوق الكروت تفصلها بصريًا عن أزرار الغلاف (أكبر مسافة في الغلاف)
+    <div ref={ref} className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:grid-cols-4 sm:gap-4 lg:mt-14">
       {items.map((stat) => (
         <StatItem key={stat.label} stat={stat} progress={progress} />
       ))}

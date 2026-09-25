@@ -35,6 +35,7 @@ import { waChatLink } from "@/lib/wa";
 import LandingNav from "./nav";
 import Faq from "./faq";
 import HeroStats from "./hero-stats";
+import PricingPlans from "./pricing-plans";
 import SocialLinks from "@/components/social-links";
 import SiteJsonLd from "@/components/site/site-json-ld";
 import type { LandingSectionKey } from "@/lib/types";
@@ -90,15 +91,26 @@ export default async function LandingPage() {
       {/*
         الغلاف يملأ الشاشة الأولى بالضبط (100svh) وينتهي عند نهاية كروت
         الإحصائيات — لا يظهر أي قسم آخر ضمن الشاشة الأولى.
+        بلا حد سفلي: يتصل الغلاف بالقسم التالي على نفس الخلفية مباشرة.
       */}
-      <section className="relative flex min-h-[100svh] flex-col overflow-hidden border-b border-line/50 pt-16">
-        <div className="pointer-events-none absolute inset-0">
+      <section className="relative flex min-h-[100svh] flex-col overflow-hidden pt-16">
+        {/*
+          التوهّجات الزخرفية تتلاشى تدريجيًا قبل الحافة السفلية للغلاف
+          (mask) — فلا تظهر حافة مقطوعة بسبب overflow-hidden، وينتقل
+          الغلاف إلى القسم التالي بنعومة بلا أي خط فاصل.
+        */}
+        <div className="pointer-events-none absolute inset-0 [mask-image:linear-gradient(to_bottom,#000_60%,transparent)]">
           <div className="absolute -top-40 left-1/2 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-brand-600/20 blur-[120px]" />
           <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-accent-400/10 blur-[100px]" />
         </div>
 
+        {/*
+          مسافات الغلاف (متدرّجة لتوضيح التسلسل البصري):
+          العنوان ← الوصف ← الأزرار ← كروت الإحصائيات، وكل مسافة أكبر من
+          التي قبلها حتى يأخذ كل عنصر حقه ولا تبدو العناصر متزاحمة.
+        */}
         <div
-          className={`relative mx-auto grid w-full max-w-7xl flex-1 items-center gap-10 px-4 pb-12 pt-8 sm:px-6 sm:pb-14 sm:pt-10 lg:gap-14 lg:pb-16 lg:pt-10 ${
+          className={`relative mx-auto grid w-full max-w-7xl flex-1 items-center gap-12 px-4 pb-14 pt-8 sm:px-6 sm:pb-16 sm:pt-10 lg:gap-14 lg:pb-16 lg:pt-10 ${
             showHeroImage ? "lg:grid-cols-2" : "max-w-4xl text-center"
           }`}
         >
@@ -109,12 +121,12 @@ export default async function LandingPage() {
                 {L.hero.accent}
               </span>
             </h1>
-            <p className="mt-4 max-w-xl text-[1rem] leading-7 text-muted sm:mt-5 sm:text-lg sm:leading-8">
+            <p className="mt-6 max-w-xl text-[1rem] leading-7 text-muted sm:mt-7 sm:text-lg sm:leading-8 lg:mt-8">
               {L.hero.subtitle}
             </p>
 
             {(T.heroPrimaryBtn || T.heroSecondaryBtn) && (
-            <div className="mt-6 flex flex-row flex-nowrap items-center justify-center gap-3 sm:mt-7">
+            <div className="mt-8 flex flex-row flex-nowrap items-center justify-center gap-3 sm:mt-10">
               {T.heroPrimaryBtn && (
               <a
                 href={wa}
@@ -178,7 +190,12 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* الأقسام أسفل الغلاف — ترتيبها وإظهارها يتحكم به المالك */}
+      {/*
+        الأقسام أسفل الغلاف — ترتيبها وإظهارها يتحكم به المالك.
+        كل الأقسام على خلفية الصفحة نفسها (bg-base) بلا حدود فاصلة ولا
+        أشرطة ملوّنة متناوبة — فيبقى التصميم متناسقًا مهما تغيّر الترتيب،
+        والفصل بينها بالمسافات وترويسات الأقسام فقط.
+      */}
       <div className="flex flex-col">
 
       {/* ============ عن معون ============ */}
@@ -226,30 +243,28 @@ export default async function LandingPage() {
 
       {/* ============ الخدمات ============ */}
       {show("services") && (
-      <section id="services" style={ord("services")} className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <SectionHead
-            badge={L.heads.services.badge}
-            title={L.heads.services.title}
-            sub={L.heads.services.sub}
-          />
-          <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
-            {L.services.map((s, i) => {
-              const Icon = SERVICE_ICONS[i % SERVICE_ICONS.length];
-              return (
-                <div
-                  key={`${s.title}-${i}`}
-                  className="card-dark group rounded-3xl p-6 transition-all hover:-translate-y-1 hover:border-brand-500/40"
-                >
-                  <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600/25 to-accent-400/15 ring-1 ring-brand-500/30">
-                    <Icon className="h-6 w-6 text-brand-300" />
-                  </span>
-                  <h3 className="text-lg font-bold text-fg">{s.title}</h3>
-                  <p className="mt-2 text-sm leading-7 text-muted">{s.desc}</p>
-                </div>
-              );
-            })}
-          </div>
+      <section id="services" style={ord("services")} className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
+        <SectionHead
+          badge={L.heads.services.badge}
+          title={L.heads.services.title}
+          sub={L.heads.services.sub}
+        />
+        <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
+          {L.services.map((s, i) => {
+            const Icon = SERVICE_ICONS[i % SERVICE_ICONS.length];
+            return (
+              <div
+                key={`${s.title}-${i}`}
+                className="card-dark group rounded-3xl p-6 transition-all hover:-translate-y-1 hover:border-brand-500/40"
+              >
+                <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600/25 to-accent-400/15 ring-1 ring-brand-500/30">
+                  <Icon className="h-6 w-6 text-brand-300" />
+                </span>
+                <h3 className="text-lg font-bold text-fg">{s.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-muted">{s.desc}</p>
+              </div>
+            );
+          })}
         </div>
       </section>
       )}
@@ -306,65 +321,29 @@ export default async function LandingPage() {
       )}
 
       {/* ============ الأسعار ============ */}
+      {/*
+        الباقات قائمة مطوية مثل «الأسئلة الشائعة»: الاسم والسعر ظاهران،
+        والتفاصيل (المزايا + زر الطلب) تُفتح وتُغلق بالضغط — فلا يأخذ
+        القسم مساحة رأسية كبيرة. الأسعار تُنسَّق هنا في الخادم.
+      */}
       {show("pricing") && plans.length > 0 && (
-      <section id="pricing" style={ord("pricing")} className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <SectionHead
-            badge={L.heads.pricing.badge}
-            title={L.heads.pricing.title}
-            sub={L.heads.pricing.sub}
-          />
-          <div className="mt-8 grid gap-6 sm:mt-10 lg:grid-cols-3">
-            {plans.map((p) => (
-              <div
-                key={p.id}
-                className={`relative rounded-3xl border p-7 ${
-                  p.isFeatured
-                    ? "border-accent-400/50 bg-gradient-to-b from-brand-600/15 to-transparent shadow-xl shadow-brand-600/10"
-                    : "border-line bg-surface"
-                }`}
-              >
-                {p.isFeatured && (
-                  <span className="absolute -top-3.5 right-6 rounded-full bg-gradient-to-l from-brand-600 to-accent-400 px-4 py-1 text-xs font-extrabold text-ink-950">
-                    الأكثر طلبًا
-                  </span>
-                )}
-                <h3 className="text-lg font-extrabold text-fg">{p.name}</h3>
-                <div className="mt-4 flex items-end gap-2">
-                  <span className="text-4xl font-extrabold text-fg">
-                    {formatPrice(p.price, p.currency)}
-                  </span>
-                  {p.oldPrice != null && (
-                    <span className="mb-1 text-sm text-muted line-through">
-                      {formatPrice(p.oldPrice, p.currency)}
-                    </span>
-                  )}
-                </div>
-                <ul className="mt-6 space-y-3">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm text-ink-300">
-                      <BadgeCheck className="mt-0.5 h-4.5 w-4.5 shrink-0 text-accent-400" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <a
-                  href={wa}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`mt-7 flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-extrabold transition-transform hover:scale-[1.02] ${
-                    p.isFeatured
-                      ? "btn-primary flex"
-                      : "border border-line bg-white/5 text-fg hover:bg-white/10"
-                  }`}
-                >
-                  اطلب هذه الباقة
-                  <ArrowLeft className="h-4 w-4" />
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
+      <section id="pricing" style={ord("pricing")} className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
+        <SectionHead
+          badge={L.heads.pricing.badge}
+          title={L.heads.pricing.title}
+          sub={L.heads.pricing.sub}
+        />
+        <PricingPlans
+          orderHref={wa}
+          plans={plans.map((p) => ({
+            id: p.id,
+            name: p.name,
+            price: formatPrice(p.price, p.currency),
+            oldPrice: p.oldPrice != null ? formatPrice(p.oldPrice, p.currency) : null,
+            features: p.features,
+            isFeatured: p.isFeatured,
+          }))}
+        />
       </section>
       )}
 
@@ -424,32 +403,30 @@ export default async function LandingPage() {
 
       {/* ============ المميزات ============ */}
       {show("features") && (
-      <section id="features" style={ord("features")} className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <SectionHead
-            badge={L.heads.features.badge}
-            title={L.heads.features.title}
-            sub={L.heads.features.sub}
-          />
-          <div className="mt-8 grid gap-x-8 gap-y-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
-            {(settings.features.length
-              ? settings.features
-              : [
-                  { title: "نطاق فرعي خاص", desc: "كل متجر على نطاق مستقل بدون شراء دومين." },
-                  { title: "تصميم مخصص", desc: "قوالب وخطوط وألوان قابلة للتخصيص." },
-                ]
-            ).map((f) => (
-              <div key={f.title} className="flex items-start gap-4">
-                <span className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-600/15 ring-1 ring-brand-500/30">
-                  <Sparkles className="h-5 w-5 text-brand-300" />
-                </span>
-                <div>
-                  <h4 className="font-bold text-fg">{f.title}</h4>
-                  <p className="mt-1 text-sm leading-6 text-muted">{f.desc}</p>
-                </div>
+      <section id="features" style={ord("features")} className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
+        <SectionHead
+          badge={L.heads.features.badge}
+          title={L.heads.features.title}
+          sub={L.heads.features.sub}
+        />
+        <div className="mt-8 grid gap-x-8 gap-y-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
+          {(settings.features.length
+            ? settings.features
+            : [
+                { title: "نطاق فرعي خاص", desc: "كل متجر على نطاق مستقل بدون شراء دومين." },
+                { title: "تصميم مخصص", desc: "قوالب وخطوط وألوان قابلة للتخصيص." },
+              ]
+          ).map((f) => (
+            <div key={f.title} className="flex items-start gap-4">
+              <span className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-600/15 ring-1 ring-brand-500/30">
+                <Sparkles className="h-5 w-5 text-brand-300" />
+              </span>
+              <div>
+                <h4 className="font-bold text-fg">{f.title}</h4>
+                <p className="mt-1 text-sm leading-6 text-muted">{f.desc}</p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </section>
       )}
@@ -491,7 +468,7 @@ export default async function LandingPage() {
 
       {/* ============ Footer ============ */}
       {T.footer && (
-      <footer className="border-t border-line bg-base">
+      <footer className="bg-base">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
           <div className="md:col-span-2">
             <div className="flex flex-col gap-2">
@@ -545,11 +522,14 @@ export default async function LandingPage() {
           </div>
           )}
         </div>
-        <div className="border-t border-line py-5 text-center text-xs text-ink-500">
-          © {new Date().getFullYear()} {APP_NAME} {domain} — جميع الحقوق محفوظة ·{" "}
-          <a href={devUrl} target="_blank" rel="noopener noreferrer" className="text-muted hover:text-fg">
-            {domain}
-          </a>
+        {/* سطر الحقوق: خط خافت داخل عرض المحتوى فقط — لا خط حاد بعرض الشاشة */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="border-t border-line/40 py-5 text-center text-xs text-ink-500">
+            © {new Date().getFullYear()} {APP_NAME} {domain} — جميع الحقوق محفوظة ·{" "}
+            <a href={devUrl} target="_blank" rel="noopener noreferrer" className="text-muted hover:text-fg">
+              {domain}
+            </a>
+          </div>
         </div>
       </footer>
       )}
