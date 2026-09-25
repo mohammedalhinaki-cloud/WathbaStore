@@ -1,5 +1,5 @@
 -- ============================================================
--- معين maaoun.com — تحديث نصوص وروابط النطاق القديم
+-- معون maaoun.com — تحديث نصوص وروابط النطاق القديم
 --
 -- لا يحذف أي صف، ولا يغيّر هيكل الجداول، ولا يمسّ حسابات الدخول
 -- (auth.users / profiles / stores.owner_email / store_credentials)
@@ -19,21 +19,21 @@ set
           replace(coalesce(about_text, ''), 'wathbastore.com', 'maaoun.com'),
           'waathba.com', 'maaoun.com'
         ),
-        'بثُبة واحدة', 'مع معين'
+        'بثُبة واحدة', 'مع معون'
       ),
-      'بوثبة واحدة', 'مع معين'
+      'بوثبة واحدة', 'مع معون'
     ),
-    'وثبة', 'معين'
+    'وثبة', 'معون'
   ),
   hero_title = replace(
     replace(
       replace(
         replace(coalesce(hero_title, ''), 'waathba.com', 'maaoun.com'),
-        'بثُبة واحدة', 'مع معين'
+        'بثُبة واحدة', 'مع معون'
       ),
-      'بوثبة واحدة', 'مع معين'
+      'بوثبة واحدة', 'مع معون'
     ),
-    'وثبة', 'معين'
+    'وثبة', 'معون'
   ),
   hero_subtitle = replace(
     replace(
@@ -42,11 +42,11 @@ set
           replace(coalesce(hero_subtitle, ''), 'wathbastore.com', 'maaoun.com'),
           'waathba.com', 'maaoun.com'
         ),
-        'بثُبة واحدة', 'مع معين'
+        'بثُبة واحدة', 'مع معون'
       ),
-      'بوثبة واحدة', 'مع معين'
+      'بوثبة واحدة', 'مع معون'
     ),
-    'وثبة', 'معين'
+    'وثبة', 'معون'
   ),
   features = replace(
     replace(
@@ -54,9 +54,9 @@ set
         replace(coalesce(features, '[]'::jsonb)::text, 'wathbastore.com', 'maaoun.com'),
         'waathba.com', 'maaoun.com'
       ),
-      'بوثبة واحدة', 'مع معين'
+      'بوثبة واحدة', 'مع معون'
     ),
-    'وثبة', 'معين'
+    'وثبة', 'معون'
   )::jsonb,
   faq = replace(
     replace(
@@ -65,11 +65,11 @@ set
           replace(coalesce(faq, '[]'::jsonb)::text, 'wathbastore.com', 'maaoun.com'),
           'waathba.com', 'maaoun.com'
         ),
-        'ما هي وثبة', 'ما هو معين'
+        'ما هي وثبة', 'ما هو معون'
       ),
-      'لماذا وثبة', 'لماذا معين'
+      'لماذا وثبة', 'لماذا معون'
     ),
-    'وثبة', 'معين'
+    'وثبة', 'معون'
   )::jsonb,
   social_instagram = case
     when social_instagram in (

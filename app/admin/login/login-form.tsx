@@ -1,4 +1,4 @@
-// معين — نموذج تسجيل الدخول
+// معون — نموذج تسجيل الدخول
 "use client";
 
 import { useState } from "react";
@@ -84,7 +84,7 @@ export default function LoginForm({ kind }: { kind: "owner" | "client" }) {
         <button
           type="submit"
           disabled={loading}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-brand-500 to-violet-600 py-3 text-sm font-extrabold text-white shadow-lg shadow-brand-500/25 transition-transform hover:scale-[1.01] disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-brand-500 to-accent-600 py-3 text-sm font-extrabold text-white shadow-lg shadow-brand-500/25 transition-transform hover:scale-[1.01] disabled:opacity-60"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
           {kind === "owner" ? "دخول لوحة المالك" : "دخول لوحة المتجر"}

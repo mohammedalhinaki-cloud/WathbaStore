@@ -1,4 +1,4 @@
-// معين — إدارة النطاقات الفرعية (المالك): تغيير النطاق في أي وقت
+// معون — إدارة النطاقات الفرعية (المالك): تغيير النطاق في أي وقت
 import type { Metadata } from "next";
 import { services } from "@/lib/services";
 import { mainDomain } from "@/lib/constants";

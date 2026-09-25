@@ -1,5 +1,5 @@
 // ============================================================
-// معين — إحصائيات قسم الغلاف في الصفحة الرئيسية (عدّاد متحرك)
+// معون — إحصائيات قسم الغلاف في الصفحة الرئيسية (عدّاد متحرك)
 //
 // تعدّ الأرقام من 0 حتى قيمتها النهائية مرة واحدة فقط عند وصول
 // القسم إلى شاشة المستخدم (IntersectionObserver)، بحركة سريعة تبدأ
@@ -87,8 +87,8 @@ export default function HeroStats({ items }: { items: HeroStat[] }) {
   return (
     // @container: عدد الأعمدة يتبع عرض عمود النص الفعلي لا عرض الشاشة
     // (في الكمبيوتر يُقسم الغلاف إلى عمودين فيضيق عمود الإحصائيات)
-    <div ref={ref} className="@container mt-10 border-t border-white/10 pt-8">
-      <div className="grid grid-cols-2 gap-x-4 gap-y-6 @lg:grid-cols-4">
+    <div ref={ref} className="@container mt-10">
+      <div className="grid grid-cols-2 gap-3 @lg:grid-cols-4">
         {items.map((stat) => (
           <StatItem key={stat.label} stat={stat} progress={progress} />
         ))}
@@ -103,8 +103,15 @@ function StatItem({ stat, progress }: { stat: HeroStat; progress: number }) {
   const currentText = `${Math.round(stat.value * progress)}${suffix}`;
 
   return (
-    <div>
-      <p className="flex items-baseline gap-1.5 text-2xl font-extrabold text-white sm:text-3xl">
+    // بطاقة زجاجية بارزة: خلفية خفيفة + حد + ظل، وشريط برتقالي صغير
+    // يجذب العين — فتظهر الإحصائيات الأربع بوضوح من الوهلة الأولى.
+    // (prominent glass card so the four stats read clearly at first glance)
+    <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-center shadow-lg shadow-black/25 ring-1 ring-inset ring-white/[0.03] backdrop-blur transition-colors hover:border-accent-400/30 hover:bg-white/[0.07] sm:p-5">
+      <span
+        aria-hidden="true"
+        className="mx-auto mb-3 block h-1 w-10 rounded-full bg-gradient-to-l from-accent-400 to-accent-500"
+      />
+      <p className="flex items-baseline justify-center gap-1.5 text-3xl font-extrabold text-white sm:text-4xl">
         <span className="inline-grid tabular-nums">
           {/* يحجز عرض الرقم النهائي، ويظهر بدل العدّاد عند تعطيل جافاسكربت */}
           <span aria-hidden="true" className="invisible col-start-1 row-start-1 noscript:visible">
@@ -115,9 +122,11 @@ function StatItem({ stat, progress }: { stat: HeroStat; progress: number }) {
           </span>
         </span>
         <span className="sr-only">{finalText}</span>
-        {stat.unit && <span className="text-base font-bold sm:text-lg">{stat.unit}</span>}
+        {stat.unit && (
+          <span className="text-base font-bold text-accent-400 sm:text-lg">{stat.unit}</span>
+        )}
       </p>
-      <p className="mt-1 text-xs font-semibold text-ink-400">{stat.label}</p>
+      <p className="mt-1.5 text-xs font-semibold leading-5 text-ink-200 sm:text-sm">{stat.label}</p>
     </div>
   );
 }

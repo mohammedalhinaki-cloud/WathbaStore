@@ -1,12 +1,14 @@
 // ============================================================
-// معين — ثوابت عامة
+// معون — ثوابت عامة
 // ============================================================
 
 import type { SiteSettings, StoreStatus } from "./types";
 import { STORE_STATUS_LABELS } from "./types";
 
-export const APP_NAME = "معين";
+export const APP_NAME = "معون";
 export const APP_EN = "maaoun.com";
+/** الشعار/الوصف التسويقي المصاحب لاسم العلامة (يظهر مع الشعار وفي الـ SEO) */
+export const APP_TAGLINE = "متجرك يبدأ من هنا";
 
 /** النطاق الافتراضي للمنصة إن لم يُضبط NEXT_PUBLIC_MAIN_DOMAIN */
 export const DEFAULT_MAIN_DOMAIN = "maaoun.com";
@@ -68,12 +70,15 @@ export function replaceLegacyPlatformDomain(value: string): string {
 export function rewritePlatformMarketing(value: string): string {
   if (!value) return value;
   let out = replaceLegacyPlatformDomain(value);
-  out = out.split("بثُبة واحدة").join("مع معين");
-  out = out.split("بوثبة واحدة").join("مع معين");
-  out = out.split("بثبة واحدة").join("مع معين");
-  out = out.split("ما هي وثبة").join("ما هو معين");
-  out = out.split("لماذا وثبة").join("لماذا معين");
-  out = out.split("وثبة").join("معين");
+  out = out.split("بثُبة واحدة").join("مع معون");
+  out = out.split("بوثبة واحدة").join("مع معون");
+  out = out.split("بثبة واحدة").join("مع معون");
+  out = out.split("ما هي وثبة").join("ما هو معون");
+  out = out.split("لماذا وثبة").join("لماذا معون");
+  out = out.split("وثبة").join("معون");
+  // إعادة تسمية سابقة للعلامة داخل النصوص المخزّنة: «معين» → «معون».
+  // تُطبَّق أخيرًا حتى تُوحَّد أي بيانات قديمة ما زالت تحمل الاسم السابق.
+  out = out.split("معين").join("معون");
   out = out.split("instagram.com/waathba").join("instagram.com/maaoun");
   out = out.split("tiktok.com/@waathba").join("tiktok.com/@maaoun");
   const handle = out.trim().toLowerCase();
@@ -128,7 +133,7 @@ export function platformHostOf(host: string | null | undefined): {
 
 /** يزيل لاحقة الشعار لأن الصفحة الرئيسية تعرضها في سطر مستقل */
 function stripLandingAccent(title: string): string {
-  return title.replace(/\s*(?:مع معين|بثُبة واحدة|بوثبة واحدة|بثبة واحدة)\s*$/u, "").trim();
+  return title.replace(/\s*(?:مع معون|بثُبة واحدة|بوثبة واحدة|بثبة واحدة)\s*$/u, "").trim();
 }
 
 /** عرض إعدادات الموقع العام بعد إعادة التسمية، دون كتابة فوق محتوى المتاجر */

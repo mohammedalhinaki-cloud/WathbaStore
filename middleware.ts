@@ -1,5 +1,5 @@
 // ============================================================
-// معين — Middleware: كشف المستأجر من النطاق (subdomain)
+// معون — Middleware: كشف المستأجر من النطاق (subdomain)
 //
 // rshaf.maaoun.com  →  x-tenant: store, x-store-slug: rshaf
 // maaoun.com        →  x-tenant: main

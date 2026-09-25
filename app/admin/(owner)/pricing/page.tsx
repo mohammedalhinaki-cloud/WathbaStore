@@ -1,4 +1,4 @@
-// معين — الأسعار والباقات
+// معون — الأسعار والباقات
 import type { Metadata } from "next";
 import { services } from "@/lib/services";
 import { PageHeader } from "@/components/admin/ui";

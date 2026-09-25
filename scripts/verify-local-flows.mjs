@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * ============================================================
- * معين — اختبار شامل للصلاحيات ولوحات الإدارة (الوضع المحلي/SQLite)
+ * معون — اختبار شامل للصلاحيات ولوحات الإدارة (الوضع المحلي/SQLite)
  * ============================================================
  *
  * يشغّل التطبيق المنشور محليًا (next start) على قاعدة البيانات التجريبية
@@ -470,7 +470,7 @@ async function main() {
     const blockedOwnerPanel =
       memberOwnerPanel.status === 200 &&
       !memberOwnerPanel.html.includes("إنشاء متجر") &&
-      (memberOwnerPanel.html.includes("تسجيل الدخول") || memberOwnerPanel.html.includes("لوحة إدارة معين"));
+      (memberOwnerPanel.html.includes("تسجيل الدخول") || memberOwnerPanel.html.includes("لوحة إدارة معون"));
     record("لا يدخل لوحة المالك الرئيسي", blockedOwnerPanel, `HTTP ${memberOwnerPanel.status}`);
 
     const memberCreateStore = await api("/api/stores", {

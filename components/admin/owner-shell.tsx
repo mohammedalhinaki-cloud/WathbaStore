@@ -1,5 +1,5 @@
 // ============================================================
-// معين — هيكل لوحة المالك (الشريط الجانبي + الشريط العلوي)
+// معون — هيكل لوحة المالك (الشريط الجانبي + الشريط العلوي)
 // ============================================================
 
 "use client";
@@ -61,9 +61,8 @@ export default function OwnerShell({
   const Sidebar = (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-2.5 border-b border-white/10 px-5">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-violet-600">
-          <Store className="h-5 w-5 text-white" />
-        </span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/mark.svg" alt={APP_NAME} width={36} height={36} className="h-9 w-9" />
         <div>
           <p className="text-base font-extrabold text-white">{APP_NAME}</p>
           <p className="text-[10px] font-bold text-ink-400">لوحة الإدارة</p>

@@ -1,5 +1,5 @@
 // ============================================================
-// معين — هيكل لوحة العميل (نطاق متجره فقط)
+// معون — هيكل لوحة العميل (نطاق متجره فقط)
 // ============================================================
 
 "use client";
@@ -19,7 +19,7 @@ import {
   Tags,
   X,
 } from "lucide-react";
-import { mainDomain } from "@/lib/constants";
+import { APP_NAME, mainDomain } from "@/lib/constants";
 import { ownerPanelHref } from "@/lib/store-links";
 import { useState } from "react";
 
@@ -62,9 +62,8 @@ export default function ClientShell({
   const Sidebar = (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-2.5 border-b border-white/10 px-5">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-violet-600">
-          <Store className="h-5 w-5 text-white" />
-        </span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/mark.svg" alt={APP_NAME} width={36} height={36} className="h-9 w-9" />
         <div className="min-w-0">
           <p className="truncate text-sm font-extrabold text-white">لوحة {storeName}</p>
           <p className="text-[10px] font-bold text-ink-400">{subdomain}.{mainDomain()}</p>

@@ -1,4 +1,4 @@
-# نشر معين maaoun.com على Cloudflare
+# نشر معون maaoun.com على Cloudflare
 
 هذا الدليل ينقل المنصة من Vercel إلى **Cloudflare** (Workers & Pages) وينشر النطاق
 `maaoun.com` مع النطاقات الفرعية (Wildcard) `*.maaoun.com` لكل متاجر العملاء.

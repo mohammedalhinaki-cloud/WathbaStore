@@ -1,4 +1,4 @@
-// معين — تبويبات باني المتجر
+// معون — تبويبات باني المتجر
 "use client";
 
 import Link from "next/link";

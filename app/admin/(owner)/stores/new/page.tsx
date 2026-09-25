@@ -1,4 +1,4 @@
-// معين — إنشاء متجر جديد (المالك)
+// معون — إنشاء متجر جديد (المالك)
 import type { Metadata } from "next";
 import { mainDomain } from "@/lib/constants";
 import CreateStoreWizard from "./wizard";
