@@ -1,9 +1,10 @@
-// معون — شريط تنقل الموقع العام
+// معون — شريط تنقل الموقع العام (ثيم داكن فاخر، هيدر بلا حدود بنفس
+// خلفية الصفحة تمامًا، وشعار نظيف: أيقونة + اسم العلامة فقط)
 "use client";
 
 import { useState } from "react";
 import { Menu, X, ArrowLeft } from "lucide-react";
-import { APP_NAME, APP_TAGLINE, mainDomain } from "@/lib/constants";
+import { APP_NAME } from "@/lib/constants";
 
 const LINKS = [
   { href: "#services", label: "الخدمات" },
@@ -16,26 +17,18 @@ const LINKS = [
 export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-ink-950/80 backdrop-blur-xl">
+    <header className="fixed inset-x-0 top-0 z-50 bg-base">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <a href="#top" className="flex items-center gap-2.5">
+        <a href="#top" className="flex items-center gap-2.5" aria-label={APP_NAME}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/mark.svg"
-            alt={APP_NAME}
+            alt=""
             width={36}
             height={36}
-            className="h-9 w-9 shrink-0 drop-shadow-[0_2px_8px_rgba(245,158,11,0.35)]"
+            className="h-9 w-9 shrink-0 drop-shadow-[0_2px_10px_rgba(230,81,0,0.45)]"
           />
-          <span className="flex flex-col leading-tight">
-            <span className="flex items-center gap-1.5">
-              <span className="text-xl font-extrabold tracking-tight text-white">{APP_NAME}</span>
-              <span className="rounded-md bg-accent-500/15 px-1.5 py-0.5 text-[10px] font-bold text-accent-400">
-                {mainDomain()}
-              </span>
-            </span>
-            <span className="hidden text-[11px] font-semibold text-ink-400 sm:block">{APP_TAGLINE}</span>
-          </span>
+          <span className="text-xl font-extrabold tracking-tight text-fg">{APP_NAME}</span>
         </a>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -43,7 +36,7 @@ export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
             <a
               key={l.href}
               href={l.href}
-              className="rounded-lg px-3.5 py-2 text-sm font-semibold text-ink-300 transition-colors hover:bg-white/5 hover:text-white"
+              className="rounded-lg px-3.5 py-2 text-sm font-semibold text-muted transition-colors hover:bg-white/5 hover:text-fg"
             >
               {l.label}
             </a>
@@ -55,14 +48,14 @@ export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden items-center gap-2 rounded-xl bg-gradient-to-l from-accent-500 to-accent-400 px-4 py-2.5 text-sm font-bold text-ink-950 shadow-lg shadow-accent-500/25 transition-transform hover:scale-[1.03] sm:flex"
+            className="btn-primary hidden px-4 py-2.5 text-sm sm:inline-flex"
           >
             ابدأ مشروعك
             <ArrowLeft className="h-4 w-4" />
           </a>
           <button
             onClick={() => setOpen(!open)}
-            className="rounded-lg p-2 text-white md:hidden"
+            className="rounded-lg p-2 text-fg md:hidden"
             aria-label="القائمة"
           >
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -71,13 +64,13 @@ export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
       </div>
 
       {open && (
-        <nav className="border-t border-white/10 bg-ink-950/95 px-4 py-3 md:hidden">
+        <nav className="bg-base px-4 py-3 md:hidden">
           {LINKS.map((l) => (
             <a
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-ink-200 hover:bg-white/5"
+              className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-muted hover:bg-white/5 hover:text-fg"
             >
               {l.label}
             </a>
@@ -86,7 +79,7 @@ export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-accent-500 px-4 py-2.5 text-sm font-bold text-ink-950"
+            className="btn-primary mt-2 flex px-4 py-2.5 text-sm"
           >
             ابدأ مشروعك عبر واتساب
           </a>

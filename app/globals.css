@@ -3,36 +3,55 @@
 @theme {
   --font-sans: "Cairo", "Tajawal", ui-sans-serif, system-ui, sans-serif;
 
-  /* هوية معون (الموقع العام + لوحة الإدارة) — منسّقة مع الشعار:
-     برتقالي للعلامة + كحلي عميق للخلفيات + أبيض للنصوص */
-  --color-brand-50: #fff7ed;
-  --color-brand-100: #ffedd5;
-  --color-brand-200: #fed7aa;
-  --color-brand-300: #fdba74;
-  --color-brand-400: #fb923c;
-  --color-brand-500: #f97316;
-  --color-brand-600: #ea580c;
-  --color-brand-700: #c2410c;
-  --color-brand-800: #9a3412;
-  --color-brand-900: #7c2d12;
-  --color-brand-950: #431407;
+  /* هوية معون — الثيم الداكن الفاخر:
+     برتقالي نابض #E65100 ← أصفر عنبري #FFD600 للعلامة والأزرار،
+     كحلي عميق #0F172A للخلفيات، أردوازي #1E293B للبطاقات،
+     أبيض ناصع #F8FAFC للنصوص، رمادي أردوازي #94A3B8 للنصوص الثانوية. */
 
-  --color-accent-300: #fcd34d;
-  --color-accent-400: #fbbf24;
-  --color-accent-500: #f59e0b;
-  --color-accent-600: #d97706;
+  /* brand — البرتقالي العميق (الأساسي #E65100 عند 600) */
+  --color-brand-50: #fff3e6;
+  --color-brand-100: #ffe0c2;
+  --color-brand-200: #ffc599;
+  --color-brand-300: #ffa366;
+  --color-brand-400: #ff8433;
+  --color-brand-500: #f96a0d;
+  --color-brand-600: #e65100;
+  --color-brand-700: #bf4400;
+  --color-brand-800: #993700;
+  --color-brand-900: #7a2c00;
+  --color-brand-950: #431800;
 
-  --color-ink-50: #f6f7fb;
-  --color-ink-100: #eceef6;
-  --color-ink-200: #d9ddeb;
-  --color-ink-300: #b9bfda;
-  --color-ink-400: #8f97b8;
-  --color-ink-500: #6b7394;
-  --color-ink-600: #535a78;
-  --color-ink-700: #424760;
-  --color-ink-800: #1e2740;
-  --color-ink-900: #141d33;
-  --color-ink-950: #0f1a2e;
+  /* accent — العنبري الفاقع (التوهج/الhover #FFD600 عند 400) */
+  --color-accent-100: #fff9c2;
+  --color-accent-200: #fff193;
+  --color-accent-300: #ffe066;
+  --color-accent-400: #ffd600;
+  --color-accent-500: #efc400;
+  --color-accent-600: #c79a00;
+
+  /* ink — مقياس أردوازي: الخلفية #0F172A والبطاقات #1E293B
+     والنصوص #F8FAFC والثانوي #94A3B8 */
+  --color-ink-50: #f8fafc;
+  --color-ink-100: #f1f5f9;
+  --color-ink-200: #e2e8f0;
+  --color-ink-300: #cbd5e1;
+  --color-ink-400: #94a3b8;
+  --color-ink-500: #64748b;
+  --color-ink-600: #475569;
+  --color-ink-700: #334155;
+  --color-ink-800: #283548;
+  --color-ink-900: #1e293b;
+  --color-ink-950: #0f172a;
+
+  /* رموز دلالية للثيم الداكن */
+  --color-base: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-2: #283548;
+  --color-line: #2e3d52;
+  --color-fg: #f8fafc;
+  --color-muted: #94a3b8;
+  --color-primary: #e65100;
+  --color-primary-hover: #ffd600;
 }
 
 html {
@@ -52,13 +71,46 @@ body {
 }
 
 ::selection {
-  background: var(--color-brand-200);
+  background: var(--color-accent-400);
+  color: var(--color-ink-950);
 }
 
 /* شريط تمرير أنيق */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-ink-300) transparent;
+  scrollbar-color: var(--color-ink-500) transparent;
+}
+
+/* ------------------------------------------------------------
+   مكونات الثيم الداكن الفاخر
+   ------------------------------------------------------------ */
+@layer components {
+  /* الزر الأساسي: برتقالي نابض #E65100 يتوهّج إلى #FFD600 عند التمرير */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.9rem;
+    background: var(--color-primary);
+    color: var(--color-ink-950);
+    font-weight: 800;
+    box-shadow: 0 12px 32px -14px rgba(230, 81, 0, 0.65);
+    transition:
+      background-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+  }
+  .btn-primary:hover {
+    background: var(--color-primary-hover);
+    box-shadow: 0 12px 32px -12px rgba(255, 214, 0, 0.55);
+  }
+
+  /* بطاقة داكنة أنيقة: أردوازي مصقول #1E293B بحد خافت */
+  .card-dark {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+  }
 }
 
 /* ألوان المتجر تُضبط عبر متغيرات CSS من إعدادات كل متجر */
