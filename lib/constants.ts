@@ -3,7 +3,7 @@
 // ============================================================
 
 import type { SiteSettings, StoreStatus } from "./types";
-import { STORE_STATUS_LABELS } from "./types";
+import { STORE_STATUS_LABELS, mergeLandingContent } from "./types";
 
 export const APP_NAME = "معون";
 export const APP_EN = "maaoun.com";
@@ -163,6 +163,7 @@ export function presentSiteSettings(settings: SiteSettings): SiteSettings {
     socialInstagram: rewritePlatformMarketing(settings.socialInstagram),
     socialSnapchat: rewritePlatformMarketing(settings.socialSnapchat),
     socialTiktok: rewritePlatformMarketing(settings.socialTiktok),
+    landing: mergeLandingContent(settings.landing),
   };
 }
 

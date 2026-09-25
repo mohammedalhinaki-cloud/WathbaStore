@@ -27,7 +27,7 @@ import type {
   StoreSettings,
   StoreStatus,
 } from "../types";
-import { DEFAULT_SECTION_ORDER, normalizeSectionOrder } from "../types";
+import { DEFAULT_SECTION_ORDER, normalizeSectionOrder, mergeLandingContent, DEFAULT_LANDING_CONTENT } from "../types";
 import {
   StorageError,
   type CategoryInput,
@@ -864,6 +864,7 @@ export class SupabaseServices implements Services {
       socialInstagram: (r.social_instagram as string) ?? "",
       socialSnapchat: (r.social_snapchat as string) ?? "",
       socialTiktok: (r.social_tiktok as string) ?? "",
+      landing: mergeLandingContent(r.landing),
       updatedAt: (r.updated_at as string) ?? new Date().toISOString(),
     };
   }
@@ -878,6 +879,7 @@ export class SupabaseServices implements Services {
       return {
         whatsappNumber: "", developerUrl: "", aboutText: "", heroTitle: "", heroSubtitle: "",
         features: [], faq: [], socialInstagram: "", socialSnapchat: "", socialTiktok: "",
+        landing: DEFAULT_LANDING_CONTENT,
         updatedAt: new Date().toISOString(),
       };
     }
@@ -887,7 +889,7 @@ export class SupabaseServices implements Services {
   async updateSiteSettings(patch: Partial<SiteSettings>): Promise<SiteSettings> {
     const cur = await this.getSiteSettings();
     const next = { ...cur, ...patch };
-    const { error } = await (await supabaseServer()).from("site_settings").upsert({
+    const row: Record<string, unknown> = {
       id: 1,
       whatsapp_number: next.whatsappNumber,
       developer_url: next.developerUrl,
@@ -899,8 +901,20 @@ export class SupabaseServices implements Services {
       social_instagram: next.socialInstagram,
       social_snapchat: next.socialSnapchat,
       social_tiktok: next.socialTiktok,
-    });
-    if (error) throw new Error(error.message);
+      landing: next.landing,
+    };
+    const { error } = await (await supabaseServer()).from("site_settings").upsert(row);
+    if (error) {
+      // توافق مؤقت: إن لم يُطبَّق ترحيل 0010 بعد (لا يوجد عمود landing)
+      // يُعاد الحفظ بدونه حتى لا تتعطل بقية الإعدادات.
+      if (/landing/i.test(error.message)) {
+        delete row.landing;
+        const retry = await (await supabaseServer()).from("site_settings").upsert(row);
+        if (retry.error) throw new Error(retry.error.message);
+        return next;
+      }
+      throw new Error(error.message);
+    }
     return next;
   }
 

@@ -37,6 +37,7 @@
    | `supabase/migrations/0001_init.sql` | الجداول + RLS + خزنة `store-assets` |
    | `supabase/migrations/0003_master_owner_permissions.sql` | صلاحيات المالك الرئيسي الكاملة على كل المتاجر + سياسات كتابة التخزين لأصحاب المتاجر + إصلاح/إنشاء الخزنة |
    | `supabase/migrations/0004_store_settings_columns.sql` | أعمدة `store_settings` الناقصة (`footer_bg_color` والآيبانات) — بدونها يفشل حفظ الإعدادات بخطأ `PGRST204` |
+   | `supabase/migrations/0010_landing_content.sql` | عمود `landing` في `site_settings` — بدونه لن يُحفظ محتوى الموقع من صفحة «محتوى الموقع» |
 3. أنشئ حسابك من **Authentication → Users** ثم حوّله إلى مالك:
    ```sql
    update public.profiles set role = 'owner' where email = 'you@maaoun.com';
