@@ -9,10 +9,8 @@
   <rect x="0" y="0" width="512" height="512" rx="104" fill="#0F172A"/>
   <g transform="translate(256,182) scale(3.15) translate(-32,-32)">
     <g transform="translate(0,-2)">
-      <path d="M24 26 V21.5 A8 8 0 0 1 40 21.5 V26" stroke="url(#og)" stroke-width="4.6" stroke-linecap="round"/>
-      <path d="M16 28.5 C16 26.6 17.6 25 19.5 25 H44.5 C46.4 25 48 26.6 48 28.5 L45.9 50.9 C45.7 54.3 42.9 57 39.5 57 H24.5 C21.1 57 18.3 54.3 18.1 50.9 Z" fill="url(#og)"/>
-      <circle cx="32" cy="37.6" r="4.9" fill="#0F172A"/>
-      <path d="M29.5 40.6 H34.5 L36.3 47.2 C36.6 48.4 35.7 49.4 34.5 49.4 H29.5 C28.3 49.4 27.4 48.4 27.7 47.2 Z" fill="#0F172A"/>
+      <path d="M23 26 V18 A9 9 0 0 1 41 18 V26" stroke="url(#og)" stroke-width="4" stroke-linecap="round"/>
+      <path d="M17 23 H47 L52 54 Q52 57 49 57 H15 Q12 57 12 54 Z" stroke="url(#og)" stroke-width="4" stroke-linejoin="round"/>
     </g>
   </g>
   <text x="256" y="412" text-anchor="middle" fill="#F8FAFC"

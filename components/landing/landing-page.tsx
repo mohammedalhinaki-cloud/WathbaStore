@@ -120,28 +120,28 @@ export default async function LandingPage() {
         <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 pb-12 pt-7 sm:px-6 sm:pt-9 lg:grid-cols-2 lg:gap-12 lg:pb-16 lg:pt-12">
           <div>
             <h1 className="text-[2rem] font-extrabold leading-[1.2] text-fg sm:text-[2.6rem] lg:text-[3.2rem]">
-              {settings.heroTitle || HERO_TITLE}
+              {HERO_TITLE}{" "}
               <span className="mt-1 block bg-gradient-to-l from-brand-600 to-accent-400 bg-clip-text text-transparent">
                 {HERO_TITLE_ACCENT}
               </span>
             </h1>
-            <p className="mt-4 max-w-xl text-base leading-7 text-muted sm:mt-5 sm:text-lg sm:leading-8">
-              {settings.heroSubtitle || HERO_SUBTITLE}
+            <p className="mt-4 max-w-xl text-[1rem] leading-7 text-muted sm:mt-5 sm:text-lg sm:leading-8">
+              {HERO_SUBTITLE}
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center gap-3 sm:mt-7">
+            <div className="mt-6 flex flex-row flex-nowrap items-center justify-center gap-3 sm:mt-7">
               <a
                 href={wa}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-primary px-5 py-3 text-sm sm:px-6 sm:py-3.5 sm:text-base"
+                className="btn-primary min-w-0 gap-1.5 whitespace-nowrap px-3 py-3 text-xs sm:gap-2 sm:px-6 sm:py-3.5 sm:text-[1rem]"
               >
-                <MessageCircle className="h-5 w-5" />
+                <MessageCircle className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
                 تواصل عبر واتساب
               </a>
               <a
                 href="#portfolio"
-                className="flex items-center gap-2 rounded-2xl border border-line bg-surface px-6 py-3.5 text-base font-bold text-fg transition-colors hover:bg-surface-2"
+                className="flex min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl border border-line bg-surface px-3 py-3 text-xs font-bold text-fg transition-colors hover:bg-surface-2 sm:gap-2 sm:px-6 sm:py-3.5 sm:text-[1rem]"
               >
                 شاهد أعمالي
                 <ArrowLeft className="h-4 w-4" />
