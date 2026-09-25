@@ -260,7 +260,267 @@ export interface SiteSettings {
   socialInstagram: string;
   socialSnapchat: string;
   socialTiktok: string;
+  /** محتوى الموقع العام القابل للتحرير من لوحة المالك (يُدمج دائمًا مع الافتراضي) */
+  landing: LandingContent;
   updatedAt: string;
+}
+
+// ============================================================
+// محتوى الموقع العام (Landing) — يتحكم به المالك من /admin/content
+// ============================================================
+
+/** عنوان + وصف (خدمة / بطاقة / ميزة) */
+export interface LandingTitleDesc {
+  title: string;
+  desc: string;
+}
+
+/** إحصائية الغلاف: رقم متحرك + لاحقة/وحدة + وصف */
+export interface LandingStat {
+  value: number;
+  suffix: string;
+  unit: string;
+  label: string;
+}
+
+/** ترويسة قسم: شارة + عنوان + سطر فرعي */
+export interface LandingSectionHead {
+  badge: string;
+  title: string;
+  sub: string;
+}
+
+/** رابط تنقل علوي */
+export interface LandingNavLink {
+  href: string;
+  label: string;
+}
+
+export interface LandingContent {
+  hero: {
+    title: string;
+    accent: string;
+    subtitle: string;
+    primaryBtn: string;
+    secondaryBtn: string;
+    imageUrl: string;
+    badgeTitle: string;
+    badgeDesc: string;
+  };
+  stats: LandingStat[];
+  about: {
+    badge: string;
+    title: string;
+    bullets: string[];
+    cards: LandingTitleDesc[];
+  };
+  services: LandingTitleDesc[];
+  heads: {
+    services: LandingSectionHead;
+    portfolio: LandingSectionHead;
+    pricing: LandingSectionHead;
+    offers: LandingSectionHead;
+    features: LandingSectionHead;
+    faq: LandingSectionHead;
+  };
+  nav: {
+    links: LandingNavLink[];
+    cta: string;
+    ctaMobile: string;
+  };
+  cta: { title: string; desc: string; button: string };
+  footer: { tagline: string };
+}
+
+/**
+ * المحتوى الافتراضي — يطابق النصوص الأصلية للموقع حرفيًا.
+ * `{domain}` في نقاط قسم «عن معون» تُستبدل بالنطاق الفعلي عند العرض.
+ */
+export const DEFAULT_LANDING_CONTENT: LandingContent = {
+  hero: {
+    title: "متجرك الإلكتروني الاحترافي...",
+    accent: "بكل بساطة",
+    subtitle: "نساعدك في تحويل فكرتك إلى متجر إلكتروني متكامل يعكس هوية تجارتك ويجذب عملاءك.",
+    primaryBtn: "تواصل عبر واتساب",
+    secondaryBtn: "شاهد أعمالي",
+    imageUrl: "/seed/hero.jpg",
+    badgeTitle: "تسليم جاهز للعمل",
+    badgeDesc: "نطاق فرعي + لوحة تحكم العميل",
+  },
+  stats: [
+    { value: 100, suffix: "+", unit: "", label: "فكرة متجر بدأت معنا" },
+    { value: 499, suffix: "", unit: "ريال", label: "سعر يبدأ منه متجرك" },
+    { value: 7, suffix: "", unit: "أيام", label: "لتجهيز متجرك" },
+    { value: 100, suffix: "%", unit: "", label: "تحكمك في متجرك" },
+  ],
+  about: {
+    badge: "ما هو معون؟",
+    title: "منصة أدير بها متاجر أعمالي… وأسلّمها جاهزة",
+    bullets: [
+      "كل متجر على نطاق فرعي مستقل: name.{domain}",
+      "تصميم ومنتجات وSEO أجهزها أنا قبل التسليم",
+      "لوحة تحكم مستقلة لكل عميل بعد التسليم",
+    ],
+    cards: [
+      { title: "سريع", desc: "تصميم خفيف محسّن للأداء على الجوال والكمبيوتر." },
+      { title: "تسليم جاهز", desc: "متجر كامل: منتجات، أقسام، صفحات، واتساب." },
+      { title: "إدارة ذاتية", desc: "العميل يدير متجره من لوحته بعد التسليم." },
+      { title: "بأسعار واضحة", desc: "باقات بسيطة بدون رسوم خفية أو مفاجآت." },
+    ],
+  },
+  services: [
+    { title: "تأسيس متجر كامل", desc: "من الفكرة إلى الإطلاق: أنشئ متجرك على نطاق فرعي خاص، بهيكله ومنتجاته وصفحاته." },
+    { title: "تصميم بهوية متجرك", desc: "قوالب جاهزة قابلة للتخصيص: قوالب، خطوط عربية، وألوان تعكس هوية نشاطك." },
+    { title: "الطلب عبر واتساب", desc: "زر «اطلب عبر واتساب» برسالة جاهزة تتضمن المنتج والسعر — بدون تعقيد ودون بوابات دفع." },
+    { title: "SEO محلي بالعربي", desc: "عناوين ووصف وكلمات مفتاحية مخصصة لكل متجر حتى يظهر في نتائج البحث." },
+    { title: "أمان وعزل كامل", desc: "عزل حقيقي لبيانات كل متجر على مستوى قاعدة البيانات وصلاحيات صارمة لكل حساب." },
+    { title: "لوحة تحكم للعميل", desc: "بعد التسليم يدير العميل متجره بنفسه: منتجات، أسعار، صور، وأقسام — من لوحة مستقلة." },
+  ],
+  heads: {
+    services: { badge: "الخدمات", title: "كل ما يحتاجه متجرك… في مكان واحد", sub: "من الإنشاء إلى التسليم، وكل خطوة بين المراحل" },
+    portfolio: { badge: "أعمالي", title: "متاجر بُنيت على معون", sub: "عينات من المتاجر التي أنشأتها وجاهزتها" },
+    pricing: { badge: "الأسعار", title: "باقات واضحة… بدون مفاجآت", sub: "اختر ما يناسب نشاطك، وابدأ عبر واتساب" },
+    offers: { badge: "عروض حصرية", title: "العروض الحالية", sub: "فرص محدودة — لا تفوتها" },
+    features: { badge: "لماذا معون؟", title: "مميزات تجعل الفرق", sub: "بُنية مبنية لتتحمل نمو عدد المتاجر" },
+    faq: { badge: "الأسئلة الشائعة", title: "كل ما تريد معرفته", sub: "إن كان لديك سؤال آخر، تواصل عبر واتساب" },
+  },
+  nav: {
+    links: [
+      { href: "#services", label: "الخدمات" },
+      { href: "#portfolio", label: "أعمالي" },
+      { href: "#pricing", label: "الأسعار" },
+      { href: "#offers", label: "العروض" },
+      { href: "#faq", label: "الأسئلة" },
+    ],
+    cta: "ابدأ مشروعك",
+    ctaMobile: "ابدأ مشروعك عبر واتساب",
+  },
+  cta: {
+    title: "جاهز تنطلق بثقتك؟",
+    desc: "أرسل لي رسالة عبر واتساب وأخبرني عن نشاطك — وسأجهز لك متجرًا جاهزًا خلال أيام.",
+    button: "ابدأ الآن عبر واتساب",
+  },
+  footer: { tagline: "متجرك يبدأ من هنا" },
+};
+
+/** حدود عناصر المحتوى — تحفظ التصميم من الكسر */
+export const LANDING_LIMITS = {
+  stats: 4,
+  aboutBullets: 6,
+  aboutCards: 4,
+  services: 6,
+  navLinks: 6,
+} as const;
+
+// ----- دمج دفاعي: أي قيمة مخزّنة تُدمج فوق الافتراضي -----
+
+function landingStr(v: unknown, fb: string): string {
+  return typeof v === "string" && v.trim() ? v : fb;
+}
+
+function landingNum(v: unknown, fb: number): number {
+  const n = typeof v === "number" ? v : Number(v);
+  if (!Number.isFinite(n)) return fb;
+  return Math.max(0, Math.min(9999999, Math.round(n)));
+}
+
+function landingArr<T>(v: unknown, fb: T[], map: (x: unknown, d: T) => T, max: number): T[] {
+  if (!Array.isArray(v) || v.length === 0) return fb;
+  return v.slice(0, max).map((x, i) => map(x, fb[i % fb.length] as T));
+}
+
+function asObj(v: unknown): Record<string, unknown> {
+  return typeof v === "object" && v !== null ? (v as Record<string, unknown>) : {};
+}
+
+function mergeTitleDesc(v: unknown, d: LandingTitleDesc): LandingTitleDesc {
+  const o = asObj(v);
+  return { title: landingStr(o.title, d.title), desc: landingStr(o.desc, d.desc) };
+}
+
+function mergeHead(v: unknown, d: LandingSectionHead): LandingSectionHead {
+  const o = asObj(v);
+  return {
+    badge: landingStr(o.badge, d.badge),
+    title: landingStr(o.title, d.title),
+    sub: landingStr(o.sub, d.sub),
+  };
+}
+
+/**
+ * يدمج المحتوى المخزّن (قد يكون ناقصًا أو قديمًا) مع الافتراضي —
+ * فلا يظهر الموقع فارغًا أبدًا مهما كانت البيانات.
+ */
+export function mergeLandingContent(stored: unknown): LandingContent {
+  const d = DEFAULT_LANDING_CONTENT;
+  const o = asObj(stored);
+  const hero = asObj(o.hero);
+  const about = asObj(o.about);
+  const heads = asObj(o.heads);
+  const nav = asObj(o.nav);
+  const cta = asObj(o.cta);
+  const footer = asObj(o.footer);
+  return {
+    hero: {
+      title: landingStr(hero.title, d.hero.title),
+      accent: landingStr(hero.accent, d.hero.accent),
+      subtitle: landingStr(hero.subtitle, d.hero.subtitle),
+      primaryBtn: landingStr(hero.primaryBtn, d.hero.primaryBtn),
+      secondaryBtn: landingStr(hero.secondaryBtn, d.hero.secondaryBtn),
+      imageUrl: landingStr(hero.imageUrl, d.hero.imageUrl),
+      badgeTitle: landingStr(hero.badgeTitle, d.hero.badgeTitle),
+      badgeDesc: landingStr(hero.badgeDesc, d.hero.badgeDesc),
+    },
+    stats: landingArr(
+      o.stats,
+      d.stats,
+      (x, dd) => {
+        const s = asObj(x);
+        return {
+          value: landingNum(s.value, dd.value),
+          suffix: typeof s.suffix === "string" ? s.suffix.slice(0, 8) : dd.suffix,
+          unit: typeof s.unit === "string" ? s.unit.slice(0, 20) : dd.unit,
+          label: landingStr(s.label, dd.label),
+        };
+      },
+      LANDING_LIMITS.stats
+    ),
+    about: {
+      badge: landingStr(about.badge, d.about.badge),
+      title: landingStr(about.title, d.about.title),
+      bullets: landingArr(about.bullets, d.about.bullets, (x, dd) => landingStr(x, dd), LANDING_LIMITS.aboutBullets),
+      cards: landingArr(about.cards, d.about.cards, mergeTitleDesc, LANDING_LIMITS.aboutCards),
+    },
+    services: landingArr(o.services, d.services, mergeTitleDesc, LANDING_LIMITS.services),
+    heads: {
+      services: mergeHead(heads.services, d.heads.services),
+      portfolio: mergeHead(heads.portfolio, d.heads.portfolio),
+      pricing: mergeHead(heads.pricing, d.heads.pricing),
+      offers: mergeHead(heads.offers, d.heads.offers),
+      features: mergeHead(heads.features, d.heads.features),
+      faq: mergeHead(heads.faq, d.heads.faq),
+    },
+    nav: {
+      links: landingArr(
+        nav.links,
+        d.nav.links,
+        (x, dd) => {
+          const l = asObj(x);
+          const href = typeof l.href === "string" && /^#[a-zA-Z-]+$/.test(l.href) ? l.href : dd.href;
+          return { href, label: landingStr(l.label, dd.label) };
+        },
+        LANDING_LIMITS.navLinks
+      ),
+      cta: landingStr(nav.cta, d.nav.cta),
+      ctaMobile: landingStr(nav.ctaMobile, d.nav.ctaMobile),
+    },
+    cta: {
+      title: landingStr(cta.title, d.cta.title),
+      desc: landingStr(cta.desc, d.cta.desc),
+      button: landingStr(cta.button, d.cta.button),
+    },
+    footer: { tagline: landingStr(footer.tagline, d.footer.tagline) },
+  };
 }
 
 export interface PricingPlan {

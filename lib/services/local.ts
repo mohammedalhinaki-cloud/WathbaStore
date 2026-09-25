@@ -13,7 +13,7 @@ import {
 } from "../constants";
 import { hashPassword, verifyPassword } from "../local/auth";
 import { StorageError, type StorageHealth } from "./types";
-import { normalizeSectionOrder } from "../types";
+import { normalizeSectionOrder, mergeLandingContent, DEFAULT_LANDING_CONTENT } from "../types";
 import type {
   ActivityLog,
   AppUser,
@@ -723,6 +723,10 @@ export class LocalServices implements Services {
     try {
       faq = JSON.parse((r.faq as string) || "[]");
     } catch { /* ignore */ }
+    let landing: unknown = null;
+    try {
+      landing = JSON.parse((r.landing as string) || "null");
+    } catch { /* ignore */ }
     return {
       whatsappNumber: (r.whatsapp_number as string) ?? "",
       developerUrl: replaceLegacyPlatformDomain((r.developer_url as string) ?? ""),
@@ -734,6 +738,7 @@ export class LocalServices implements Services {
       socialInstagram: (r.social_instagram as string) ?? "",
       socialSnapchat: (r.social_snapchat as string) ?? "",
       socialTiktok: (r.social_tiktok as string) ?? "",
+      landing: mergeLandingContent(landing),
       updatedAt: (r.updated_at as string) ?? now(),
     };
   }
@@ -743,7 +748,8 @@ export class LocalServices implements Services {
     if (!row) {
       return {
         whatsappNumber: "", developerUrl: "", aboutText: "", heroTitle: "", heroSubtitle: "",
-        features: [], faq: [], socialInstagram: "", socialSnapchat: "", socialTiktok: "", updatedAt: now(),
+        features: [], faq: [], socialInstagram: "", socialSnapchat: "", socialTiktok: "",
+        landing: DEFAULT_LANDING_CONTENT, updatedAt: now(),
       };
     }
     return presentSiteSettings(this.siteRowToSettings(row));
@@ -755,17 +761,18 @@ export class LocalServices implements Services {
     const next = { ...cur, ...(clean as Partial<SiteSettings>), updatedAt: now() };
     db().prepare(`INSERT INTO site_settings
       (id, whatsapp_number, developer_url, about_text, hero_title, hero_subtitle, features, faq,
-       social_instagram, social_snapchat, social_tiktok, updated_at)
-      VALUES (1,?,?,?,?,?,?,?,?,?,?,?)
+       social_instagram, social_snapchat, social_tiktok, landing, updated_at)
+      VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?)
       ON CONFLICT(id) DO UPDATE SET
         whatsapp_number=excluded.whatsapp_number, developer_url=excluded.developer_url,
         about_text=excluded.about_text, hero_title=excluded.hero_title, hero_subtitle=excluded.hero_subtitle,
         features=excluded.features, faq=excluded.faq, social_instagram=excluded.social_instagram,
         social_snapchat=excluded.social_snapchat, social_tiktok=excluded.social_tiktok,
-        updated_at=excluded.updated_at`).run(
+        landing=excluded.landing, updated_at=excluded.updated_at`).run(
       next.whatsappNumber, next.developerUrl, next.aboutText, next.heroTitle, next.heroSubtitle,
       JSON.stringify(next.features), JSON.stringify(next.faq),
-      next.socialInstagram, next.socialSnapchat, next.socialTiktok, next.updatedAt
+      next.socialInstagram, next.socialSnapchat, next.socialTiktok,
+      JSON.stringify(next.landing), next.updatedAt
     );
     return next;
   }

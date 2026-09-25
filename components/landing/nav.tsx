@@ -17,16 +17,17 @@
 import { useEffect, useState } from "react";
 import { Menu, X, ArrowLeft } from "lucide-react";
 import { APP_NAME } from "@/lib/constants";
+import { DEFAULT_LANDING_CONTENT, type LandingContent } from "@/lib/types";
 
-const LINKS = [
-  { href: "#services", label: "الخدمات" },
-  { href: "#portfolio", label: "أعمالي" },
-  { href: "#pricing", label: "الأسعار" },
-  { href: "#offers", label: "العروض" },
-  { href: "#faq", label: "الأسئلة" },
-];
-
-export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
+export default function LandingNav({
+  whatsappHref,
+  content,
+}: {
+  whatsappHref: string;
+  content?: LandingContent["nav"];
+}) {
+  const nav = content ?? DEFAULT_LANDING_CONTENT.nav;
+  const links = nav.links.length ? nav.links : DEFAULT_LANDING_CONTENT.nav.links;
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -61,7 +62,7 @@ export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
         </a>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {LINKS.map((l) => (
+          {links.map((l) => (
             <a
               key={l.href}
               href={l.href}
@@ -79,7 +80,7 @@ export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
             rel="noopener noreferrer"
             className="btn-primary hidden px-4 py-2.5 text-sm sm:inline-flex"
           >
-            ابدأ مشروعك
+            {nav.cta}
             <ArrowLeft className="h-4 w-4" />
           </a>
           <button
@@ -95,7 +96,7 @@ export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
 
       {open && (
         <nav className="site-header-panel px-4 py-3 md:hidden">
-          {LINKS.map((l) => (
+          {links.map((l) => (
             <a
               key={l.href}
               href={l.href}
@@ -111,7 +112,7 @@ export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
             rel="noopener noreferrer"
             className="btn-primary mt-2 flex px-4 py-2.5 text-sm"
           >
-            ابدأ مشروعك عبر واتساب
+            {nav.ctaMobile}
           </a>
         </nav>
       )}

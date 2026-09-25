@@ -6,6 +6,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import type { ActivityLog, Offer, PortfolioItem, PricingPlan, SiteSettings } from "@/lib/types";
@@ -432,8 +433,6 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
 
   const [whatsapp, setWhatsapp] = useState(settings.whatsappNumber);
   const [about, setAbout] = useState(settings.aboutText);
-  const [heroTitle, setHeroTitle] = useState(settings.heroTitle);
-  const [heroSubtitle, setHeroSubtitle] = useState(settings.heroSubtitle);
   const [devUrl, setDevUrl] = useState(settings.developerUrl);
   const [instagram, setInstagram] = useState(settings.socialInstagram);
   const [snapchat, setSnapchat] = useState(settings.socialSnapchat);
@@ -452,8 +451,6 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
         body: JSON.stringify({
           whatsappNumber: whatsapp.trim(),
           aboutText: about.trim(),
-          heroTitle: heroTitle.trim(),
-          heroSubtitle: heroSubtitle.trim(),
           developerUrl: devUrl.trim(),
           socialInstagram: instagram.trim(),
           socialSnapchat: snapchat.trim(),
@@ -491,15 +488,16 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
       <Card>
         <h3 className="mb-4 font-extrabold text-ink-900">المحتوى الرئيسي</h3>
         <div className="space-y-4">
-          <Field label="عنوان الـ Hero">
-            <input className={inputCls} value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} />
-          </Field>
-          <Field label="نص الـ Hero الفرعي">
-            <textarea className={inputCls} rows={2} value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} />
-          </Field>
-          <Field label="نبذة عن معون">
+          <Field label="نبذة عن معون" hint="تظهر في قسم «عن معون» وفي تذييل الموقع">
             <textarea className={inputCls} rows={3} value={about} onChange={(e) => setAbout(e.target.value)} />
           </Field>
+          <p className="rounded-xl bg-brand-50 px-3.5 py-3 text-sm text-ink-600 ring-1 ring-brand-100">
+            نصوص الغلاف والإحصائيات والخدمات وبقية الأقسام تُحرَّر الآن من صفحة{" "}
+            <Link href="/admin/content" className="font-extrabold text-brand-700 hover:underline">
+              محتوى الموقع
+            </Link>
+            .
+          </p>
         </div>
       </Card>
 

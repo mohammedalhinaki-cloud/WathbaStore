@@ -30,6 +30,7 @@ export function db(): DatabaseSync {
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec("PRAGMA foreign_keys = ON;");
   initSchema(db);
+  ensureSiteColumns(db);
   seedIfEmpty(db);
   migrateLegacyPlatformData(db);
   completeSweetsShowcase(db);
@@ -168,6 +169,7 @@ function initSchema(db: DatabaseSync): void {
     social_instagram TEXT,
     social_snapchat TEXT,
     social_tiktok TEXT,
+    landing TEXT,
     updated_at TEXT NOT NULL
   );
 
@@ -209,6 +211,17 @@ function initSchema(db: DatabaseSync): void {
     created_at TEXT NOT NULL
   );
   `);
+}
+
+/**
+ * ترقية قاعدة محلية موجودة: يضيف عمود landing إلى site_settings
+ * إن لم يكن موجودًا (قواعد أُنشئت قبل هذه النسخة).
+ */
+function ensureSiteColumns(database: DatabaseSync): void {
+  const cols = database.prepare("PRAGMA table_info(site_settings)").all() as { name: string }[];
+  if (!cols.some((c) => c.name === "landing")) {
+    database.exec("ALTER TABLE site_settings ADD COLUMN landing TEXT;");
+  }
 }
 
 

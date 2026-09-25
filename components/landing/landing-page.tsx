@@ -27,61 +27,23 @@ import {
 import { services } from "@/lib/services";
 import {
   APP_NAME,
-  APP_TAGLINE,
   developerUrl,
   formatPrice,
   mainDomain,
-  HERO_TITLE,
-  HERO_TITLE_ACCENT,
-  HERO_SUBTITLE,
 } from "@/lib/constants";
 import { waChatLink } from "@/lib/wa";
 import LandingNav from "./nav";
 import Faq from "./faq";
-import HeroStats, { type HeroStat } from "./hero-stats";
+import HeroStats from "./hero-stats";
 import SocialLinks from "@/components/social-links";
 import SiteJsonLd from "@/components/site/site-json-ld";
 
-const SERVICES = [
-  {
-    icon: Store,
-    title: "تأسيس متجر كامل",
-    desc: "من الفكرة إلى الإطلاق: أنشئ متجرك على نطاق فرعي خاص، بهيكله ومنتجاته وصفحاته.",
-  },
-  {
-    icon: Palette,
-    title: "تصميم بهوية متجرك",
-    desc: "قوالب جاهزة قابلة للتخصيص: قوالب، خطوط عربية، وألوان تعكس هوية نشاطك.",
-  },
-  {
-    icon: MessageCircle,
-    title: "الطلب عبر واتساب",
-    desc: "زر «اطلب عبر واتساب» برسالة جاهزة تتضمن المنتج والسعر — بدون تعقيد ودون بوابات دفع.",
-  },
-  {
-    icon: Search,
-    title: "SEO محلي بالعربي",
-    desc: "عناوين ووصف وكلمات مفتاحية مخصصة لكل متجر حتى يظهر في نتائج البحث.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "أمان وعزل كامل",
-    desc: "عزل حقيقي لبيانات كل متجر على مستوى قاعدة البيانات وصلاحيات صارمة لكل حساب.",
-  },
-  {
-    icon: Wand2,
-    title: "لوحة تحكم للعميل",
-    desc: "بعد التسليم يدير العميل متجره بنفسه: منتجات، أسعار، صور، وأقسام — من لوحة مستقلة.",
-  },
-];
-
-/** إحصائيات قسم الغلاف — تعدّ من 0 حتى القيمة عند ظهورها في الشاشة */
-const HERO_STATS: HeroStat[] = [
-  { value: 100, suffix: "+", label: "فكرة متجر بدأت معنا" },
-  { value: 499, unit: "ريال", label: "سعر يبدأ منه متجرك" },
-  { value: 7, unit: "أيام", label: "لتجهيز متجرك" },
-  { value: 100, suffix: "%", label: "تحكمك في متجرك" },
-];
+/**
+ * أيقونات ثابتة بالترتيب — النصوص (العناوين والأوصاف) تأتي من
+ * settings.landing الذي يحرره المالك في /admin/content.
+ */
+const SERVICE_ICONS = [Store, Palette, MessageCircle, Search, ShieldCheck, Wand2];
+const ABOUT_CARD_ICONS = [Zap, Rocket, Users, Tag];
 
 export default async function LandingPage() {
   const [settings, plans, offers, portfolio] = await Promise.all([
@@ -102,13 +64,16 @@ export default async function LandingPage() {
   const wa = settings.whatsappNumber ? waChatLink(settings.whatsappNumber) : "#";
   const devUrl = developerUrl(settings.developerUrl);
   const domain = mainDomain();
+  const L = settings.landing;
+  const heroImg = L.hero.imageUrl || "/seed/hero.jpg";
+  const heroImgLocal = heroImg.startsWith("/");
 
   return (
     <div id="top" className="bg-base text-fg">
       {/* بيانات Structured Data للموقع العام (WebSite + Organization) */}
       <SiteJsonLd />
 
-      <LandingNav whatsappHref={wa} />
+      <LandingNav whatsappHref={wa} content={L.nav} />
 
       {/* ============ Hero ============ */}
       <section className="relative overflow-hidden pt-16">
@@ -120,13 +85,13 @@ export default async function LandingPage() {
         <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 pb-12 pt-7 sm:px-6 sm:pt-9 lg:grid-cols-2 lg:gap-12 lg:pb-16 lg:pt-12">
           <div>
             <h1 className="text-[2rem] font-extrabold leading-[1.2] text-fg sm:text-[2.6rem] lg:text-[3.2rem]">
-              {HERO_TITLE}{" "}
+              {L.hero.title}{" "}
               <span className="mt-1 block bg-gradient-to-l from-brand-600 to-accent-400 bg-clip-text text-transparent">
-                {HERO_TITLE_ACCENT}
+                {L.hero.accent}
               </span>
             </h1>
             <p className="mt-4 max-w-xl text-[1rem] leading-7 text-muted sm:mt-5 sm:text-lg sm:leading-8">
-              {HERO_SUBTITLE}
+              {L.hero.subtitle}
             </p>
 
             <div className="mt-6 flex flex-row flex-nowrap items-center justify-center gap-3 sm:mt-7">
@@ -137,37 +102,47 @@ export default async function LandingPage() {
                 className="btn-primary min-w-0 gap-1.5 whitespace-nowrap px-3 py-3 text-xs sm:gap-2 sm:px-6 sm:py-3.5 sm:text-[1rem]"
               >
                 <MessageCircle className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
-                تواصل عبر واتساب
+                {L.hero.primaryBtn}
               </a>
               <a
                 href="#portfolio"
                 className="flex min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl border border-line bg-surface px-3 py-3 text-xs font-bold text-fg transition-colors hover:bg-surface-2 sm:gap-2 sm:px-6 sm:py-3.5 sm:text-[1rem]"
               >
-                شاهد أعمالي
+                {L.hero.secondaryBtn}
                 <ArrowLeft className="h-4 w-4" />
               </a>
             </div>
 
-            <HeroStats items={HERO_STATS} />
+            <HeroStats items={L.stats} />
           </div>
 
           <div className="relative">
             <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-tr from-brand-600/25 to-accent-400/15 blur-2xl" />
-            <Image
-              src="/seed/hero.jpg"
-              alt="معاينة متاجر معون"
-              width={1200}
-              height={900}
-              priority
-              className="relative w-full rounded-3xl border border-line shadow-2xl shadow-black/40"
-            />
+            {heroImgLocal ? (
+              <Image
+                src={heroImg}
+                alt="معاينة متاجر معون"
+                width={1200}
+                height={900}
+                priority
+                className="relative w-full rounded-3xl border border-line shadow-2xl shadow-black/40"
+              />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={heroImg}
+                alt="معاينة متاجر معون"
+                loading="eager"
+                className="relative w-full rounded-3xl border border-line shadow-2xl shadow-black/40"
+              />
+            )}
             <div className="absolute -bottom-5 right-6 flex items-center gap-3 rounded-2xl border border-line bg-surface/95 px-4 py-3 shadow-xl backdrop-blur">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15">
                 <BadgeCheck className="h-5 w-5 text-emerald-400" />
               </span>
               <div>
-                <p className="text-sm font-bold text-fg">تسليم جاهز للعمل</p>
-                <p className="text-xs text-muted">نطاق فرعي + لوحة تحكم العميل</p>
+                <p className="text-sm font-bold text-fg">{L.hero.badgeTitle}</p>
+                <p className="text-xs text-muted">{L.hero.badgeDesc}</p>
               </div>
             </div>
           </div>
@@ -178,32 +153,35 @@ export default async function LandingPage() {
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div className="order-2 lg:order-1">
-            <SectionBadge icon={<Globe className="h-4 w-4" />} text="ما هو معون؟" />
+            <SectionBadge icon={<Globe className="h-4 w-4" />} text={L.about.badge} />
             <h2 className="mt-4 text-3xl font-extrabold text-fg sm:text-4xl">
-              منصة أدير بها متاجر أعمالي… وأسلّمها جاهزة
+              {L.about.title}
             </h2>
             <p className="mt-5 text-lg leading-8 text-muted">
               {settings.aboutText ||
                 "معون منصة متكاملة أنشئ بها متاجر إلكترونية للعملاء على نطاقات فرعية خاصة، أجهزها بالكامل وأسلّم كل متجر لصاحبه ليديره بنفسه."}
             </p>
             <ul className="mt-6 space-y-3">
-              {[
-                `كل متجر على نطاق فرعي مستقل: name.${domain}`,
-                "تصميم ومنتجات وSEO أجهزها أنا قبل التسليم",
-                "لوحة تحكم مستقلة لكل عميل بعد التسليم",
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-3 text-ink-300">
+              {L.about.bullets.map((t, i) => (
+                <li key={`${t}-${i}`} className="flex items-start gap-3 text-ink-300">
                   <BadgeCheck className="mt-1 h-5 w-5 shrink-0 text-accent-400" />
-                  <span>{t}</span>
+                  <span>{t.replace("{domain}", domain)}</span>
                 </li>
               ))}
             </ul>
           </div>
           <div className="order-1 grid grid-cols-2 gap-4 lg:order-2">
-            <InfoCard icon={<Zap className="h-6 w-6" />} title="سريع" desc="تصميم خفيف محسّن للأداء على الجوال والكمبيوتر." />
-            <InfoCard icon={<Rocket className="h-6 w-6" />} title="تسليم جاهز" desc="متجر كامل: منتجات، أقسام، صفحات، واتساب." />
-            <InfoCard icon={<Users className="h-6 w-6" />} title="إدارة ذاتية" desc="العميل يدير متجره من لوحته بعد التسليم." />
-            <InfoCard icon={<Tag className="h-6 w-6" />} title="بأسعار واضحة" desc="باقات بسيطة بدون رسوم خفية أو مفاجآت." />
+            {L.about.cards.map((c, i) => {
+              const Icon = ABOUT_CARD_ICONS[i % ABOUT_CARD_ICONS.length];
+              return (
+                <InfoCard
+                  key={`${c.title}-${i}`}
+                  icon={<Icon className="h-6 w-6" />}
+                  title={c.title}
+                  desc={c.desc}
+                />
+              );
+            })}
           </div>
         </div>
       </section>
@@ -212,23 +190,26 @@ export default async function LandingPage() {
       <section id="services" className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHead
-            badge="الخدمات"
-            title="كل ما يحتاجه متجرك… في مكان واحد"
-            sub="من الإنشاء إلى التسليم، وكل خطوة بين المراحل"
+            badge={L.heads.services.badge}
+            title={L.heads.services.title}
+            sub={L.heads.services.sub}
           />
           <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
-            {SERVICES.map((s) => (
-              <div
-                key={s.title}
-                className="card-dark group rounded-3xl p-6 transition-all hover:-translate-y-1 hover:border-brand-500/40"
-              >
-                <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600/25 to-accent-400/15 ring-1 ring-brand-500/30">
-                  <s.icon className="h-6 w-6 text-brand-300" />
-                </span>
-                <h3 className="text-lg font-bold text-fg">{s.title}</h3>
-                <p className="mt-2 text-sm leading-7 text-muted">{s.desc}</p>
-              </div>
-            ))}
+            {L.services.map((s, i) => {
+              const Icon = SERVICE_ICONS[i % SERVICE_ICONS.length];
+              return (
+                <div
+                  key={`${s.title}-${i}`}
+                  className="card-dark group rounded-3xl p-6 transition-all hover:-translate-y-1 hover:border-brand-500/40"
+                >
+                  <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600/25 to-accent-400/15 ring-1 ring-brand-500/30">
+                    <Icon className="h-6 w-6 text-brand-300" />
+                  </span>
+                  <h3 className="text-lg font-bold text-fg">{s.title}</h3>
+                  <p className="mt-2 text-sm leading-7 text-muted">{s.desc}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -236,9 +217,9 @@ export default async function LandingPage() {
       {/* ============ الأعمال ============ */}
       <section id="portfolio" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
         <SectionHead
-          badge="أعمالي"
-          title="متاجر بُنيت على معون"
-          sub="عينات من المتاجر التي أنشأتها وجاهزتها"
+          badge={L.heads.portfolio.badge}
+          title={L.heads.portfolio.title}
+          sub={L.heads.portfolio.sub}
         />
         <div className="mt-8 grid gap-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
           {portfolio.map((p) => (
@@ -286,9 +267,9 @@ export default async function LandingPage() {
       <section id="pricing" className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHead
-            badge="الأسعار"
-            title="باقات واضحة… بدون مفاجآت"
-            sub="اختر ما يناسب نشاطك، وابدأ عبر واتساب"
+            badge={L.heads.pricing.badge}
+            title={L.heads.pricing.title}
+            sub={L.heads.pricing.sub}
           />
           <div className="mt-8 grid gap-6 sm:mt-10 lg:grid-cols-3">
             {plans.map((p) => (
@@ -347,9 +328,9 @@ export default async function LandingPage() {
       {liveOffers.length > 0 && (
         <section id="offers" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
           <SectionHead
-            badge="عروض حصرية"
-            title="العروض الحالية"
-            sub="فرص محدودة — لا تفوتها"
+            badge={L.heads.offers.badge}
+            title={L.heads.offers.title}
+            sub={L.heads.offers.sub}
           />
           <div className="mt-8 grid gap-5 sm:mt-10 md:grid-cols-2">
             {liveOffers.map((o) => (
@@ -401,9 +382,9 @@ export default async function LandingPage() {
       <section className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHead
-            badge="لماذا معون؟"
-            title="مميزات تجعل الفرق"
-            sub="بُنية مبنية لتتحمل نمو عدد المتاجر"
+            badge={L.heads.features.badge}
+            title={L.heads.features.title}
+            sub={L.heads.features.sub}
           />
           <div className="mt-8 grid gap-x-8 gap-y-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
             {(settings.features.length
@@ -430,9 +411,9 @@ export default async function LandingPage() {
       {/* ============ FAQ ============ */}
       <section id="faq" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
         <SectionHead
-          badge="الأسئلة الشائعة"
-          title="كل ما تريد معرفته"
-          sub="إن كان لديك سؤال آخر، تواصل عبر واتساب"
+          badge={L.heads.faq.badge}
+          title={L.heads.faq.title}
+          sub={L.heads.faq.sub}
         />
         <Faq items={settings.faq} />
       </section>
@@ -441,9 +422,9 @@ export default async function LandingPage() {
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
         <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-l from-brand-600 via-brand-500 to-accent-400 px-6 py-14 text-center sm:px-12">
           <div className="pointer-events-none absolute -top-24 right-1/4 h-64 w-64 rounded-full bg-accent-400/25 blur-3xl" />
-          <h2 className="text-3xl font-extrabold text-ink-950 sm:text-4xl">جاهز تنطلق بثقتك؟</h2>
+          <h2 className="text-3xl font-extrabold text-ink-950 sm:text-4xl">{L.cta.title}</h2>
           <p className="mx-auto mt-4 max-w-xl text-lg font-semibold text-ink-950/80">
-            أرسل لي رسالة عبر واتساب وأخبرني عن نشاطك — وسأجهز لك متجرًا جاهزًا خلال أيام.
+            {L.cta.desc}
           </p>
           <a
             href={wa}
@@ -452,7 +433,7 @@ export default async function LandingPage() {
             className="mt-8 inline-flex items-center gap-3 rounded-2xl bg-ink-950 px-8 py-4 text-lg font-extrabold text-accent-400 shadow-2xl shadow-ink-950/40 transition-transform hover:scale-[1.03] hover:bg-ink-900"
           >
             <MessageCircle className="h-6 w-6 text-emerald-400" />
-            ابدأ الآن عبر واتساب
+            {L.cta.button}
           </a>
         </div>
       </section>
@@ -470,7 +451,7 @@ export default async function LandingPage() {
                 height={36}
                 className="h-9 w-auto"
               />
-              <span className="text-[11px] font-semibold text-muted">{APP_TAGLINE}</span>
+              <span className="text-[11px] font-semibold text-muted">{L.footer.tagline}</span>
             </div>
             <p className="mt-4 max-w-md text-sm leading-7 text-muted">
               {settings.aboutText || "منصة إنشاء المتاجر الإلكترونية على نطاقات فرعية — أنشئ، جهّز، وسلّم."}
