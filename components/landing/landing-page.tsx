@@ -461,13 +461,16 @@ export default async function LandingPage() {
       <footer className="border-t border-line bg-base">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2.5">
+            <div className="flex flex-col gap-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/mark.svg" alt="" width={36} height={36} className="h-9 w-9" />
-              <span className="flex flex-col leading-tight">
-                <span className="text-xl font-extrabold text-fg">{APP_NAME}</span>
-                <span className="text-[11px] font-semibold text-muted">{APP_TAGLINE}</span>
-              </span>
+              <img
+                src="/mark.svg"
+                alt={APP_NAME}
+                width={100}
+                height={36}
+                className="h-9 w-auto"
+              />
+              <span className="text-[11px] font-semibold text-muted">{APP_TAGLINE}</span>
             </div>
             <p className="mt-4 max-w-md text-sm leading-7 text-muted">
               {settings.aboutText || "منصة إنشاء المتاجر الإلكترونية على نطاقات فرعية — أنشئ، جهّز، وسلّم."}

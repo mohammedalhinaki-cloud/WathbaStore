@@ -59,7 +59,13 @@ export default async function LoginPage() {
       <div className="relative w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/mark.svg" alt={APP_NAME} width={56} height={56} className="h-14 w-14 drop-shadow-[0_4px_16px_rgba(230,81,0,0.45)]" />
+          <img
+            src="/mark.svg"
+            alt={APP_NAME}
+            width={133}
+            height={48}
+            className="h-12 w-auto drop-shadow-[0_4px_16px_rgba(230,81,0,0.45)]"
+          />
           <h1 className="mt-4 text-2xl font-extrabold text-white">لوحة إدارة {APP_NAME}</h1>
           <p className="mt-2 flex items-center gap-1.5 text-sm text-ink-400">
             <ShieldCheck className="h-4 w-4 text-emerald-400" />

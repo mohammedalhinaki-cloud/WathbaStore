@@ -63,7 +63,7 @@ export default function ClientShell({
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-2.5 border-b border-white/10 px-5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/mark.svg" alt={APP_NAME} width={36} height={36} className="h-9 w-9" />
+        <img src="/mark.svg" alt={APP_NAME} width={78} height={28} className="h-7 w-auto shrink-0" />
         <div className="min-w-0">
           <p className="truncate text-sm font-extrabold text-white">لوحة {storeName}</p>
           <p className="text-[10px] font-bold text-ink-400">{subdomain}.{mainDomain()}</p>
