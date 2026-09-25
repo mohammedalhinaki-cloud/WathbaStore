@@ -1,8 +1,20 @@
-// معون — شريط تنقل الموقع العام (ثيم داكن فاخر، هيدر بلا حدود بنفس
-// خلفية الصفحة تمامًا، وشعار نظيف: أيقونة + اسم العلامة فقط)
+// معون — شريط تنقل الموقع العام (ثيم داكن فاخر)
+//
+// الهيدر لاصق (fixed) أعلى الصفحة، وحالته بصريًا حالتان:
+//
+// 1) أعلى الصفحة (Top): خلفية شفافة تمامًا — فيبدو الهيدر جزءًا من
+//    الغلاف (Hero) بلا أي خط أو خلفية تقطع التصميم.
+// 2) عند التمرير (Scroll): تتحوّل الخلفية فورًا إلى داكنة صلبة
+//    #0F172A مع ضبابية backdrop-filter: blur(12px) وحد سفلي رقيق
+//    rgba(255,255,255,0.05) — فتفصل عناصر الهيدر والشعار عن نصوص
+//    الصفحة بدل أن تتداخل معها أثناء التمرير.
+//
+// الشعار: Wordmark «معون» بحروف بيضاء نظيفة مع نقطة بتدرّج برتقالي
+// أصفر على حرف النون (public/mark.svg) — بلا أي أيقونة حقيبة/قفل.
+// ============================================================
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X, ArrowLeft } from "lucide-react";
 import { APP_NAME } from "@/lib/constants";
 
@@ -16,19 +28,36 @@ const LINKS = [
 
 export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // ===== حالة التمرير: أي تمرير للأعلى/الأسفل يفعّل الخلفية الداكنة =====
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 0);
+    onScroll(); // الحالة الصحيحة عند فتح الصفحة على مرساة مثل #pricing
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-0 bg-transparent shadow-none">
+    <header
+      className={`site-header${scrolled ? " site-header--scrolled" : ""}`}
+      data-scrolled={scrolled ? "true" : "false"}
+    >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <a href="#top" className="flex items-center gap-2.5" aria-label={APP_NAME}>
+        {/* الشعار النصّي: «معون» أبيض + نقطة بتدرّج العلامة على النون */}
+        <a href="#top" className="flex items-center" aria-label={APP_NAME}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/mark.svg"
-            alt=""
-            width={36}
-            height={36}
-            className="h-9 w-9 shrink-0 drop-shadow-[0_2px_10px_rgba(230,81,0,0.45)]"
+            alt={APP_NAME}
+            width={89}
+            height={32}
+            className="h-8 w-auto shrink-0"
           />
-          <span className="text-xl font-extrabold tracking-tight text-fg">{APP_NAME}</span>
         </a>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -57,6 +86,7 @@ export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
             onClick={() => setOpen(!open)}
             className="rounded-lg p-2 text-fg md:hidden"
             aria-label="القائمة"
+            aria-expanded={open}
           >
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -64,7 +94,7 @@ export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
       </div>
 
       {open && (
-        <nav className="bg-base px-4 py-3 md:hidden">
+        <nav className="site-header-panel px-4 py-3 md:hidden">
           {LINKS.map((l) => (
             <a
               key={l.href}

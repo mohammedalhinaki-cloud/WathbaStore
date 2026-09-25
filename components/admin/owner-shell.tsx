@@ -62,9 +62,8 @@ export default function OwnerShell({
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-2.5 border-b border-white/10 px-5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/mark.svg" alt={APP_NAME} width={36} height={36} className="h-9 w-9" />
+        <img src="/mark.svg" alt={APP_NAME} width={78} height={28} className="h-7 w-auto shrink-0" />
         <div>
-          <p className="text-base font-extrabold text-white">{APP_NAME}</p>
           <p className="text-[10px] font-bold text-ink-400">لوحة الإدارة</p>
         </div>
       </div>

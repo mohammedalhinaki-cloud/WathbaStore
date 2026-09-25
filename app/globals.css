@@ -113,6 +113,42 @@ body {
   }
 }
 
+/* ------------------------------------------------------------
+   هيدر الموقع العام (components/landing/nav.tsx)
+   ------------------------------------------------------------
+   • في أعلى الصفحة: خلفية شفافة تمامًا (transparent) بلا حدود.
+   • عند أول تمرير (حالة Scroll): خلفية داكنة صلبة #0F172A فورًا
+     مع ضبابية خفيفة blur(12px) وحد سفلي رقيق
+     rgba(255,255,255,0.05) — حتى لا تتداخل عناصر الهيدر والشعار
+     مع نصوص الصفحة أثناء التمرير.
+   الأصناف خارج @layer كي تتغلّب على أي أدوات Tailwind على العنصر.
+   ------------------------------------------------------------ */
+.site-header {
+  position: fixed;
+  top: 0;
+  inset-inline: 0;
+  z-index: 50;
+  border-bottom: 1px solid transparent;
+  background-color: transparent;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* حالة التمرير: خلفية صلبة داكنة + ضبابية + حد سفلي خفيف */
+.site-header--scrolled {
+  background-color: #0f172a;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* قائمة الجوال داخل الهيدر: تنفتح فوق المحتوى بنفس خلفية الصفحة */
+.site-header-panel {
+  border-top: 1px solid var(--color-line);
+  background-color: var(--color-base);
+}
+
 /* ألوان المتجر تُضبط عبر متغيرات CSS من إعدادات كل متجر */
 .store-root {
   --store-primary: #4f46e5;
