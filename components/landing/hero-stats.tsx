@@ -10,8 +10,7 @@
 //   أو عند تفعيل «تقليل الحركة» في نظام المستخدم.
 // - كل رقم متحرك داخل صندوق بعرض رقمه النهائي، فلا تتزحزح الوحدة
 //   («ريال» / «أيام») ولا يهتز التصميم أثناء العدّ.
-// - البطاقات الأربع في صف واحد دائمًا (grid-cols-4) وبحجم مدمج حتى
-//   تظهر كلها فوق خط الطية مباشرة دون تمرير.
+// - بطاقتان في كل صف على الجوال، وأربع بطاقات في الصف على الشاشات الأكبر.
 // ============================================================
 
 "use client";
@@ -87,9 +86,7 @@ export default function HeroStats({ items }: { items: HeroStat[] }) {
   }, []);
 
   return (
-    // صف واحد من أربع بطاقات مدمجة: تظهر الإحصائيات كلها فوق الطية
-    // في الجوال والكمبيوتر على حد سواء.
-    <div ref={ref} className="mt-6 grid grid-cols-4 gap-2 sm:mt-8 sm:gap-3">
+    <div ref={ref} className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:grid-cols-4">
       {items.map((stat) => (
         <StatItem key={stat.label} stat={stat} progress={progress} />
       ))}
@@ -104,12 +101,12 @@ function StatItem({ stat, progress }: { stat: HeroStat; progress: number }) {
 
   return (
     // بطاقة داكنة أنيقة (#1E293B) بحد خافت وشريط عنبري صغير يجذب العين.
-    <div className="card-dark rounded-xl p-2.5 text-center transition-colors hover:border-accent-400/40 sm:rounded-2xl sm:p-4">
+    <div className="card-dark rounded-xl p-4 text-center transition-colors hover:border-accent-400/40 sm:rounded-2xl sm:p-4">
       <span
         aria-hidden="true"
         className="mx-auto mb-1.5 block h-0.5 w-6 rounded-full bg-gradient-to-l from-brand-600 to-accent-400 sm:mb-3 sm:h-1 sm:w-10"
       />
-      <p className="flex items-baseline justify-center gap-1 text-lg font-extrabold text-fg sm:text-3xl lg:text-4xl">
+      <p className="flex items-baseline justify-center gap-1 text-2xl font-extrabold text-fg sm:text-3xl lg:text-4xl">
         <span className="inline-grid tabular-nums">
           {/* يحجز عرض الرقم النهائي، ويظهر بدل العدّاد عند تعطيل جافاسكربت */}
           <span aria-hidden="true" className="invisible col-start-1 row-start-1 noscript:visible">
@@ -121,10 +118,10 @@ function StatItem({ stat, progress }: { stat: HeroStat; progress: number }) {
         </span>
         <span className="sr-only">{finalText}</span>
         {stat.unit && (
-          <span className="text-[10px] font-bold text-accent-400 sm:text-lg">{stat.unit}</span>
+          <span className="text-sm font-bold text-accent-400 sm:text-lg">{stat.unit}</span>
         )}
       </p>
-      <p className="mt-1 text-[9px] font-semibold leading-3.5 text-muted sm:mt-1.5 sm:text-sm sm:leading-5">
+      <p className="mt-1 text-xs font-semibold leading-5 text-muted sm:mt-1.5 sm:text-sm sm:leading-5">
         {stat.label}
       </p>
     </div>

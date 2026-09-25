@@ -17,7 +17,7 @@ const LINKS = [
 export default function LandingNav({ whatsappHref }: { whatsappHref: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <header className="fixed inset-x-0 top-0 z-50 bg-base">
+    <header className="fixed inset-x-0 top-0 z-50 border-0 bg-transparent shadow-none">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <a href="#top" className="flex items-center gap-2.5" aria-label={APP_NAME}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
