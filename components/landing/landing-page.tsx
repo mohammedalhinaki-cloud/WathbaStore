@@ -1,6 +1,9 @@
 // ============================================================
 // معون — الصفحة الرئيسية العامة (Landing Page)
 // تُعرض على maaoun.com فقط — لا يظهر فيها أي شيء عن لوحة الإدارة
+//
+// الثيم الداكن الفاخر: خلفية #0F172A، بطاقات #1E293B، نصوص #F8FAFC،
+// نصوص ثانوية #94A3B8، وأزرار/تدرّجات #E65100 ← #FFD600.
 // ============================================================
 
 import Image from "next/image";
@@ -22,7 +25,16 @@ import {
   Zap,
 } from "lucide-react";
 import { services } from "@/lib/services";
-import { APP_NAME, APP_TAGLINE, developerUrl, formatPrice, mainDomain } from "@/lib/constants";
+import {
+  APP_NAME,
+  APP_TAGLINE,
+  developerUrl,
+  formatPrice,
+  mainDomain,
+  HERO_TITLE,
+  HERO_TITLE_ACCENT,
+  HERO_SUBTITLE,
+} from "@/lib/constants";
 import { waChatLink } from "@/lib/wa";
 import LandingNav from "./nav";
 import Faq from "./faq";
@@ -92,7 +104,7 @@ export default async function LandingPage() {
   const domain = mainDomain();
 
   return (
-    <div id="top" className="bg-ink-950">
+    <div id="top" className="bg-base text-fg">
       {/* بيانات Structured Data للموقع العام (WebSite + Organization) */}
       <SiteJsonLd />
 
@@ -101,40 +113,35 @@ export default async function LandingPage() {
       {/* ============ Hero ============ */}
       <section className="relative overflow-hidden pt-16">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-40 left-1/2 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-brand-600/20 blur-[120px]" />
-          <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-accent-500/10 blur-[100px]" />
+          <div className="absolute -top-40 left-1/2 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-brand-600/20 blur-[120px]" />
+          <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-accent-400/10 blur-[100px]" />
         </div>
 
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:py-24">
+        <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 pb-12 pt-7 sm:px-6 sm:pt-9 lg:grid-cols-2 lg:gap-12 lg:pb-16 lg:pt-12">
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-400/30 bg-brand-500/10 px-4 py-1.5 text-xs font-bold text-brand-300">
-              <Sparkles className="h-3.5 w-3.5" />
-              منصة متكاملة لإنشاء المتاجر الإلكترونية
-            </div>
-            <h1 className="text-4xl font-extrabold leading-[1.2] text-white sm:text-5xl lg:text-[3.4rem]">
-              {settings.heroTitle || "متجرك الإلكتروني…"}
-              <span className="mt-2 block bg-gradient-to-l from-accent-400 to-accent-500 bg-clip-text text-transparent">
-                مع معون
+            <h1 className="text-[2rem] font-extrabold leading-[1.2] text-fg sm:text-[2.6rem] lg:text-[3.2rem]">
+              {settings.heroTitle || HERO_TITLE}
+              <span className="mt-1 block bg-gradient-to-l from-brand-600 to-accent-400 bg-clip-text text-transparent">
+                {HERO_TITLE_ACCENT}
               </span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-ink-300">
-              {settings.heroSubtitle ||
-                "أبني لك متجرًا إلكترونيًا متكاملًا على نطاق خاص بك — أنشئه وأجهّزه بالكامل وأسلّمه جاهزًا."}
+            <p className="mt-4 max-w-xl text-base leading-7 text-muted sm:mt-5 sm:text-lg sm:leading-8">
+              {settings.heroSubtitle || HERO_SUBTITLE}
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-6 flex flex-wrap items-center gap-3 sm:mt-7">
               <a
                 href={wa}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2.5 rounded-2xl bg-gradient-to-l from-accent-500 to-accent-400 px-6 py-3.5 text-base font-extrabold text-ink-950 shadow-xl shadow-accent-500/25 transition-transform hover:scale-[1.03]"
+                className="btn-primary px-5 py-3 text-sm sm:px-6 sm:py-3.5 sm:text-base"
               >
                 <MessageCircle className="h-5 w-5" />
                 تواصل عبر واتساب
               </a>
               <a
                 href="#portfolio"
-                className="flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-6 py-3.5 text-base font-bold text-white transition-colors hover:bg-white/10"
+                className="flex items-center gap-2 rounded-2xl border border-line bg-surface px-6 py-3.5 text-base font-bold text-fg transition-colors hover:bg-surface-2"
               >
                 شاهد أعمالي
                 <ArrowLeft className="h-4 w-4" />
@@ -145,22 +152,22 @@ export default async function LandingPage() {
           </div>
 
           <div className="relative">
-            <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-tr from-brand-500/30 to-accent-500/20 blur-2xl" />
+            <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-tr from-brand-600/25 to-accent-400/15 blur-2xl" />
             <Image
               src="/seed/hero.jpg"
               alt="معاينة متاجر معون"
               width={1200}
               height={900}
               priority
-              className="relative w-full rounded-3xl border border-white/10 shadow-2xl"
+              className="relative w-full rounded-3xl border border-line shadow-2xl shadow-black/40"
             />
-            <div className="absolute -bottom-5 right-6 flex items-center gap-3 rounded-2xl border border-white/10 bg-ink-900/90 px-4 py-3 shadow-xl backdrop-blur">
+            <div className="absolute -bottom-5 right-6 flex items-center gap-3 rounded-2xl border border-line bg-surface/95 px-4 py-3 shadow-xl backdrop-blur">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15">
                 <BadgeCheck className="h-5 w-5 text-emerald-400" />
               </span>
               <div>
-                <p className="text-sm font-bold text-white">تسليم جاهز للعمل</p>
-                <p className="text-xs text-ink-400">نطاق فرعي + لوحة تحكم العميل</p>
+                <p className="text-sm font-bold text-fg">تسليم جاهز للعمل</p>
+                <p className="text-xs text-muted">نطاق فرعي + لوحة تحكم العميل</p>
               </div>
             </div>
           </div>
@@ -168,14 +175,14 @@ export default async function LandingPage() {
       </section>
 
       {/* ============ عن معون ============ */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div className="order-2 lg:order-1">
             <SectionBadge icon={<Globe className="h-4 w-4" />} text="ما هو معون؟" />
-            <h2 className="mt-4 text-3xl font-extrabold text-white sm:text-4xl">
+            <h2 className="mt-4 text-3xl font-extrabold text-fg sm:text-4xl">
               منصة أدير بها متاجر أعمالي… وأسلّمها جاهزة
             </h2>
-            <p className="mt-5 text-lg leading-8 text-ink-300">
+            <p className="mt-5 text-lg leading-8 text-muted">
               {settings.aboutText ||
                 "معون منصة متكاملة أنشئ بها متاجر إلكترونية للعملاء على نطاقات فرعية خاصة، أجهزها بالكامل وأسلّم كل متجر لصاحبه ليديره بنفسه."}
             </p>
@@ -185,7 +192,7 @@ export default async function LandingPage() {
                 "تصميم ومنتجات وSEO أجهزها أنا قبل التسليم",
                 "لوحة تحكم مستقلة لكل عميل بعد التسليم",
               ].map((t) => (
-                <li key={t} className="flex items-start gap-3 text-ink-200">
+                <li key={t} className="flex items-start gap-3 text-ink-300">
                   <BadgeCheck className="mt-1 h-5 w-5 shrink-0 text-accent-400" />
                   <span>{t}</span>
                 </li>
@@ -202,24 +209,24 @@ export default async function LandingPage() {
       </section>
 
       {/* ============ الخدمات ============ */}
-      <section id="services" className="border-t border-white/5 bg-ink-900/40 py-20">
+      <section id="services" className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHead
             badge="الخدمات"
             title="كل ما يحتاجه متجرك… في مكان واحد"
             sub="من الإنشاء إلى التسليم، وكل خطوة بين المراحل"
           />
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
             {SERVICES.map((s) => (
               <div
                 key={s.title}
-                className="group rounded-3xl border border-white/8 bg-white/[0.03] p-6 transition-all hover:-translate-y-1 hover:border-brand-400/30 hover:bg-white/[0.05]"
+                className="card-dark group rounded-3xl p-6 transition-all hover:-translate-y-1 hover:border-brand-500/40"
               >
-                <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500/20 to-accent-500/20 ring-1 ring-brand-400/20">
+                <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600/25 to-accent-400/15 ring-1 ring-brand-500/30">
                   <s.icon className="h-6 w-6 text-brand-300" />
                 </span>
-                <h3 className="text-lg font-bold text-white">{s.title}</h3>
-                <p className="mt-2 text-sm leading-7 text-ink-400">{s.desc}</p>
+                <h3 className="text-lg font-bold text-fg">{s.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-muted">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -227,23 +234,22 @@ export default async function LandingPage() {
       </section>
 
       {/* ============ الأعمال ============ */}
-      <section id="portfolio" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+      <section id="portfolio" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
         <SectionHead
           badge="أعمالي"
           title="متاجر بُنيت على معون"
           sub="عينات من المتاجر التي أنشأتها وجاهزتها"
-          light
         />
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
           {portfolio.map((p) => (
             <a
               key={p.id}
               href={p.storeUrl || "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className="group overflow-hidden rounded-3xl border border-ink-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
+              className="card-dark group overflow-hidden rounded-3xl transition-all hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-black/30"
             >
-              <div className="relative aspect-[4/3] overflow-hidden bg-ink-100">
+              <div className="relative aspect-[4/3] overflow-hidden bg-ink-800">
                 <Image
                   src={p.imageUrl || "/seed/hero.jpg"}
                   alt={p.title}
@@ -255,16 +261,16 @@ export default async function LandingPage() {
               </div>
               <div className="p-5">
                 <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-bold text-ink-900">{p.title}</h3>
-                  <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700">
+                  <h3 className="font-bold text-fg">{p.title}</h3>
+                  <span className="rounded-full bg-emerald-500/15 px-2.5 py-1 text-[11px] font-bold text-emerald-400">
                     يعمل
                   </span>
                 </div>
-                <p className="mt-1.5 line-clamp-2 text-sm text-ink-500">{p.description}</p>
+                <p className="mt-1.5 line-clamp-2 text-sm text-muted">{p.description}</p>
                 {p.tags && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {p.tags.split(",").slice(0, 3).map((t) => (
-                      <span key={t} className="rounded-md bg-ink-100 px-2 py-0.5 text-[11px] font-semibold text-ink-600">
+                      <span key={t} className="rounded-md bg-white/5 px-2 py-0.5 text-[11px] font-semibold text-ink-300">
                         {t.trim()}
                       </span>
                     ))}
@@ -277,35 +283,35 @@ export default async function LandingPage() {
       </section>
 
       {/* ============ الأسعار ============ */}
-      <section id="pricing" className="border-t border-white/5 bg-ink-900/40 py-20">
+      <section id="pricing" className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHead
             badge="الأسعار"
             title="باقات واضحة… بدون مفاجآت"
             sub="اختر ما يناسب نشاطك، وابدأ عبر واتساب"
           />
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+          <div className="mt-8 grid gap-6 sm:mt-10 lg:grid-cols-3">
             {plans.map((p) => (
               <div
                 key={p.id}
                 className={`relative rounded-3xl border p-7 ${
                   p.isFeatured
-                    ? "border-accent-400/40 bg-gradient-to-b from-accent-500/10 to-transparent shadow-xl shadow-accent-500/10"
-                    : "border-white/10 bg-white/[0.03]"
+                    ? "border-accent-400/50 bg-gradient-to-b from-brand-600/15 to-transparent shadow-xl shadow-brand-600/10"
+                    : "border-line bg-surface"
                 }`}
               >
                 {p.isFeatured && (
-                  <span className="absolute -top-3.5 right-6 rounded-full bg-gradient-to-l from-accent-500 to-accent-400 px-4 py-1 text-xs font-extrabold text-ink-950">
+                  <span className="absolute -top-3.5 right-6 rounded-full bg-gradient-to-l from-brand-600 to-accent-400 px-4 py-1 text-xs font-extrabold text-ink-950">
                     الأكثر طلبًا
                   </span>
                 )}
-                <h3 className="text-lg font-extrabold text-white">{p.name}</h3>
+                <h3 className="text-lg font-extrabold text-fg">{p.name}</h3>
                 <div className="mt-4 flex items-end gap-2">
-                  <span className="text-4xl font-extrabold text-white">
+                  <span className="text-4xl font-extrabold text-fg">
                     {formatPrice(p.price, p.currency)}
                   </span>
                   {p.oldPrice != null && (
-                    <span className="mb-1 text-sm text-ink-500 line-through">
+                    <span className="mb-1 text-sm text-muted line-through">
                       {formatPrice(p.oldPrice, p.currency)}
                     </span>
                   )}
@@ -324,8 +330,8 @@ export default async function LandingPage() {
                   rel="noopener noreferrer"
                   className={`mt-7 flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-extrabold transition-transform hover:scale-[1.02] ${
                     p.isFeatured
-                      ? "bg-gradient-to-l from-accent-500 to-accent-400 text-ink-950"
-                      : "border border-white/15 bg-white/5 text-white hover:bg-white/10"
+                      ? "btn-primary flex"
+                      : "border border-line bg-white/5 text-fg hover:bg-white/10"
                   }`}
                 >
                   اطلب هذه الباقة
@@ -339,25 +345,24 @@ export default async function LandingPage() {
 
       {/* ============ العروض ============ */}
       {liveOffers.length > 0 && (
-        <section id="offers" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+        <section id="offers" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
           <SectionHead
             badge="عروض حصرية"
             title="العروض الحالية"
             sub="فرص محدودة — لا تفوتها"
-            light
           />
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
+          <div className="mt-8 grid gap-5 sm:mt-10 md:grid-cols-2">
             {liveOffers.map((o) => (
               <div
                 key={o.id}
-                className="relative overflow-hidden rounded-3xl border border-accent-400/25 bg-gradient-to-l from-accent-500/10 via-transparent to-transparent p-6"
+                className="card-dark relative overflow-hidden rounded-3xl border-accent-400/25 bg-gradient-to-l from-brand-600/15 via-transparent to-transparent p-6"
               >
-                <span className="absolute -left-8 -top-8 h-32 w-32 rounded-full bg-accent-500/10 blur-2xl" />
+                <span className="absolute -left-8 -top-8 h-32 w-32 rounded-full bg-accent-400/10 blur-2xl" />
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <Timer className="h-5 w-5 text-accent-500" />
-                      <h3 className="text-lg font-extrabold text-white">{o.title}</h3>
+                      <Timer className="h-5 w-5 text-accent-400" />
+                      <h3 className="text-lg font-extrabold text-fg">{o.title}</h3>
                     </div>
                     <p className="mt-2 text-sm leading-7 text-ink-300">{o.description}</p>
                     {(o.endsAt || o.startsAt) && (
@@ -370,7 +375,7 @@ export default async function LandingPage() {
                   </div>
                   {o.oldPrice != null && o.price > 0 && (
                     <div className="shrink-0 text-left">
-                      <p className="text-xs text-ink-500 line-through">{formatPrice(o.oldPrice, o.currency)}</p>
+                      <p className="text-xs text-muted line-through">{formatPrice(o.oldPrice, o.currency)}</p>
                       <p className="text-2xl font-extrabold text-accent-400">
                         {formatPrice(o.price, o.currency)}
                       </p>
@@ -381,7 +386,7 @@ export default async function LandingPage() {
                   href={wa}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-2 rounded-xl bg-accent-500 px-5 py-2.5 text-sm font-extrabold text-ink-950 transition-transform hover:scale-[1.02]"
+                  className="btn-primary mt-5 px-5 py-2.5 text-sm"
                 >
                   أحجز العرض
                   <ArrowLeft className="h-4 w-4" />
@@ -393,14 +398,14 @@ export default async function LandingPage() {
       )}
 
       {/* ============ المميزات ============ */}
-      <section className="border-t border-white/5 bg-ink-900/40 py-20">
+      <section className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHead
             badge="لماذا معون؟"
             title="مميزات تجعل الفرق"
             sub="بُنية مبنية لتتحمل نمو عدد المتاجر"
           />
-          <div className="mt-12 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-x-8 gap-y-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
             {(settings.features.length
               ? settings.features
               : [
@@ -409,12 +414,12 @@ export default async function LandingPage() {
                 ]
             ).map((f) => (
               <div key={f.title} className="flex items-start gap-4">
-                <span className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-500/15 ring-1 ring-brand-400/25">
+                <span className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-600/15 ring-1 ring-brand-500/30">
                   <Sparkles className="h-5 w-5 text-brand-300" />
                 </span>
                 <div>
-                  <h4 className="font-bold text-white">{f.title}</h4>
-                  <p className="mt-1 text-sm leading-6 text-ink-400">{f.desc}</p>
+                  <h4 className="font-bold text-fg">{f.title}</h4>
+                  <p className="mt-1 text-sm leading-6 text-muted">{f.desc}</p>
                 </div>
               </div>
             ))}
@@ -423,49 +428,48 @@ export default async function LandingPage() {
       </section>
 
       {/* ============ FAQ ============ */}
-      <section id="faq" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+      <section id="faq" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
         <SectionHead
           badge="الأسئلة الشائعة"
           title="كل ما تريد معرفته"
           sub="إن كان لديك سؤال آخر، تواصل عبر واتساب"
-          light
         />
         <Faq items={settings.faq} />
       </section>
 
       {/* ============ CTA ============ */}
-      <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6">
-        <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-l from-brand-600 via-brand-500 to-accent-600 px-6 py-14 text-center sm:px-12">
-          <div className="pointer-events-none absolute -top-24 right-1/4 h-64 w-64 rounded-full bg-accent-400/20 blur-3xl" />
-          <h2 className="text-3xl font-extrabold text-white sm:text-4xl">جاهز تنطلق بثقتك؟</h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-brand-100">
+      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
+        <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-l from-brand-600 via-brand-500 to-accent-400 px-6 py-14 text-center sm:px-12">
+          <div className="pointer-events-none absolute -top-24 right-1/4 h-64 w-64 rounded-full bg-accent-400/25 blur-3xl" />
+          <h2 className="text-3xl font-extrabold text-ink-950 sm:text-4xl">جاهز تنطلق بثقتك؟</h2>
+          <p className="mx-auto mt-4 max-w-xl text-lg font-semibold text-ink-950/80">
             أرسل لي رسالة عبر واتساب وأخبرني عن نشاطك — وسأجهز لك متجرًا جاهزًا خلال أيام.
           </p>
           <a
             href={wa}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-8 inline-flex items-center gap-3 rounded-2xl bg-white px-8 py-4 text-lg font-extrabold text-brand-700 shadow-2xl transition-transform hover:scale-[1.03]"
+            className="mt-8 inline-flex items-center gap-3 rounded-2xl bg-ink-950 px-8 py-4 text-lg font-extrabold text-accent-400 shadow-2xl shadow-ink-950/40 transition-transform hover:scale-[1.03] hover:bg-ink-900"
           >
-            <MessageCircle className="h-6 w-6 text-emerald-500" />
+            <MessageCircle className="h-6 w-6 text-emerald-400" />
             ابدأ الآن عبر واتساب
           </a>
         </div>
       </section>
 
       {/* ============ Footer ============ */}
-      <footer className="border-t border-white/10 bg-ink-950">
+      <footer className="border-t border-line bg-base">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/mark.svg" alt={APP_NAME} width={36} height={36} className="h-9 w-9" />
+              <img src="/mark.svg" alt="" width={36} height={36} className="h-9 w-9" />
               <span className="flex flex-col leading-tight">
-                <span className="text-xl font-extrabold text-white">{APP_NAME}</span>
-                <span className="text-[11px] font-semibold text-ink-400">{APP_TAGLINE}</span>
+                <span className="text-xl font-extrabold text-fg">{APP_NAME}</span>
+                <span className="text-[11px] font-semibold text-muted">{APP_TAGLINE}</span>
               </span>
             </div>
-            <p className="mt-4 max-w-md text-sm leading-7 text-ink-400">
+            <p className="mt-4 max-w-md text-sm leading-7 text-muted">
               {settings.aboutText || "منصة إنشاء المتاجر الإلكترونية على نطاقات فرعية — أنشئ، جهّز، وسلّم."}
             </p>
             <SocialLinks
@@ -476,20 +480,20 @@ export default async function LandingPage() {
             />
           </div>
           <div>
-            <h4 className="text-sm font-extrabold text-white">روابط سريعة</h4>
-            <ul className="mt-4 space-y-2.5 text-sm text-ink-400">
-              <li><a href="#services" className="hover:text-white">الخدمات</a></li>
-              <li><a href="#portfolio" className="hover:text-white">أعمالي</a></li>
-              <li><a href="#pricing" className="hover:text-white">الأسعار</a></li>
-              <li><a href="#offers" className="hover:text-white">العروض</a></li>
-              <li><a href="#faq" className="hover:text-white">الأسئلة الشائعة</a></li>
+            <h4 className="text-sm font-extrabold text-fg">روابط سريعة</h4>
+            <ul className="mt-4 space-y-2.5 text-sm text-muted">
+              <li><a href="#services" className="hover:text-fg">الخدمات</a></li>
+              <li><a href="#portfolio" className="hover:text-fg">أعمالي</a></li>
+              <li><a href="#pricing" className="hover:text-fg">الأسعار</a></li>
+              <li><a href="#offers" className="hover:text-fg">العروض</a></li>
+              <li><a href="#faq" className="hover:text-fg">الأسئلة الشائعة</a></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-extrabold text-white">تواصل</h4>
-            <ul className="mt-4 space-y-2.5 text-sm text-ink-400">
+            <h4 className="text-sm font-extrabold text-fg">تواصل</h4>
+            <ul className="mt-4 space-y-2.5 text-sm text-muted">
               <li>
-                <a href={wa} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white">
+                <a href={wa} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-fg">
                   <MessageCircle className="h-4 w-4 text-emerald-400" />
                   واتساب {APP_NAME}
                 </a>
@@ -501,9 +505,9 @@ export default async function LandingPage() {
             </ul>
           </div>
         </div>
-        <div className="border-t border-white/10 py-5 text-center text-xs text-ink-500">
+        <div className="border-t border-line py-5 text-center text-xs text-ink-500">
           © {new Date().getFullYear()} {APP_NAME} {domain} — جميع الحقوق محفوظة ·{" "}
-          <a href={devUrl} target="_blank" rel="noopener noreferrer" className="text-ink-400 hover:text-white">
+          <a href={devUrl} target="_blank" rel="noopener noreferrer" className="text-muted hover:text-fg">
             {domain}
           </a>
         </div>
@@ -514,53 +518,33 @@ export default async function LandingPage() {
 
 function InfoCard({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
   return (
-    <div className="rounded-3xl border border-white/8 bg-white/[0.03] p-6">
-      <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-accent-500/15 text-accent-400">
+    <div className="card-dark rounded-3xl p-6">
+      <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-accent-400/10 text-accent-400">
         {icon}
       </span>
-      <h3 className="font-bold text-white">{title}</h3>
-      <p className="mt-1.5 text-sm leading-6 text-ink-400">{desc}</p>
+      <h3 className="font-bold text-fg">{title}</h3>
+      <p className="mt-1.5 text-sm leading-6 text-muted">{desc}</p>
     </div>
   );
 }
 
 function SectionBadge({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-brand-400/30 bg-brand-500/10 px-4 py-1.5 text-xs font-bold text-brand-300">
+    <span className="inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-600/10 px-4 py-1.5 text-xs font-bold text-brand-300">
       {icon}
       {text}
     </span>
   );
 }
 
-function SectionHead({
-  badge,
-  title,
-  sub,
-  light,
-}: {
-  badge: string;
-  title: string;
-  sub: string;
-  light?: boolean;
-}) {
+function SectionHead({ badge, title, sub }: { badge: string; title: string; sub: string }) {
   return (
     <div className="mx-auto max-w-2xl text-center">
-      <span
-        className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-bold ${
-          light ? "bg-brand-50 text-brand-700 ring-1 ring-brand-200" : "border border-brand-400/30 bg-brand-500/10 text-brand-300"
-        }`}
-      >
+      <span className="inline-flex items-center rounded-full border border-brand-500/30 bg-brand-600/10 px-4 py-1.5 text-xs font-bold text-brand-300">
         {badge}
       </span>
-      <h2
-        className={`mt-4 text-3xl font-extrabold sm:text-4xl ${
-          light ? "text-ink-900" : "text-white"
-        }`}
-      >
-        {title}
-      </h2>
-      <p className={`mt-3 text-lg ${light ? "text-ink-500" : "text-ink-400"}`}>{sub}</p>
+      <h2 className="mt-4 text-3xl font-extrabold text-fg sm:text-4xl">{title}</h2>
+      <p className="mt-3 text-lg text-muted">{sub}</p>
     </div>
   );
 }

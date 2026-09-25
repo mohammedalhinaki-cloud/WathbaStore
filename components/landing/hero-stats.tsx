@@ -10,6 +10,8 @@
 //   أو عند تفعيل «تقليل الحركة» في نظام المستخدم.
 // - كل رقم متحرك داخل صندوق بعرض رقمه النهائي، فلا تتزحزح الوحدة
 //   («ريال» / «أيام») ولا يهتز التصميم أثناء العدّ.
+// - البطاقات الأربع في صف واحد دائمًا (grid-cols-4) وبحجم مدمج حتى
+//   تظهر كلها فوق خط الطية مباشرة دون تمرير.
 // ============================================================
 
 "use client";
@@ -85,14 +87,12 @@ export default function HeroStats({ items }: { items: HeroStat[] }) {
   }, []);
 
   return (
-    // @container: عدد الأعمدة يتبع عرض عمود النص الفعلي لا عرض الشاشة
-    // (في الكمبيوتر يُقسم الغلاف إلى عمودين فيضيق عمود الإحصائيات)
-    <div ref={ref} className="@container mt-10">
-      <div className="grid grid-cols-2 gap-3 @lg:grid-cols-4">
-        {items.map((stat) => (
-          <StatItem key={stat.label} stat={stat} progress={progress} />
-        ))}
-      </div>
+    // صف واحد من أربع بطاقات مدمجة: تظهر الإحصائيات كلها فوق الطية
+    // في الجوال والكمبيوتر على حد سواء.
+    <div ref={ref} className="mt-6 grid grid-cols-4 gap-2 sm:mt-8 sm:gap-3">
+      {items.map((stat) => (
+        <StatItem key={stat.label} stat={stat} progress={progress} />
+      ))}
     </div>
   );
 }
@@ -103,15 +103,13 @@ function StatItem({ stat, progress }: { stat: HeroStat; progress: number }) {
   const currentText = `${Math.round(stat.value * progress)}${suffix}`;
 
   return (
-    // بطاقة زجاجية بارزة: خلفية خفيفة + حد + ظل، وشريط برتقالي صغير
-    // يجذب العين — فتظهر الإحصائيات الأربع بوضوح من الوهلة الأولى.
-    // (prominent glass card so the four stats read clearly at first glance)
-    <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-center shadow-lg shadow-black/25 ring-1 ring-inset ring-white/[0.03] backdrop-blur transition-colors hover:border-accent-400/30 hover:bg-white/[0.07] sm:p-5">
+    // بطاقة داكنة أنيقة (#1E293B) بحد خافت وشريط عنبري صغير يجذب العين.
+    <div className="card-dark rounded-xl p-2.5 text-center transition-colors hover:border-accent-400/40 sm:rounded-2xl sm:p-4">
       <span
         aria-hidden="true"
-        className="mx-auto mb-3 block h-1 w-10 rounded-full bg-gradient-to-l from-accent-400 to-accent-500"
+        className="mx-auto mb-1.5 block h-0.5 w-6 rounded-full bg-gradient-to-l from-brand-600 to-accent-400 sm:mb-3 sm:h-1 sm:w-10"
       />
-      <p className="flex items-baseline justify-center gap-1.5 text-3xl font-extrabold text-white sm:text-4xl">
+      <p className="flex items-baseline justify-center gap-1 text-lg font-extrabold text-fg sm:text-3xl lg:text-4xl">
         <span className="inline-grid tabular-nums">
           {/* يحجز عرض الرقم النهائي، ويظهر بدل العدّاد عند تعطيل جافاسكربت */}
           <span aria-hidden="true" className="invisible col-start-1 row-start-1 noscript:visible">
@@ -123,10 +121,12 @@ function StatItem({ stat, progress }: { stat: HeroStat; progress: number }) {
         </span>
         <span className="sr-only">{finalText}</span>
         {stat.unit && (
-          <span className="text-base font-bold text-accent-400 sm:text-lg">{stat.unit}</span>
+          <span className="text-[10px] font-bold text-accent-400 sm:text-lg">{stat.unit}</span>
         )}
       </p>
-      <p className="mt-1.5 text-xs font-semibold leading-5 text-ink-200 sm:text-sm">{stat.label}</p>
+      <p className="mt-1 text-[9px] font-semibold leading-3.5 text-muted sm:mt-1.5 sm:text-sm sm:leading-5">
+        {stat.label}
+      </p>
     </div>
   );
 }

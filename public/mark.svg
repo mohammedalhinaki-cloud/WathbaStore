@@ -1,15 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="معون">
   <defs>
-    <linearGradient id="og" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#FBBF24"/>
-      <stop offset="1" stop-color="#F59E0B"/>
+    <linearGradient id="mw" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#E65100"/>
+      <stop offset="0.55" stop-color="#FF8F00"/>
+      <stop offset="1" stop-color="#FFD600"/>
     </linearGradient>
   </defs>
-  <!-- مقبض الحقيبة (تدرّج برتقالي) -->
-  <path d="M21 28c0-7.5 4.6-13 11-13s11 5.5 11 13" stroke="url(#og)" stroke-width="5.2" stroke-linecap="round"/>
-  <!-- جسم الحقيبة (أبيض) -->
-  <path d="M16.5 25h31l-2.4 25.6a6 6 0 0 1-6 5.4H24.9a6 6 0 0 1-6-5.4L16.5 25Z" fill="#F8FAFC"/>
-  <!-- سهم النمو داخل الحقيبة (تدرّج برتقالي) -->
-  <path d="M25.5 48 37.5 36" stroke="url(#og)" stroke-width="4.6" stroke-linecap="round"/>
-  <path d="M31.5 36h6v6" stroke="url(#og)" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(0,-2)">
+    <!-- مقبض الحقيبة -->
+    <path d="M24 26 V21.5 A8 8 0 0 1 40 21.5 V26" stroke="url(#mw)" stroke-width="4.6" stroke-linecap="round"/>
+    <!-- جسم الحقيبة الهندسي -->
+    <path d="M16 28.5 C16 26.6 17.6 25 19.5 25 H44.5 C46.4 25 48 26.6 48 28.5 L45.9 50.9 C45.7 54.3 42.9 57 39.5 57 H24.5 C21.1 57 18.3 54.3 18.1 50.9 Z" fill="url(#mw)"/>
+    <!-- ثقب المفتاح في المنتصف -->
+    <circle cx="32" cy="37.6" r="4.9" fill="#0F172A"/>
+    <path d="M29.5 40.6 H34.5 L36.3 47.2 C36.6 48.4 35.7 49.4 34.5 49.4 H29.5 C28.3 49.4 27.4 48.4 27.7 47.2 Z" fill="#0F172A"/>
+  </g>
 </svg>

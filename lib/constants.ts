@@ -10,6 +10,14 @@ export const APP_EN = "maaoun.com";
 /** الشعار/الوصف التسويقي المصاحب لاسم العلامة (يظهر مع الشعار وفي الـ SEO) */
 export const APP_TAGLINE = "متجرك يبدأ من هنا";
 
+/** النص الافتراضي لعنوان قسم الغلاف في الصفحة العامة (عند غياب قيمة من site_settings) */
+export const HERO_TITLE = "متجرك الإلكتروني الاحترافي…";
+/** الشطر الملوّن بتدرّج العلامة من عنوان الغلاف */
+export const HERO_TITLE_ACCENT = "بكل بساطة";
+/** النص الافتراضي للوصف أسفل عنوان الغلاف */
+export const HERO_SUBTITLE =
+  "نساعدك في تحويل فكرتك إلى متجر إلكتروني متكامل يعكس هوية تجارتك ويجذب عملاءك.";
+
 /** النطاق الافتراضي للمنصة إن لم يُضبط NEXT_PUBLIC_MAIN_DOMAIN */
 export const DEFAULT_MAIN_DOMAIN = "maaoun.com";
 

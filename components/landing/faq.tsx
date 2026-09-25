@@ -1,4 +1,4 @@
-// معون — الأسئلة الشائعة (أكورديون)
+// معون — الأسئلة الشائعة (أكورديون) — ثيم داكن فاخر
 "use client";
 
 import { useState } from "react";
@@ -8,25 +8,22 @@ export default function Faq({ items }: { items: { q: string; a: string }[] }) {
   const [open, setOpen] = useState<number | null>(0);
   if (!items.length) return null;
   return (
-    <div className="mx-auto mt-12 max-w-3xl space-y-3">
+    <div className="mx-auto mt-8 max-w-3xl space-y-3 sm:mt-10">
       {items.map((it, i) => (
-        <div
-          key={i}
-          className="overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-sm"
-        >
+        <div key={i} className="card-dark overflow-hidden rounded-2xl">
           <button
             onClick={() => setOpen(open === i ? null : i)}
             className="flex w-full items-center justify-between gap-4 px-5 py-4 text-right"
           >
-            <span className="font-bold text-ink-900">{it.q}</span>
+            <span className="font-bold text-fg">{it.q}</span>
             <ChevronDown
-              className={`h-5 w-5 shrink-0 text-brand-500 transition-transform ${
+              className={`h-5 w-5 shrink-0 text-accent-400 transition-transform ${
                 open === i ? "rotate-180" : ""
               }`}
             />
           </button>
           {open === i && (
-            <div className="border-t border-ink-100 bg-ink-50/50 px-5 py-4 text-sm leading-7 text-ink-600">
+            <div className="border-t border-line/70 bg-base/40 px-5 py-4 text-sm leading-7 text-muted">
               {it.a}
             </div>
           )}
