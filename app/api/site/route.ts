@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { services } from "@/lib/services";
 import { ok, requireOwnerUser } from "@/lib/api-utils";
-import { LANDING_LIMITS, mergeLandingContent, type LandingContent } from "@/lib/types";
+import { LANDING_LIMITS, LANDING_SECTION_KEYS, mergeLandingContent, type LandingContent } from "@/lib/types";
 import { z } from "zod";
 
 const titleDesc = z.object({ title: z.string().max(120), desc: z.string().max(600) });
@@ -18,6 +18,13 @@ const sectionHead = z.object({
 
 const LANDING_SCHEMA = z
   .object({
+    sections: z
+      .object({
+        order: z.array(z.enum(LANDING_SECTION_KEYS)).max(20),
+        hidden: z.array(z.enum(LANDING_SECTION_KEYS)).max(20),
+      })
+      .optional(),
+    toggles: z.record(z.string(), z.boolean()).optional(),
     hero: z
       .object({
         title: z.string().max(200).optional(),

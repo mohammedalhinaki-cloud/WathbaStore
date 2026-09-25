@@ -37,6 +37,7 @@ import Faq from "./faq";
 import HeroStats from "./hero-stats";
 import SocialLinks from "@/components/social-links";
 import SiteJsonLd from "@/components/site/site-json-ld";
+import type { LandingSectionKey } from "@/lib/types";
 
 /**
  * أيقونات ثابتة بالترتيب — النصوص (العناوين والأوصاف) تأتي من
@@ -67,23 +68,41 @@ export default async function LandingPage() {
   const L = settings.landing;
   const heroImg = L.hero.imageUrl || "/seed/hero.jpg";
   const heroImgLocal = heroImg.startsWith("/");
+  const T = L.toggles;
+  const hidden = new Set(L.sections.hidden);
+  /** يظهر القسم؟ وترتيبه (CSS order) حسب ما يحدده المالك */
+  const show = (k: LandingSectionKey) => !hidden.has(k);
+  const ord = (k: LandingSectionKey) => ({ order: L.sections.order.indexOf(k) });
+  const navLinks = L.nav.links.filter((l) => {
+    const key = l.href.slice(1) as LandingSectionKey;
+    return !(L.sections.order.includes(key) && hidden.has(key));
+  });
+  const showHeroImage = T.heroImage;
 
   return (
     <div id="top" className="bg-base text-fg">
       {/* بيانات Structured Data للموقع العام (WebSite + Organization) */}
       <SiteJsonLd />
 
-      <LandingNav whatsappHref={wa} content={L.nav} />
+      <LandingNav whatsappHref={wa} content={{ ...L.nav, links: navLinks }} showCta={T.navCta} />
 
       {/* ============ Hero ============ */}
-      <section className="relative overflow-hidden pt-16">
+      {/*
+        الغلاف يملأ الشاشة الأولى بالضبط (100svh) وينتهي عند نهاية كروت
+        الإحصائيات — لا يظهر أي قسم آخر ضمن الشاشة الأولى.
+      */}
+      <section className="relative flex min-h-[100svh] flex-col overflow-hidden border-b border-line/50 pt-16">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -top-40 left-1/2 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-brand-600/20 blur-[120px]" />
           <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-accent-400/10 blur-[100px]" />
         </div>
 
-        <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 pb-12 pt-7 sm:px-6 sm:pt-9 lg:grid-cols-2 lg:gap-12 lg:pb-16 lg:pt-12">
-          <div>
+        <div
+          className={`relative mx-auto grid w-full max-w-7xl flex-1 items-center gap-10 px-4 pb-12 pt-8 sm:px-6 sm:pb-14 sm:pt-10 lg:gap-14 lg:pb-16 lg:pt-10 ${
+            showHeroImage ? "lg:grid-cols-2" : "max-w-4xl text-center"
+          }`}
+        >
+          <div className="order-2 lg:order-1">
             <h1 className="text-[2rem] font-extrabold leading-[1.2] text-fg sm:text-[2.6rem] lg:text-[3.2rem]">
               {L.hero.title}{" "}
               <span className="mt-1 block bg-gradient-to-l from-brand-600 to-accent-400 bg-clip-text text-transparent">
@@ -94,7 +113,9 @@ export default async function LandingPage() {
               {L.hero.subtitle}
             </p>
 
+            {(T.heroPrimaryBtn || T.heroSecondaryBtn) && (
             <div className="mt-6 flex flex-row flex-nowrap items-center justify-center gap-3 sm:mt-7">
+              {T.heroPrimaryBtn && (
               <a
                 href={wa}
                 target="_blank"
@@ -104,6 +125,8 @@ export default async function LandingPage() {
                 <MessageCircle className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
                 {L.hero.primaryBtn}
               </a>
+              )}
+              {T.heroSecondaryBtn && (
               <a
                 href="#portfolio"
                 className="flex min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl border border-line bg-surface px-3 py-3 text-xs font-bold text-fg transition-colors hover:bg-surface-2 sm:gap-2 sm:px-6 sm:py-3.5 sm:text-[1rem]"
@@ -111,12 +134,15 @@ export default async function LandingPage() {
                 {L.hero.secondaryBtn}
                 <ArrowLeft className="h-4 w-4" />
               </a>
+              )}
             </div>
+            )}
 
-            <HeroStats items={L.stats} />
+            {T.heroStats && <HeroStats items={L.stats} />}
           </div>
 
-          <div className="relative">
+          {showHeroImage && (
+          <div className="relative order-1 mx-auto w-full max-w-md sm:max-w-lg lg:order-2 lg:max-w-none">
             <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-tr from-brand-600/25 to-accent-400/15 blur-2xl" />
             {heroImgLocal ? (
               <Image
@@ -136,6 +162,7 @@ export default async function LandingPage() {
                 className="relative w-full rounded-3xl border border-line shadow-2xl shadow-black/40"
               />
             )}
+            {T.heroBadge && (
             <div className="absolute -bottom-5 right-6 flex items-center gap-3 rounded-2xl border border-line bg-surface/95 px-4 py-3 shadow-xl backdrop-blur">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15">
                 <BadgeCheck className="h-5 w-5 text-emerald-400" />
@@ -145,13 +172,19 @@ export default async function LandingPage() {
                 <p className="text-xs text-muted">{L.hero.badgeDesc}</p>
               </div>
             </div>
+            )}
           </div>
+          )}
         </div>
       </section>
 
+      {/* الأقسام أسفل الغلاف — ترتيبها وإظهارها يتحكم به المالك */}
+      <div className="flex flex-col">
+
       {/* ============ عن معون ============ */}
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
-        <div className="grid items-center gap-10 lg:grid-cols-2">
+      {show("about") && (
+      <section id="about" style={ord("about")} className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className={`grid items-center gap-10 ${T.aboutCards ? "lg:grid-cols-2" : ""}`}>
           <div className="order-2 lg:order-1">
             <SectionBadge icon={<Globe className="h-4 w-4" />} text={L.about.badge} />
             <h2 className="mt-4 text-3xl font-extrabold text-fg sm:text-4xl">
@@ -161,6 +194,7 @@ export default async function LandingPage() {
               {settings.aboutText ||
                 "معون منصة متكاملة أنشئ بها متاجر إلكترونية للعملاء على نطاقات فرعية خاصة، أجهزها بالكامل وأسلّم كل متجر لصاحبه ليديره بنفسه."}
             </p>
+            {T.aboutBullets && (
             <ul className="mt-6 space-y-3">
               {L.about.bullets.map((t, i) => (
                 <li key={`${t}-${i}`} className="flex items-start gap-3 text-ink-300">
@@ -169,7 +203,9 @@ export default async function LandingPage() {
                 </li>
               ))}
             </ul>
+            )}
           </div>
+          {T.aboutCards && (
           <div className="order-1 grid grid-cols-2 gap-4 lg:order-2">
             {L.about.cards.map((c, i) => {
               const Icon = ABOUT_CARD_ICONS[i % ABOUT_CARD_ICONS.length];
@@ -183,11 +219,14 @@ export default async function LandingPage() {
               );
             })}
           </div>
+          )}
         </div>
       </section>
+      )}
 
       {/* ============ الخدمات ============ */}
-      <section id="services" className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
+      {show("services") && (
+      <section id="services" style={ord("services")} className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHead
             badge={L.heads.services.badge}
@@ -213,9 +252,11 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ============ الأعمال ============ */}
-      <section id="portfolio" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
+      {show("portfolio") && portfolio.length > 0 && (
+      <section id="portfolio" style={ord("portfolio")} className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
         <SectionHead
           badge={L.heads.portfolio.badge}
           title={L.heads.portfolio.title}
@@ -262,9 +303,11 @@ export default async function LandingPage() {
           ))}
         </div>
       </section>
+      )}
 
       {/* ============ الأسعار ============ */}
-      <section id="pricing" className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
+      {show("pricing") && plans.length > 0 && (
+      <section id="pricing" style={ord("pricing")} className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHead
             badge={L.heads.pricing.badge}
@@ -323,10 +366,11 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ============ العروض ============ */}
-      {liveOffers.length > 0 && (
-        <section id="offers" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
+      {show("offers") && liveOffers.length > 0 && (
+        <section id="offers" style={ord("offers")} className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
           <SectionHead
             badge={L.heads.offers.badge}
             title={L.heads.offers.title}
@@ -379,7 +423,8 @@ export default async function LandingPage() {
       )}
 
       {/* ============ المميزات ============ */}
-      <section className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
+      {show("features") && (
+      <section id="features" style={ord("features")} className="border-t border-line/50 bg-surface/40 py-14 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHead
             badge={L.heads.features.badge}
@@ -407,9 +452,11 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ============ FAQ ============ */}
-      <section id="faq" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
+      {show("faq") && settings.faq.length > 0 && (
+      <section id="faq" style={ord("faq")} className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
         <SectionHead
           badge={L.heads.faq.badge}
           title={L.heads.faq.title}
@@ -417,9 +464,11 @@ export default async function LandingPage() {
         />
         <Faq items={settings.faq} />
       </section>
+      )}
 
       {/* ============ CTA ============ */}
-      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
+      {show("cta") && (
+      <section id="cta" style={ord("cta")} className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6">
         <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-l from-brand-600 via-brand-500 to-accent-400 px-6 py-14 text-center sm:px-12">
           <div className="pointer-events-none absolute -top-24 right-1/4 h-64 w-64 rounded-full bg-accent-400/25 blur-3xl" />
           <h2 className="text-3xl font-extrabold text-ink-950 sm:text-4xl">{L.cta.title}</h2>
@@ -437,8 +486,11 @@ export default async function LandingPage() {
           </a>
         </div>
       </section>
+      )}
+      </div>
 
       {/* ============ Footer ============ */}
+      {T.footer && (
       <footer className="border-t border-line bg-base">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
           <div className="md:col-span-2">
@@ -456,23 +508,26 @@ export default async function LandingPage() {
             <p className="mt-4 max-w-md text-sm leading-7 text-muted">
               {settings.aboutText || "منصة إنشاء المتاجر الإلكترونية على نطاقات فرعية — أنشئ، جهّز، وسلّم."}
             </p>
+            {T.footerSocial && (
             <SocialLinks
               className="mt-5"
               instagram={settings.socialInstagram}
               snapchat={settings.socialSnapchat}
               tiktok={settings.socialTiktok}
             />
+            )}
           </div>
+          {T.footerLinks && navLinks.length > 0 && (
           <div>
             <h4 className="text-sm font-extrabold text-fg">روابط سريعة</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-muted">
-              <li><a href="#services" className="hover:text-fg">الخدمات</a></li>
-              <li><a href="#portfolio" className="hover:text-fg">أعمالي</a></li>
-              <li><a href="#pricing" className="hover:text-fg">الأسعار</a></li>
-              <li><a href="#offers" className="hover:text-fg">العروض</a></li>
-              <li><a href="#faq" className="hover:text-fg">الأسئلة الشائعة</a></li>
+              {navLinks.map((l) => (
+                <li key={l.href}><a href={l.href} className="hover:text-fg">{l.label}</a></li>
+              ))}
             </ul>
           </div>
+          )}
+          {T.footerContact && (
           <div>
             <h4 className="text-sm font-extrabold text-fg">تواصل</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-muted">
@@ -488,6 +543,7 @@ export default async function LandingPage() {
               </li>
             </ul>
           </div>
+          )}
         </div>
         <div className="border-t border-line py-5 text-center text-xs text-ink-500">
           © {new Date().getFullYear()} {APP_NAME} {domain} — جميع الحقوق محفوظة ·{" "}
@@ -496,6 +552,7 @@ export default async function LandingPage() {
           </a>
         </div>
       </footer>
+      )}
     </div>
   );
 }

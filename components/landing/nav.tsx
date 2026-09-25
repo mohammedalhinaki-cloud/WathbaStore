@@ -22,12 +22,14 @@ import { DEFAULT_LANDING_CONTENT, type LandingContent } from "@/lib/types";
 export default function LandingNav({
   whatsappHref,
   content,
+  showCta = true,
 }: {
   whatsappHref: string;
   content?: LandingContent["nav"];
+  showCta?: boolean;
 }) {
   const nav = content ?? DEFAULT_LANDING_CONTENT.nav;
-  const links = nav.links.length ? nav.links : DEFAULT_LANDING_CONTENT.nav.links;
+  const links = content ? content.links : DEFAULT_LANDING_CONTENT.nav.links;
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -74,6 +76,7 @@ export default function LandingNav({
         </nav>
 
         <div className="flex items-center gap-2">
+          {showCta && (
           <a
             href={whatsappHref}
             target="_blank"
@@ -83,6 +86,7 @@ export default function LandingNav({
             {nav.cta}
             <ArrowLeft className="h-4 w-4" />
           </a>
+          )}
           <button
             onClick={() => setOpen(!open)}
             className="rounded-lg p-2 text-fg md:hidden"
