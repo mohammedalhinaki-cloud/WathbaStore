@@ -26,6 +26,7 @@ import { APP_NAME, developerUrl, formatPrice, mainDomain } from "@/lib/constants
 import { waChatLink } from "@/lib/wa";
 import LandingNav from "./nav";
 import Faq from "./faq";
+import HeroStats, { type HeroStat } from "./hero-stats";
 import SocialLinks from "@/components/social-links";
 import SiteJsonLd from "@/components/site/site-json-ld";
 
@@ -60,6 +61,14 @@ const SERVICES = [
     title: "لوحة تحكم للعميل",
     desc: "بعد التسليم يدير العميل متجره بنفسه: منتجات، أسعار، صور، وأقسام — من لوحة مستقلة.",
   },
+];
+
+/** إحصائيات قسم الغلاف — تعدّ من 0 حتى القيمة عند ظهورها في الشاشة */
+const HERO_STATS: HeroStat[] = [
+  { value: 100, suffix: "+", label: "فكرة متجر بدأت معنا" },
+  { value: 499, unit: "ريال", label: "سعر يبدأ منه متجرك" },
+  { value: 7, unit: "أيام", label: "لتجهيز متجرك" },
+  { value: 100, suffix: "%", label: "تحكمك في متجرك" },
 ];
 
 export default async function LandingPage() {
@@ -132,11 +141,7 @@ export default async function LandingPage() {
               </a>
             </div>
 
-            <div className="mt-10 grid grid-cols-3 gap-4 border-t border-white/10 pt-8">
-              <Stat value={`${portfolio.length}+`} label="متجر منفذ" />
-              <Stat value="100%" label="إدارة العميل" />
-              <Stat value="24/7" label="متاجر تعمل" />
-            </div>
+            <HeroStats items={HERO_STATS} />
           </div>
 
           <div className="relative">
@@ -501,15 +506,6 @@ export default async function LandingPage() {
           </a>
         </div>
       </footer>
-    </div>
-  );
-}
-
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div>
-      <p className="text-2xl font-extrabold text-white sm:text-3xl">{value}</p>
-      <p className="mt-1 text-xs font-semibold text-ink-400">{label}</p>
     </div>
   );
 }
