@@ -8,7 +8,7 @@ import { STORE_STATUS_LABELS, mergeLandingContent } from "./types";
 export const APP_NAME = "معون";
 export const APP_EN = "maaoun.com";
 /** الشعار/الوصف التسويقي المصاحب لاسم العلامة (يظهر مع الشعار وفي الـ SEO) */
-export const APP_TAGLINE = "متجرك يبدأ من هنا";
+export const APP_TAGLINE = "لبناء المواقع والمتاجر الإلكترونية";
 
 /** النص الافتراضي لعنوان قسم الغلاف في الصفحة العامة (عند غياب قيمة من site_settings) */
 export const HERO_TITLE = "متجرك الإلكتروني الاحترافي...";

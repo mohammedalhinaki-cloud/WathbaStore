@@ -411,9 +411,9 @@ export const DEFAULT_LANDING_CONTENT: LandingContent = {
     footerSocial: true,
   },
   hero: {
-    title: "متجرك الإلكتروني الاحترافي...",
-    accent: "بكل بساطة",
-    subtitle: "نساعدك في تحويل فكرتك إلى متجر إلكتروني متكامل يعكس هوية تجارتك ويجذب عملاءك.",
+    title: "معون لبناء المواقع والمتاجر الإلكترونية",
+    accent: "باحتراف وبكل بساطة",
+    subtitle: "نحوّل فكرتك إلى موقع أو متجر إلكتروني احترافي يعكس هوية تجارتك ويسهّل وصول عملائك إلى منتجاتك وخدماتك.",
     primaryBtn: "تواصل عبر واتساب",
     secondaryBtn: "شاهد أعمالي",
     imageUrl: "/seed/hero.jpg",
@@ -428,7 +428,7 @@ export const DEFAULT_LANDING_CONTENT: LandingContent = {
   ],
   about: {
     badge: "ما هو معون؟",
-    title: "منصة أدير بها متاجر أعمالي… وأسلّمها جاهزة",
+    title: "منصة لبناء المواقع والمتاجر وتسليمها جاهزة",
     bullets: [
       "كل متجر على نطاق فرعي مستقل: name.{domain}",
       "تصميم ومنتجات وSEO أجهزها أنا قبل التسليم",
