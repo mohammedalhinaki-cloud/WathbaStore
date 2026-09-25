@@ -86,7 +86,7 @@ export default function HeroStats({ items }: { items: HeroStat[] }) {
   }, []);
 
   return (
-    <div ref={ref} className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:grid-cols-4">
+    <div ref={ref} className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:grid-cols-4 sm:gap-4">
       {items.map((stat) => (
         <StatItem key={stat.label} stat={stat} progress={progress} />
       ))}
@@ -101,7 +101,7 @@ function StatItem({ stat, progress }: { stat: HeroStat; progress: number }) {
 
   return (
     // بطاقة داكنة أنيقة (#1E293B) بحد خافت وشريط عنبري صغير يجذب العين.
-    <div className="card-dark rounded-xl p-4 text-center transition-colors hover:border-accent-400/40 sm:rounded-2xl sm:p-4">
+    <div className="card-dark rounded-xl px-3 py-4 text-center transition-colors hover:border-accent-400/40 sm:rounded-2xl sm:px-4 sm:py-5">
       <span
         aria-hidden="true"
         className="mx-auto mb-1.5 block h-0.5 w-6 rounded-full bg-gradient-to-l from-brand-600 to-accent-400 sm:mb-3 sm:h-1 sm:w-10"

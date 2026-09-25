@@ -7,10 +7,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ExternalLink, Loader2, Plus, RotateCcw, Save, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Eye, EyeOff, ExternalLink, Loader2, Plus, RotateCcw, Save, Trash2 } from "lucide-react";
 import {
   DEFAULT_LANDING_CONTENT,
   LANDING_LIMITS,
+  LANDING_SECTION_LABELS,
+  LANDING_TOGGLE_LABELS,
+  type LandingSectionKey,
+  type LandingToggles,
   type LandingContent,
   type LandingSectionHead,
   type LandingTitleDesc,
@@ -19,6 +23,7 @@ import { Card, Field, inputCls, PrimaryBtn, GhostBtn } from "./ui";
 import { FormAlerts } from "./use-api";
 
 const TABS = [
+  { key: "sections", label: "الأقسام والإظهار" },
   { key: "hero", label: "الغلاف" },
   { key: "stats", label: "الإحصائيات" },
   { key: "about", label: "عن معون" },
@@ -45,7 +50,7 @@ function clone<T>(v: T): T {
 
 export default function LandingContentForm({ initial }: { initial: LandingContent }) {
   const router = useRouter();
-  const [tab, setTab] = useState<TabKey>("hero");
+  const [tab, setTab] = useState<TabKey>("sections");
   const [data, setData] = useState<LandingContent>(() => clone(initial));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,6 +108,14 @@ export default function LandingContentForm({ initial }: { initial: LandingConten
         ))}
       </div>
 
+      {tab === "sections" && (
+        <SectionsTab
+          sections={data.sections}
+          toggles={data.toggles}
+          onSections={(v) => patch("sections", v)}
+          onToggles={(v) => patch("toggles", v)}
+        />
+      )}
       {tab === "hero" && <HeroTab data={data.hero} onChange={(v) => patch("hero", v)} />}
       {tab === "stats" && <StatsTab stats={data.stats} onChange={(v) => patch("stats", v)} />}
       {tab === "about" && <AboutTab data={data.about} onChange={(v) => patch("about", v)} />}
@@ -516,6 +529,95 @@ function CtaTab({
         <Field label="السطر أسفل الشعار" hint="افتراضيًا: متجرك يبدأ من هنا">
           <input className={inputCls} value={footer.tagline} onChange={(e) => onFooter({ tagline: e.target.value })} />
         </Field>
+      </Card>
+    </div>
+  );
+}
+
+// ------------------------------------------------------------
+// تبويب الأقسام: إخفاء/إظهار وترتيب كل قسم + عناصر فرعية
+// ------------------------------------------------------------
+function SectionsTab({
+  sections,
+  toggles,
+  onSections,
+  onToggles,
+}: {
+  sections: LandingContent["sections"];
+  toggles: LandingToggles;
+  onSections: (v: LandingContent["sections"]) => void;
+  onToggles: (v: LandingToggles) => void;
+}) {
+  const hidden = new Set(sections.hidden);
+  const toggleHidden = (k: LandingSectionKey) =>
+    onSections({
+      ...sections,
+      hidden: hidden.has(k) ? sections.hidden.filter((x) => x !== k) : [...sections.hidden, k],
+    });
+  const move = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= sections.order.length) return;
+    const order = [...sections.order];
+    [order[i], order[j]] = [order[j], order[i]];
+    onSections({ ...sections, order });
+  };
+  return (
+    <div className="space-y-5">
+      <Card>
+        <h3 className="mb-1 font-extrabold text-ink-900">أقسام الصفحة الرئيسية</h3>
+        <p className="mb-4 text-xs text-ink-400">
+          أخفِ أي قسم بالكامل أو غيّر ترتيبه. الغلاف يبقى أعلى الصفحة دائمًا. القسم المخفي يُحذف أيضًا من روابط
+          التنقل والتذييل.
+        </p>
+        <div className="space-y-2">
+          {sections.order.map((k, i) => {
+            const off = hidden.has(k);
+            return (
+              <div
+                key={k}
+                className={`flex items-center gap-2 rounded-xl border p-3 ${
+                  off ? "border-ink-100 bg-ink-50 opacity-60" : "border-ink-200 bg-white"
+                }`}
+              >
+                <span className="w-6 text-center text-xs font-bold text-ink-400">{i + 1}</span>
+                <span className="flex-1 text-sm font-bold text-ink-800">{LANDING_SECTION_LABELS[k]}</span>
+                <button onClick={() => move(i, -1)} disabled={i === 0} className="rounded-lg p-2 text-ink-500 hover:bg-ink-100 disabled:opacity-30" aria-label="للأعلى">
+                  <ArrowUp className="h-4 w-4" />
+                </button>
+                <button onClick={() => move(i, 1)} disabled={i === sections.order.length - 1} className="rounded-lg p-2 text-ink-500 hover:bg-ink-100 disabled:opacity-30" aria-label="للأسفل">
+                  <ArrowDown className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => toggleHidden(k)}
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold ${
+                    off ? "bg-ink-200 text-ink-600" : "bg-emerald-50 text-emerald-700"
+                  }`}
+                >
+                  {off ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {off ? "مخفي" : "ظاهر"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
+      <Card>
+        <h3 className="mb-1 font-extrabold text-ink-900">عناصر فرعية</h3>
+        <p className="mb-4 text-xs text-ink-400">تحكّم بإظهار أجزاء محددة داخل الأقسام.</p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {(Object.keys(LANDING_TOGGLE_LABELS) as (keyof LandingToggles)[]).map((k) => (
+            <label key={k} className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-ink-100 px-3.5 py-3 text-sm font-semibold text-ink-700 hover:bg-ink-50">
+              {LANDING_TOGGLE_LABELS[k]}
+              <input
+                type="checkbox"
+                className="h-5 w-5 accent-orange-600"
+                checked={toggles[k]}
+                onChange={(e) => onToggles({ ...toggles, [k]: e.target.checked })}
+              />
+            </label>
+          ))}
+        </div>
       </Card>
     </div>
   );

@@ -296,7 +296,65 @@ export interface LandingNavLink {
   label: string;
 }
 
+/** الأقسام القابلة للإخفاء وإعادة الترتيب أسفل الغلاف */
+export const LANDING_SECTION_KEYS = [
+  "about",
+  "services",
+  "portfolio",
+  "pricing",
+  "offers",
+  "features",
+  "faq",
+  "cta",
+] as const;
+export type LandingSectionKey = (typeof LANDING_SECTION_KEYS)[number];
+
+export const LANDING_SECTION_LABELS: Record<LandingSectionKey, string> = {
+  about: "عن معون",
+  services: "الخدمات",
+  portfolio: "الأعمال",
+  pricing: "الأسعار",
+  offers: "العروض",
+  features: "المميزات",
+  faq: "الأسئلة الشائعة",
+  cta: "الدعوة الأخيرة (الصندوق البرتقالي)",
+};
+
+/** مفاتيح إظهار/إخفاء عناصر فرعية في الصفحة */
+export interface LandingToggles {
+  heroStats: boolean;
+  heroImage: boolean;
+  heroBadge: boolean;
+  heroPrimaryBtn: boolean;
+  heroSecondaryBtn: boolean;
+  aboutBullets: boolean;
+  aboutCards: boolean;
+  navCta: boolean;
+  footer: boolean;
+  footerLinks: boolean;
+  footerContact: boolean;
+  footerSocial: boolean;
+}
+
+export const LANDING_TOGGLE_LABELS: Record<keyof LandingToggles, string> = {
+  heroStats: "الغلاف — كروت الإحصائيات",
+  heroImage: "الغلاف — الصورة",
+  heroBadge: "الغلاف — بطاقة التسليم العائمة",
+  heroPrimaryBtn: "الغلاف — زر الواتساب",
+  heroSecondaryBtn: "الغلاف — الزر الثاني",
+  aboutBullets: "عن معون — النقاط",
+  aboutCards: "عن معون — البطاقات",
+  navCta: "التنقل — زر «ابدأ مشروعك»",
+  footer: "التذييل بالكامل",
+  footerLinks: "التذييل — روابط سريعة",
+  footerContact: "التذييل — تواصل",
+  footerSocial: "التذييل — أيقونات التواصل الاجتماعي",
+};
+
 export interface LandingContent {
+  /** ترتيب الأقسام أسفل الغلاف + الأقسام المخفية */
+  sections: { order: LandingSectionKey[]; hidden: LandingSectionKey[] };
+  toggles: LandingToggles;
   hero: {
     title: string;
     accent: string;
@@ -337,6 +395,21 @@ export interface LandingContent {
  * `{domain}` في نقاط قسم «عن معون» تُستبدل بالنطاق الفعلي عند العرض.
  */
 export const DEFAULT_LANDING_CONTENT: LandingContent = {
+  sections: { order: [...LANDING_SECTION_KEYS], hidden: [] },
+  toggles: {
+    heroStats: true,
+    heroImage: true,
+    heroBadge: true,
+    heroPrimaryBtn: true,
+    heroSecondaryBtn: true,
+    aboutBullets: true,
+    aboutCards: true,
+    navCta: true,
+    footer: true,
+    footerLinks: true,
+    footerContact: true,
+    footerSocial: true,
+  },
   hero: {
     title: "متجرك الإلكتروني الاحترافي...",
     accent: "بكل بساطة",
@@ -460,7 +533,25 @@ export function mergeLandingContent(stored: unknown): LandingContent {
   const nav = asObj(o.nav);
   const cta = asObj(o.cta);
   const footer = asObj(o.footer);
+  const sections = asObj(o.sections);
+  const toggles = asObj(o.toggles);
+  const isKey = (k: unknown): k is LandingSectionKey =>
+    typeof k === "string" && (LANDING_SECTION_KEYS as readonly string[]).includes(k);
+  const order = Array.isArray(sections.order)
+    ? Array.from(new Set(sections.order.filter(isKey)))
+    : [];
+  // أي قسم جديد غير موجود في الترتيب المخزّن يُضاف في النهاية
+  for (const k of LANDING_SECTION_KEYS) if (!order.includes(k)) order.push(k);
+  const hidden = Array.isArray(sections.hidden)
+    ? Array.from(new Set(sections.hidden.filter(isKey)))
+    : [];
+  const toggleOut = { ...d.toggles };
+  for (const k of Object.keys(toggleOut) as (keyof LandingToggles)[]) {
+    if (typeof toggles[k] === "boolean") toggleOut[k] = toggles[k] as boolean;
+  }
   return {
+    sections: { order, hidden },
+    toggles: toggleOut,
     hero: {
       title: landingStr(hero.title, d.hero.title),
       accent: landingStr(hero.accent, d.hero.accent),
