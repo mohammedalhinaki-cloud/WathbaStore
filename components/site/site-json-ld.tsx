@@ -29,6 +29,16 @@ export default function SiteJsonLd() {
         logo: `${url}/logo.png`,
         image: `${url}/og-image.png`,
       },
+      {
+        "@type": "Service",
+        "@id": `${url}#website-builder-service`,
+        name: `${APP_NAME} لبناء المواقع والمتاجر الإلكترونية`,
+        serviceType: "بناء المواقع والمتاجر الإلكترونية",
+        provider: { "@id": `${url}#organization` },
+        areaServed: { "@type": "Country", name: "Saudi Arabia" },
+        url,
+        inLanguage: "ar",
+      },
     ],
   };
   return (

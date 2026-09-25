@@ -29,25 +29,40 @@ export const metadata: Metadata = {
     apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
   },
   title: {
-    default: `${APP_NAME} — ${APP_TAGLINE}`,
+    default: `${APP_NAME} لبناء المواقع والمتاجر الإلكترونية | ${domain}`,
     template: `%s | ${APP_NAME}`,
   },
   description:
-    `منصة ${APP_NAME} — ${APP_TAGLINE}. أنشئ متجرك الإلكتروني المتكامل على نطاق فرعي خاص بك: تصميم، منتجات، SEO، وتسليم جاهز للإدارة.`,
-  keywords: ["متاجر إلكترونية", APP_NAME, domain, "إنشاء متاجر", "متجر إلكتروني"],
+    `${APP_NAME} لبناء المواقع والمتاجر الإلكترونية في السعودية. ننشئ لك موقعًا أو متجرًا إلكترونيًا احترافيًا مع التصميم والتجهيز والتسليم والدعم.`,
+  keywords: [
+    APP_NAME,
+    "معون لبناء المواقع",
+    "بناء المواقع",
+    "إنشاء متجر إلكتروني",
+    "تصميم متجر إلكتروني",
+    "المواقع والمتاجر الإلكترونية",
+    domain,
+  ],
   applicationName: APP_NAME,
+  robots: { index: true, follow: true },
   alternates: {
     canonical: `https://${domain}`,
   },
   openGraph: {
-    title: `${APP_NAME} — ${APP_TAGLINE}`,
-    description: `${APP_TAGLINE} مع ${APP_NAME} — منصة إنشاء وتجهيز وتسليم المتاجر الإلكترونية على نطاقات فرعية.`,
+    title: `${APP_NAME} لبناء المواقع والمتاجر الإلكترونية`,
+    description: `${APP_NAME} منصة سعودية لبناء المواقع والمتاجر الإلكترونية وتجهيزها وتسليمها جاهزة للإدارة.`,
     url: `https://${domain}`,
     locale: "ar_SA",
     type: "website",
     images: [
       { url: "/og-image.png", width: 1200, height: 630, alt: `${APP_NAME} — ${APP_TAGLINE}` },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${APP_NAME} لبناء المواقع والمتاجر الإلكترونية`,
+    description: `${APP_NAME} لبناء المواقع والمتاجر الإلكترونية باحتراف.`,
+    images: ["/og-image.png"],
   },
 };
 
