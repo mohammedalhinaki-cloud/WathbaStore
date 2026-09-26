@@ -34,6 +34,7 @@ export function db(): DatabaseSync {
   seedIfEmpty(db);
   migrateLegacyPlatformData(db);
   completeSweetsShowcase(db);
+  ensureHoneyShowcase(db);
   _db = db;
   return db;
 }
@@ -365,6 +366,168 @@ const SWEETS_SETTINGS = {
 };
 
 // ------------------------------------------------------------
+// بيانات متجر العرض المكتمل «منحل الوثبة» (honey.maaoun.com)
+// عسل طبيعي ومنتجات نحل فاخرة بهوية عنبرية ذهبية على خلفية داكنة.
+// تُستخدم في البذر الأولي، وفي ensureHoneyShowcase لإضافتها للقواعد
+// المحلية القديمة المبذورة مسبقًا — بمعرّفات ثابتة وINSERT OR IGNORE.
+// ------------------------------------------------------------
+
+/** [id, name, slug, sortOrder] */
+const HONEY_CATEGORIES: [string, string, string, number][] = [
+  ["cat-h-natural", "عسل طبيعي", "natural-honey", 0],
+  ["cat-h-special", "عسل مخصوص ومنكّه", "special-honey", 1],
+  ["cat-h-bee", "منتجات النحل", "bee-products", 2],
+  ["cat-h-gifts", "هدايا ومناسبات", "gifts", 3],
+];
+
+/** [id, categoryId, slug, name, description, price, oldPrice, stock, image] */
+const HONEY_PRODUCTS: [string, string, string, string, string, number, number | null, number, string][] = [
+  ["prod-h-sidr", "cat-h-natural", "sidr-honey", "عسل السدر الجبلي", "عسل سدر جبلي فاخر مقطوف يدويًا من مناحل الجبال، بلون عنبري داكن وقوام كثيف ونكهة غنية. غذاء ومصدر طاقة طبيعي 100% بلا أي إضافات. العبوة 500غ.", 320, 380, 25, "/seed/h-sidr.jpg"],
+  ["prod-h-samar", "cat-h-natural", "samar-honey", "عسل السَّمُر", "عسل السَّمُر (السنط) صافٍ بلون ذهبي فاتح ونكهة لطيفة متوازنة، مثالي للاستخدام اليومي مع المشروبات الدافئة. طبيعي ونقي. العبوة 500غ.", 180, null, 30, "/seed/h-samar.jpg"],
+  ["prod-h-talh", "cat-h-natural", "talh-honey", "عسل الطَّلح", "عسل الطلح البري بلون أحمر عنبري ونكهة عميقة مميزة، معروف بقيمته الغذائية العالية. يُقطف من أزهار شجر الطلح في موسمه. العبوة 500غ.", 150, 180, 28, "/seed/h-talh.jpg"],
+  ["prod-h-wildflower", "cat-h-natural", "wildflower-honey", "عسل الزهور البري", "عسل زهور بري متعدد المراعي بنكهة زهرية عطرة ولون ذهبي مشرق. اختيار اقتصادي ولذيذ للعائلة. طبيعي بالكامل. العبوة 500غ.", 120, null, 40, "/seed/h-wildflower.jpg"],
+  ["prod-h-nuts", "cat-h-special", "honey-nuts", "عسل بالمكسرات الملكي", "خلطة ملكية من العسل الطبيعي مع اللوز والفستق والجوز والبندق — طاقة ومذاق فاخر في ملعقة واحدة. مثالي للفطور والإهداء. العبوة 400غ.", 210, 250, 20, "/seed/h-nuts.jpg"],
+  ["prod-h-comb", "cat-h-special", "honeycomb", "قرص شمع العسل الطبيعي", "قرص شمع عسل طبيعي كامل يُؤكل كما هو، بشمعٍ صافٍ وعسل حبيس داخل خلاياه — أنقى صورة للعسل مباشرة من الخلية. العبوة 400غ.", 140, null, 18, "/seed/h-comb.jpg"],
+  ["prod-h-royal", "cat-h-bee", "royal-jelly", "غذاء ملكات النحل", "غذاء ملكات النحل الطازج، مكمّل غذائي طبيعي غني بالعناصر، يُحفظ مبرّدًا. يُؤخذ بكميات صغيرة لدعم الحيوية والمناعة. العبوة 25غ.", 260, 300, 15, "/seed/h-royal-jelly.jpg"],
+  ["prod-h-pollen", "cat-h-bee", "bee-pollen", "حبوب لقاح النحل", "حبوب لقاح طبيعية غنية بالبروتين والفيتامينات، تُضاف إلى العصائر والزبادي والعسل. مصدر طبيعي للطاقة والتغذية. العبوة 200غ.", 95, null, 35, "/seed/h-pollen.jpg"],
+  ["prod-h-propolis", "cat-h-bee", "propolis", "العكبر (البروبوليس)", "مستخلص العكبر (صمغ النحل) بقطارة عملية، معروف بخصائصه الطبيعية الداعمة للمناعة. من إنتاج مناحلنا. العبوة 30مل.", 130, 160, 22, "/seed/h-propolis.jpg"],
+  ["prod-h-giftbox", "cat-h-gifts", "honey-gift-box", "صندوق هدايا العسل الفاخر", "علبة هدايا أنيقة تضم تشكيلة مختارة: عسل سدر، عسل سمر، قرص شمع، وملعقة عسل خشبية — بتغليف فاخر ورباط ذهبي يليق بمناسباتك.", 450, 520, 12, "/seed/h-giftbox.jpg"],
+];
+
+/** [id, title, slug, content, sortOrder] */
+const HONEY_PAGES: [string, string, string, string, number][] = [
+  ["page-honey-about", "من نحن", "about", "منحل الوثبة إرثٌ عائلي في تربية النحل وقطف العسل يمتد لأكثر من عشرين عامًا.\nنمتلك مناحلنا الخاصة ونتنقّل بها خلف مواسم الأزهار من الجبال إلى السهول لنقطف أجود أنواع العسل في ذروة نضجه.\nنبيع ما ننتجه فقط: عسل طبيعي 100% بلا تسخين ولا إضافات ولا تحلية — يصلك كما أخرجته النحلة من الخلية.", 0],
+  ["page-honey-quality", "ضمان الجودة والأصالة", "quality", "نضمن لك عسلاً طبيعيًا نقيًا؛ كل دفعة تخضع لفحص المختبر للتأكد من خلوّها من الغش والسكريات المضافة.\nنمنحك ضمان الاستبدال الكامل إذا ثبت أن العسل غير طبيعي — ثقتك أغلى ما نملك.\nنرفق مع الطلبات الكبيرة شهادة تحليل عند الطلب، ونوضّح المصدر والموسم لكل نوع.", 1],
+  ["page-honey-shipping", "التوصيل والشحن", "shipping", "نشحن لجميع مناطق المملكة خلال 2 إلى 4 أيام عمل عبر شركات شحن موثوقة.\nالتوصيل داخل المدينة خلال 24 ساعة، ومجانًا للطلبات فوق 300 ر.س.\nنغلّف العسل بعناية في عبوات زجاجية محكمة تحفظ جودته أثناء النقل، مع تغليف حراري للطلبات الحساسة كغذاء الملكات.", 2],
+  ["page-honey-policies", "سياسة الاستبدال والاسترجاع", "policies", "نستبدل أي منتج يصلك تالفًا أو غير مطابق خلال 48 ساعة من الاستلام.\nنظرًا لطبيعة المنتجات الغذائية، لا نقبل استرجاع العبوات المفتوحة إلا في حال ثبوت عيب في الجودة.\nتذكّر أن تبلور العسل (تحبّبه) ظاهرة طبيعية تدل على أصالته ولا تعني فساده — يعود سائلاً بتدفئته بماء دافئ.", 3],
+];
+
+const HONEY_SETTINGS = {
+  template: "modern",
+  font: "cairo",
+  primaryColor: "#C8860D",
+  secondaryColor: "#E8B54A",
+  sectionOrder: '["hero","products","pages","footer"]',
+  aboutText:
+    "في منحل الوثبة نقدّم عسلاً طبيعيًا بنسبة 100% من مناحلنا الخاصة: سدر جبلي، سَمُر، طلح، وزهور برية، إضافةً إلى شمع العسل وغذاء الملكات وحبوب اللقاح والعكبر. نقطف في ذروة النضج، بلا تسخين ولا إضافات، ليصلك العسل نقيًا كما أرادته الطبيعة.",
+  instagram: "https://instagram.com/wathba.honey",
+  snapchat: "wathba_honey",
+  tiktok: "https://tiktok.com/@wathba.honey",
+  whatsapp: "966553334444",
+  footerBgColor: "#241505",
+  /** آيبانات وهمية للعرض فقط (نمط SA + 22 خانة) — ليست حسابات حقيقية */
+  ibanRajhi: "SA0380000000608010167777",
+  ibanAlinmaa: "SA9211500000012345678933",
+  ibanAlahli: "SA4410000000012345678944",
+  seoTitle: "منحل الوثبة | عسل طبيعي ومنتجات نحل فاخرة",
+  seoDescription:
+    "عسل سدر جبلي، سَمُر، طلح، وزهور برية طبيعي 100% من مناحلنا الخاصة، مع شمع العسل وغذاء الملكات وحبوب اللقاح والعكبر. اطلب الآن عبر واتساب وتوصيل لكل المملكة.",
+  seoKeywords: "عسل, عسل سدر, عسل طبيعي, شمع العسل, غذاء ملكات النحل, حبوب اللقاح, عكبر, منحل الوثبة",
+  seoOgImage: "/seed/honey-cover.jpg",
+  seoFavicon: "/seed/honey-logo.png",
+  seoCanonical: "https://honey.maaoun.com",
+};
+
+// ------------------------------------------------------------
+// إضافة متجر العرض «منحل الوثبة» للقواعد المحلية المبذورة مسبقًا
+// ------------------------------------------------------------
+//
+// القواعد المحلية (‎.data/wathba.db) التي بُذرت قبل إضافة متجر العسل لا
+// تحتوي عليه أصلًا (seedIfEmpty لا يعمل إلا على قاعدة فارغة). هذه الدالة
+// تُنشئ المتجر كاملًا مرة واحدة إن لم يكن موجودًا — بمعرّفات ثابتة
+// وإدراجات INSERT OR IGNORE، فلا تُكرّر البيانات ولا تلمس أي تعديل للمستخدم.
+
+function ensureHoneyShowcase(database: DatabaseSync): void {
+  const exists = database
+    .prepare("SELECT id FROM stores WHERE subdomain = 'honey'")
+    .get() as { id: string } | undefined;
+  if (exists) return;
+
+  const nowIso = new Date().toISOString();
+  const ago = (days: number) => new Date(Date.now() - days * 86400000).toISOString();
+  const storeId = "store-honey";
+
+  database.prepare(
+    "INSERT OR IGNORE INTO local_users (id, email, password_hash, name, role, created_at) VALUES (?,?,?,?,?,?)"
+  ).run("user-honey", "honey@demo.com", hashPassword("Honey#2026"), "فيصل النحّال", "member", ago(3));
+
+  database.prepare(`INSERT OR IGNORE INTO stores
+      (id, name, subdomain, status, owner_name, owner_phone, owner_email, whatsapp, description, logo_url, cover_url, client_credentials, delivered_at, created_at, updated_at)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+    storeId, "منحل الوثبة", "honey", "delivered",
+    "فيصل النحّال", "0553334444", "honey@demo.com", "966553334444",
+    "عسل طبيعي 100% ومنتجات نحل فاخرة من مناحلنا الخاصة — سدر جبلي، سَمُر، طلح، وزهور برية تصلك نقية كما أرادتها الطبيعة.",
+    "/seed/honey-logo.png", "/seed/honey-cover.jpg",
+    JSON.stringify({ email: "honey@demo.com", password: "Honey#2026" }),
+    ago(1), ago(3), nowIso
+  );
+
+  database.prepare(`INSERT OR IGNORE INTO store_settings
+      (store_id, template, font, primary_color, secondary_color, section_order, about_text,
+       social_instagram, social_snapchat, social_tiktok, social_whatsapp, developer_url,
+       footer_bg_color, iban_rajhi, iban_alinmaa, iban_alahli,
+       seo_title, seo_description, seo_keywords, seo_og_image, seo_favicon, seo_canonical, updated_at)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+    storeId,
+    HONEY_SETTINGS.template, HONEY_SETTINGS.font, HONEY_SETTINGS.primaryColor, HONEY_SETTINGS.secondaryColor,
+    HONEY_SETTINGS.sectionOrder, HONEY_SETTINGS.aboutText,
+    HONEY_SETTINGS.instagram, HONEY_SETTINGS.snapchat, HONEY_SETTINGS.tiktok, HONEY_SETTINGS.whatsapp,
+    "https://maaoun.com",
+    HONEY_SETTINGS.footerBgColor, HONEY_SETTINGS.ibanRajhi, HONEY_SETTINGS.ibanAlinmaa, HONEY_SETTINGS.ibanAlahli,
+    HONEY_SETTINGS.seoTitle, HONEY_SETTINGS.seoDescription, HONEY_SETTINGS.seoKeywords,
+    HONEY_SETTINGS.seoOgImage, HONEY_SETTINGS.seoFavicon, HONEY_SETTINGS.seoCanonical,
+    nowIso
+  );
+
+  const insCat = database.prepare(
+    "INSERT OR IGNORE INTO categories (id, store_id, name, slug, sort_order, is_visible, created_at) VALUES (?,?,?,?,?,1,?)"
+  );
+  for (const [id, name, slug, sort] of HONEY_CATEGORIES) {
+    insCat.run(id, storeId, name, slug, sort, ago(3));
+  }
+
+  const insProd = database.prepare(`INSERT OR IGNORE INTO products
+      (id, store_id, slug, category_id, name, description, price, old_price, stock, is_visible, sort_order, created_at, updated_at)
+    VALUES (?,?,?,?,?,?,?,?,?,1,?,?,?)`);
+  const insImg = database.prepare(
+    "INSERT OR IGNORE INTO product_images (id, product_id, store_id, url, sort_order) VALUES (?,?,?,?,0)"
+  );
+  for (const [i, [id, cat, slug, name, desc, price, old, stock, img]] of HONEY_PRODUCTS.entries()) {
+    insProd.run(id, storeId, slug, cat, name, desc, price, old, stock, i, ago(3), nowIso);
+    insImg.run(`img-${id}`, id, storeId, img);
+  }
+
+  const insPage = database.prepare(
+    "INSERT OR IGNORE INTO pages (id, store_id, title, slug, content, is_visible, sort_order, updated_at) VALUES (?,?,?,?,?,1,?,?)"
+  );
+  for (const [id, title, slug, content, sort] of HONEY_PAGES) {
+    insPage.run(id, storeId, title, slug, content, sort, ago(3));
+  }
+
+  const honeyUser = database
+    .prepare("SELECT id FROM local_users WHERE lower(email) = 'honey@demo.com'")
+    .get() as { id: string } | undefined;
+  if (honeyUser) {
+    database.prepare(
+      "INSERT OR IGNORE INTO store_members (id, store_id, user_id, role, created_at) VALUES (?,?,?,?,?)"
+    ).run("mem-4", storeId, honeyUser.id, "owner", ago(2));
+  }
+
+  database.prepare(`INSERT OR IGNORE INTO portfolio_items
+      (id, title, description, image_url, store_url, tags, is_visible, sort_order, created_at)
+    VALUES (?,?,?,?,?,?,1,?,?)`).run(
+    "pf-honey", "منحل الوثبة",
+    "متجر عسل ومنتجات نحل فاخر بهوية عنبرية ذهبية على خلفية داكنة: كتالوج كامل، طلب عبر واتساب، وحسابات تحويل بنكي.",
+    "/seed/honey-cover.jpg", "https://honey.maaoun.com", "عسل, منتجات طبيعية, متجر طعام", 3, ago(1)
+  );
+
+  const ownerEmail = process.env.LOCAL_OWNER_EMAIL || "owner@maaoun.com";
+  database.prepare(
+    "INSERT INTO activity_logs (store_id, user_id, actor_email, action, details, created_at) VALUES (?,?,?,?,?,?)"
+  ).run(storeId, null, ownerEmail, "store.delivered", JSON.stringify({ subdomain: "honey" }), ago(1));
+}
+
+// ------------------------------------------------------------
 // البيانات الأولية (Demo Seed)
 // ------------------------------------------------------------
 
@@ -383,6 +546,7 @@ function seedIfEmpty(db: DatabaseSync): void {
   insUser.run("user-rshaf", "rshaf@demo.com", hashPassword("Rshaf#2026"), "محمد الرشيف", "member", ago(20));
   insUser.run("user-oud", "oud@demo.com", hashPassword("Oud#2026"), "أحمد العتيبي", "member", ago(12));
   insUser.run("user-sara", "sara@demo.com", hashPassword("Sara#2026"), "سارة القحطاني", "member", ago(2));
+  insUser.run("user-honey", "honey@demo.com", hashPassword("Honey#2026"), "فيصل النحّال", "member", ago(3));
 
   // ----- المتاجر -----
   const insStore = db.prepare(`INSERT INTO stores
@@ -412,6 +576,14 @@ function seedIfEmpty(db: DatabaseSync): void {
     "/seed/sweets-logo.png", "/seed/sweets-cover.jpg",
     JSON.stringify({ email: "sara@demo.com", password: "Sara#2026" }),
     ago(1), ago(2), ago(1)
+  );
+  insStore.run(
+    "store-honey", "منحل الوثبة", "honey", "delivered",
+    "فيصل النحّال", "0553334444", "honey@demo.com", "966553334444",
+    "عسل طبيعي 100% ومنتجات نحل فاخرة من مناحلنا الخاصة — سدر جبلي، سَمُر، طلح، وزهور برية تصلك نقية كما أرادتها الطبيعة.",
+    "/seed/honey-logo.png", "/seed/honey-cover.jpg",
+    JSON.stringify({ email: "honey@demo.com", password: "Honey#2026" }),
+    ago(2), ago(3), ago(1)
   );
 
   // ----- إعدادات المتاجر -----
@@ -455,6 +627,17 @@ function seedIfEmpty(db: DatabaseSync): void {
     SWEETS_SETTINGS.seoOgImage, SWEETS_SETTINGS.seoFavicon, SWEETS_SETTINGS.seoCanonical,
     ago(1)
   );
+  insSettings.run(
+    "store-honey",
+    HONEY_SETTINGS.template, HONEY_SETTINGS.font, HONEY_SETTINGS.primaryColor, HONEY_SETTINGS.secondaryColor,
+    HONEY_SETTINGS.sectionOrder, HONEY_SETTINGS.aboutText,
+    HONEY_SETTINGS.instagram, HONEY_SETTINGS.snapchat, HONEY_SETTINGS.tiktok, HONEY_SETTINGS.whatsapp,
+    "https://maaoun.com",
+    HONEY_SETTINGS.footerBgColor, HONEY_SETTINGS.ibanRajhi, HONEY_SETTINGS.ibanAlinmaa, HONEY_SETTINGS.ibanAlahli,
+    HONEY_SETTINGS.seoTitle, HONEY_SETTINGS.seoDescription, HONEY_SETTINGS.seoKeywords,
+    HONEY_SETTINGS.seoOgImage, HONEY_SETTINGS.seoFavicon, HONEY_SETTINGS.seoCanonical,
+    ago(1)
+  );
 
   // ----- الأقسام -----
   const insCat = db.prepare(
@@ -468,6 +651,9 @@ function seedIfEmpty(db: DatabaseSync): void {
   insCat.run("cat-gift", "store-oud", "هدايا", "gifts", 2, 1, ago(14));
   for (const [id, name, slug, sort] of SWEETS_CATEGORIES) {
     insCat.run(id, "store-sweets", name, slug, sort, 1, ago(2));
+  }
+  for (const [id, name, slug, sort] of HONEY_CATEGORIES) {
+    insCat.run(id, "store-honey", name, slug, sort, 1, ago(3));
   }
 
   // ----- المنتجات -----
@@ -495,6 +681,10 @@ function seedIfEmpty(db: DatabaseSync): void {
     insProd.run(id, "store-sweets", slug, cat, name, desc, price, old, stock, 1, i, ago(2), ago(1));
     insImg.run(`img-${id}`, id, "store-sweets", img, 0);
   }
+  for (const [i, [id, cat, slug, name, desc, price, old, stock, img]] of HONEY_PRODUCTS.entries()) {
+    insProd.run(id, "store-honey", slug, cat, name, desc, price, old, stock, 1, i, ago(3), ago(1));
+    insImg.run(`img-${id}`, id, "store-honey", img, 0);
+  }
 
   // ----- الصفحات -----
   const insPage = db.prepare(
@@ -518,6 +708,9 @@ function seedIfEmpty(db: DatabaseSync): void {
   for (const [id, title, slug, content, sort] of SWEETS_PAGES) {
     insPage.run(id, "store-sweets", title, slug, content, 1, sort, ago(2));
   }
+  for (const [id, title, slug, content, sort] of HONEY_PAGES) {
+    insPage.run(id, "store-honey", title, slug, content, 1, sort, ago(3));
+  }
 
   // ----- الأعضاء -----
   const insMember = db.prepare(
@@ -526,6 +719,7 @@ function seedIfEmpty(db: DatabaseSync): void {
   insMember.run("mem-1", "store-rshaf", "user-rshaf", "owner", ago(18));
   insMember.run("mem-2", "store-oud", "user-oud", "owner", ago(10));
   insMember.run("mem-3", "store-sweets", "user-sara", "owner", ago(1));
+  insMember.run("mem-4", "store-honey", "user-honey", "owner", ago(2));
 
   // ----- إعدادات الموقع العام -----
   db.prepare(`INSERT INTO site_settings
@@ -580,6 +774,7 @@ function seedIfEmpty(db: DatabaseSync): void {
   insPortfolio.run("pf-rshaf", "كافيه رشف", "متجر قهوة مختصة وحلويات بقالب عصري وألوان دافئة.", "/seed/rshaf-cover.jpg", "https://rshaf.maaoun.com", "قهوة, حلويات, متجر طعام", 1, 0, ago(18));
   insPortfolio.run("pf-oud", "عود وروائح", "متجر عطور وعود فاخر بهوية كلاسيكية راقية.", "/seed/portfolio-perfume.jpg", "https://oud.maaoun.com", "عطور, عود, متجر فاخر", 1, 1, ago(10));
   insPortfolio.run("pf-sweets", "دار رشف للحلويات", "متجر حلويات شرقية وغربية بهوية توتية ذهبية: كتالوج كامل، طلب عبر واتساب، وحسابات تحويل بنكي.", "/seed/sweets-cover.jpg", "https://sweets.maaoun.com", "حلويات, مناسبات, متجر طعام", 1, 2, ago(1));
+  insPortfolio.run("pf-honey", "منحل الوثبة", "متجر عسل ومنتجات نحل فاخر بهوية عنبرية ذهبية على خلفية داكنة: كتالوج كامل، طلب عبر واتساب، وحسابات تحويل بنكي.", "/seed/honey-cover.jpg", "https://honey.maaoun.com", "عسل, منتجات طبيعية, متجر طعام", 1, 3, ago(1));
 
   // ----- سجل النشاطات -----
   const insLog = db.prepare(
@@ -592,6 +787,9 @@ function seedIfEmpty(db: DatabaseSync): void {
   insLog.run("store-rshaf", "user-owner", ownerEmail, "store.delivered", JSON.stringify({ subdomain: "rshaf" }), ago(18));
   insLog.run("store-sweets", "user-owner", ownerEmail, "store.delivered", JSON.stringify({ subdomain: "sweets" }), ago(1));
   insLog.run("store-sweets", "user-owner", ownerEmail, "product.created", JSON.stringify({ name: "كنافة نابلسية بالجبن" }), ago(2));
+  insLog.run(null, "user-owner", ownerEmail, "store.created", JSON.stringify({ store: "store-honey", name: "منحل الوثبة" }), ago(3));
+  insLog.run("store-honey", "user-owner", ownerEmail, "product.created", JSON.stringify({ name: "عسل السدر الجبلي" }), ago(3));
+  insLog.run("store-honey", "user-owner", ownerEmail, "store.delivered", JSON.stringify({ subdomain: "honey" }), ago(1));
 }
 
 // ------------------------------------------------------------
