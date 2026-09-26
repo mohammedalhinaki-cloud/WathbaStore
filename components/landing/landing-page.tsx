@@ -87,6 +87,18 @@ export default async function LandingPage() {
 
       <LandingNav whatsappHref={wa} content={{ ...L.nav, links: navLinks }} showCta={T.navCta} />
 
+      {/* شريط الرسائل: نسخة مكررة لضمان دوران متصل بلا قفزات */}
+      <div className="marquee-strip" aria-label="خدمات معون">
+        <div className="marquee-track">
+          {["تصميم مواقع ومتاجر إلكترونية", "متجر جاهز للتسليم", "لوحة تحكم مستقلة", "تصميم عربي سريع ومتجاوب", "معون لبناء المواقع والمتاجر"].map((item, i) => (
+            <span key={`${item}-${i}`} className="marquee-item">{item}<b aria-hidden="true">✦</b></span>
+          ))}
+          {["تصميم مواقع ومتاجر إلكترونية", "متجر جاهز للتسليم", "لوحة تحكم مستقلة", "تصميم عربي سريع ومتجاوب", "معون لبناء المواقع والمتاجر"].map((item, i) => (
+            <span key={`copy-${item}-${i}`} className="marquee-item" aria-hidden="true">{item}<b>✦</b></span>
+          ))}
+        </div>
+      </div>
+
       {/* ============ Hero ============ */}
       {/*
         الغلاف يملأ الشاشة الأولى بالضبط (100svh) وينتهي عند نهاية كروت
@@ -115,13 +127,13 @@ export default async function LandingPage() {
           }`}
         >
           <div className="order-2 lg:order-1">
-            <h1 className="text-[2rem] font-extrabold leading-[1.2] text-fg sm:text-[2.6rem] lg:text-[3.2rem]">
+            <h1 className="hero-reveal text-[2rem] font-extrabold leading-[1.2] text-fg sm:text-[2.6rem] lg:text-[3.2rem]">
               {L.hero.title}{" "}
               <span className="mt-1 block bg-gradient-to-l from-brand-600 to-accent-400 bg-clip-text text-transparent">
                 {L.hero.accent}
               </span>
             </h1>
-            <p className="mt-6 max-w-xl text-[1rem] leading-7 text-muted sm:mt-7 sm:text-lg sm:leading-8 lg:mt-8">
+            <p className="hero-reveal hero-reveal-delay-2 mt-6 max-w-xl text-[1rem] leading-7 text-muted sm:mt-7 sm:text-lg sm:leading-8 lg:mt-8">
               {L.hero.subtitle}
             </p>
 
