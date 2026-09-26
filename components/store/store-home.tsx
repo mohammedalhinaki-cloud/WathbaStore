@@ -93,20 +93,21 @@ export default async function StoreHome({ bundle, query }: Props) {
           {/* الحشو العلوي (hero-inner) = ارتفاع الهيدر الشفاف + هامش مريح:
               يضمن بقاء الاسم والوصف وزر «تسوّق الآن» تحت الهيدر لا خلفه */}
           <div className="hero-inner relative mx-auto w-full max-w-6xl px-4 pb-16 sm:pb-20">
-            <div className="max-w-xl">
+            <div className="max-w-xl" data-stagger>
               {store.logoUrl && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={store.logoUrl}
                   alt={heroTitle}
+                  data-reveal="up"
                   className="mb-4 h-16 w-16 rounded-2xl object-cover ring-4 ring-white/20"
                 />
               )}
-              <h1 className="text-3xl font-extrabold text-white drop-shadow sm:text-4xl">
+              <h1 data-reveal="inline-start" className="text-3xl font-extrabold text-white drop-shadow sm:text-4xl">
                 {heroTitle}
               </h1>
               {heroText && (
-                <p className="mt-3 text-base leading-7 text-white/90 drop-shadow sm:text-lg">
+                <p data-reveal="inline-start" className="mt-3 text-base leading-7 text-white/90 drop-shadow sm:text-lg">
                   {heroText}
                 </p>
               )}
@@ -126,7 +127,7 @@ export default async function StoreHome({ bundle, query }: Props) {
           id="products"
           className="store-scroll-anchor mx-auto max-w-6xl px-4 pt-12"
         >
-          <div className="mb-6 flex items-center gap-3">
+          <div data-reveal="inline-start" className="mb-6 flex items-center gap-3">
             <span className="h-7 w-1.5 rounded-full" style={{ backgroundColor: "var(--store-primary)" }} />
             <h2 className="text-xl font-extrabold text-ink-900 sm:text-2xl">منتجاتنا</h2>
           </div>
@@ -144,12 +145,13 @@ export default async function StoreHome({ bundle, query }: Props) {
       {/* ===== صفحات المتجر ===== */}
       {sections.includes("pages") && visiblePages.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 pt-12">
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3" data-stagger>
             {visiblePages.map((p) => (
               <a
                 key={p.id}
+                data-reveal="up"
                 href={`/pages/${encodeURIComponent(p.slug)}${query || ""}`}
-                className="rounded-xl border border-ink-150 bg-white px-5 py-2.5 text-sm font-bold text-ink-700 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow"
+                className="motion-action rounded-xl border border-ink-150 bg-white px-5 py-2.5 text-sm font-bold text-ink-700 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow"
               >
                 {p.title}
               </a>

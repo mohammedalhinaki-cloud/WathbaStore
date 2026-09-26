@@ -34,7 +34,8 @@ export default function HeroCtaButton({ targetId = "products" }: Props) {
         // تحديث الهاش دون قفزة (للمشاركة والرجوع)
         window.history.replaceState(null, "", `#${targetId}`);
       }}
-      className="mt-6 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-extrabold text-white shadow-lg transition-transform hover:scale-[1.03]"
+      data-reveal="up"
+      className="motion-action mt-6 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-extrabold text-white shadow-lg transition-transform hover:scale-[1.03]"
       style={{ backgroundColor: "var(--store-secondary)" }}
     >
       تسوّق الآن

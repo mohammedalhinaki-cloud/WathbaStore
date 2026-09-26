@@ -67,7 +67,7 @@ export default async function ProductPage({ params }: Props) {
     <StoreShell bundle={ctx.bundle} query={query} navLinks={navLinks}>
       <div className="mx-auto max-w-6xl px-4 py-8">
         {/* مسار التنقل */}
-        <nav className="mb-6 flex items-center gap-1.5 text-sm text-ink-500">
+        <nav data-reveal="inline-start" className="mb-6 flex items-center gap-1.5 text-sm text-ink-500">
           <a href={storeHomeHref(query)} className="hover:text-[var(--store-primary)]">الرئيسية</a>
           <ChevronRight className="h-4 w-4" />
           <span className="font-semibold text-ink-800">{product.name}</span>
@@ -75,7 +75,7 @@ export default async function ProductPage({ params }: Props) {
 
         <div className="grid gap-8 lg:grid-cols-2">
           {/* الصور */}
-          <div>
+          <div data-reveal="up">
             <div className="relative aspect-square overflow-hidden rounded-3xl border border-ink-100 bg-ink-100">
               {product.images[0] ? (
                 <Image
@@ -102,7 +102,7 @@ export default async function ProductPage({ params }: Props) {
           </div>
 
           {/* التفاصيل */}
-          <div>
+          <div data-reveal="inline-end">
             {product.categoryId && (
               <span
                 className="inline-block rounded-full px-3 py-1 text-xs font-bold text-white"
@@ -141,11 +141,11 @@ export default async function ProductPage({ params }: Props) {
 
         {related.length > 0 && (
           <section className="mt-16">
-            <div className="mb-6 flex items-center gap-3">
+            <div data-reveal="inline-start" className="mb-6 flex items-center gap-3">
               <span className="h-7 w-1.5 rounded-full" style={{ backgroundColor: "var(--store-primary)" }} />
               <h2 className="text-xl font-extrabold text-ink-900">منتجات مشابهة</h2>
             </div>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" data-stagger>
               {related.map((p) => (
                 <ProductCard
                   key={p.id}

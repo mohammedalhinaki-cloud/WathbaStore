@@ -111,13 +111,13 @@ export default function CheckoutContent({ whatsapp, storeName, ibanRajhi, ibanAl
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16">
-        <div className="flex flex-col items-center text-center">
+        <div data-reveal="up" className="flex flex-col items-center text-center">
           <span className="text-6xl">🛒</span>
           <h1 className="mt-4 text-xl font-extrabold text-ink-900">سلتك فارغة</h1>
           <p className="mt-2 text-sm text-ink-500">أضف منتجات من المتجر لتتمم طلبك</p>
           <a
             href={homeHref}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-extrabold text-white"
+            className="motion-action mt-6 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-extrabold text-white"
             style={{ backgroundColor: "var(--store-primary)" }}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -130,10 +130,10 @@ export default function CheckoutContent({ whatsapp, storeName, ibanRajhi, ibanAl
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-extrabold text-ink-900">إتمام الطلب</h1>
+      <h1 data-reveal="inline-start" className="mb-6 text-2xl font-extrabold text-ink-900">إتمام الطلب</h1>
 
       {/* ملخص الطلب */}
-      <div className="rounded-2xl border border-ink-100 bg-white p-5 shadow-sm">
+      <div data-reveal="up" className="motion-card rounded-2xl border border-ink-100 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-extrabold text-ink-700">منتجاتك</h2>
         <div className="space-y-3">
           {items.map((item) => (
@@ -168,7 +168,7 @@ export default function CheckoutContent({ whatsapp, storeName, ibanRajhi, ibanAl
         {/* زر 1: الدفع عند الاستلام */}
         <button
           onClick={handleCashOnDelivery}
-          className="flex w-full items-center justify-center gap-2.5 rounded-2xl px-6 py-4 text-base font-extrabold text-white shadow-lg transition-transform hover:scale-[1.01]"
+          className="motion-action flex w-full items-center justify-center gap-2.5 rounded-2xl px-6 py-4 text-base font-extrabold text-white shadow-lg transition-transform hover:scale-[1.01]"
           style={{ backgroundColor: "#25D366" }}
         >
           <span className="text-xl">💵</span>
@@ -190,7 +190,7 @@ export default function CheckoutContent({ whatsapp, storeName, ibanRajhi, ibanAl
 
             <button
               onClick={handleBankTransfer}
-              className="flex w-full items-center justify-center gap-2.5 rounded-2xl border-2 px-6 py-4 text-base font-extrabold shadow-sm transition-all hover:shadow-md"
+              className="motion-action flex w-full items-center justify-center gap-2.5 rounded-2xl border-2 px-6 py-4 text-base font-extrabold shadow-sm transition-all hover:shadow-md"
               style={{ borderColor: "var(--store-primary)", color: "var(--store-primary)" }}
             >
               <Building2 className="h-5 w-5" />
@@ -202,15 +202,16 @@ export default function CheckoutContent({ whatsapp, storeName, ibanRajhi, ibanAl
 
       {/* حسابات البنوك */}
       {showBanks && banks.length > 0 && (
-        <div className="mt-6 space-y-3">
-          <h3 className="text-sm font-extrabold text-ink-700">حسابات البنوك</h3>
+        <div className="mt-6 space-y-3" data-stagger>
+          <h3 data-reveal="inline-start" className="text-sm font-extrabold text-ink-700">حسابات البنوك</h3>
           {banks.map((bank) => {
             const clean = bank.iban.replace(/\s/g, "");
             const hasError = ibanErrors[bank.key];
             return (
               <div
                 key={bank.key}
-                className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm"
+                data-reveal="up"
+                className="motion-card rounded-2xl border border-ink-100 bg-white p-4 shadow-sm"
               >
                 <div className="flex items-center gap-3">
                   <div
@@ -250,7 +251,7 @@ export default function CheckoutContent({ whatsapp, storeName, ibanRajhi, ibanAl
           {/* زر أرسلت الحوالة */}
           <button
             onClick={handleTransferSent}
-            className="mt-4 flex w-full items-center justify-center gap-2.5 rounded-2xl px-6 py-4 text-base font-extrabold text-white shadow-lg transition-transform hover:scale-[1.01]"
+            className="motion-action mt-4 flex w-full items-center justify-center gap-2.5 rounded-2xl px-6 py-4 text-base font-extrabold text-white shadow-lg transition-transform hover:scale-[1.01]"
             style={{ backgroundColor: "var(--store-primary)" }}
           >
             <ShieldCheck className="h-5 w-5" />

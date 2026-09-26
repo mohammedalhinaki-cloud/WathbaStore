@@ -29,7 +29,8 @@ export default function ProductCard({ product, storeName, whatsapp, query, templ
     return (
       <a
         href={productUrl}
-        className="group flex items-center gap-4 border-b border-ink-100 py-4 transition-colors hover:bg-ink-50"
+        data-reveal="up"
+        className="motion-card group flex items-center gap-4 border-b border-ink-100 py-4 transition-colors hover:bg-ink-50"
       >
         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-ink-100">
           {product.images[0] ? (
@@ -62,7 +63,7 @@ export default function ProductCard({ product, storeName, whatsapp, query, templ
             if (!outOfStock) addItem(product);
           }}
           disabled={outOfStock}
-          className="shrink-0 rounded-lg px-3 py-2 text-xs font-extrabold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+          className="motion-action shrink-0 rounded-lg px-3 py-2 text-xs font-extrabold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
           style={{ backgroundColor: "var(--store-primary)" }}
         >
           {outOfStock ? "نفدت" : "أضف للسلة"}
@@ -76,7 +77,8 @@ export default function ProductCard({ product, storeName, whatsapp, query, templ
   return (
     <a
       href={productUrl}
-      className={`group flex flex-col overflow-hidden border bg-white transition-all hover:-translate-y-0.5 hover:shadow-md ${
+      data-reveal="up"
+      className={`motion-card group flex flex-col overflow-hidden border bg-white transition-all hover:-translate-y-0.5 hover:shadow-md ${
         minimal ? "rounded-lg border-ink-150" : "rounded-2xl border-ink-100 shadow-sm"
       }`}
     >
@@ -127,7 +129,7 @@ export default function ProductCard({ product, storeName, whatsapp, query, templ
             if (!outOfStock) addItem(product);
           }}
           disabled={outOfStock}
-          className="mt-3 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-extrabold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+          className="motion-action mt-3 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-extrabold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
           style={{ backgroundColor: "var(--store-primary)" }}
         >
           {outOfStock ? "نفدت الكمية" : "أضف إلى السلة"}
