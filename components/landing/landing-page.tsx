@@ -36,6 +36,7 @@ import LandingNav from "./nav";
 import Faq from "./faq";
 import HeroStats from "./hero-stats";
 import PricingPlans from "./pricing-plans";
+import PortfolioCarousel from "./portfolio-carousel";
 import SocialLinks from "@/components/social-links";
 import SiteJsonLd from "@/components/site/site-json-ld";
 import type { LandingSectionKey } from "@/lib/types";
@@ -295,46 +296,21 @@ export default async function LandingPage() {
           title={L.heads.portfolio.title}
           sub={L.heads.portfolio.sub}
         />
-        <div className="mt-8 grid gap-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3" data-stagger>
-          {portfolio.map((p) => (
-            <a
-              key={p.id}
-              data-reveal="up"
-              href={p.storeUrl || "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="card-dark motion-card group overflow-hidden rounded-3xl transition-all hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-black/30"
-            >
-              <div className="relative aspect-[4/3] overflow-hidden bg-ink-800">
-                <Image
-                  src={p.imageUrl || "/seed/hero.jpg"}
-                  alt={p.title}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink-950/60 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-              </div>
-              <div className="p-5">
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-bold text-fg">{p.title}</h3>
-                  <span className="rounded-full bg-emerald-500/15 px-2.5 py-1 text-[11px] font-bold text-emerald-400">
-                    يعمل
-                  </span>
-                </div>
-                <p className="mt-1.5 line-clamp-2 text-sm text-muted">{p.description}</p>
-                {p.tags && (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {p.tags.split(",").slice(0, 3).map((t) => (
-                      <span key={t} className="rounded-md bg-white/5 px-2 py-0.5 text-[11px] font-semibold text-ink-300">
-                        {t.trim()}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </a>
-          ))}
+        {/*
+          عرض تلقائي لا نهائي: متجر واحد ظاهر → وقفة قصيرة → انتقال
+          ناعم للتالي، وبعد آخر متجر يعود للأول بلا قفزة مرئية.
+        */}
+        <div className="mt-8 sm:mt-10" data-reveal="up">
+          <PortfolioCarousel
+            items={portfolio.map((p) => ({
+              id: p.id,
+              title: p.title,
+              description: p.description,
+              imageUrl: p.imageUrl,
+              storeUrl: p.storeUrl,
+              tags: p.tags,
+            }))}
+          />
         </div>
       </section>
       )}
