@@ -48,11 +48,11 @@ export default async function StorePageView({ params }: Props) {
   return (
     <StoreShell bundle={ctx.bundle} query={query} navLinks={navLinks}>
       <div className="mx-auto max-w-3xl px-4 py-12">
-        <div className="mb-6 flex items-center gap-3">
+        <div data-reveal="inline-start" className="mb-6 flex items-center gap-3">
           <span className="h-8 w-1.5 rounded-full" style={{ backgroundColor: "var(--store-primary)" }} />
           <h1 className="text-2xl font-extrabold text-ink-900">{page.title}</h1>
         </div>
-        <div className="whitespace-pre-line rounded-3xl border border-ink-100 bg-white p-6 leading-8 text-ink-700 shadow-sm sm:p-8">
+        <div data-reveal="up" className="motion-card whitespace-pre-line rounded-3xl border border-ink-100 bg-white p-6 leading-8 text-ink-700 shadow-sm sm:p-8">
           {page.content}
         </div>
       </div>

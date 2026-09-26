@@ -114,25 +114,34 @@ export default async function LandingPage() {
             showHeroImage ? "lg:grid-cols-2" : "max-w-4xl text-center"
           }`}
         >
-          <div className="order-2 lg:order-1">
-            <h1 className="text-[2rem] font-extrabold leading-[1.2] text-fg sm:text-[2.6rem] lg:text-[3.2rem]">
+          <div className="order-2 lg:order-1" data-stagger>
+            <h1
+              data-reveal="inline-start"
+              className="text-[2rem] font-extrabold leading-[1.2] text-fg sm:text-[2.6rem] lg:text-[3.2rem]"
+            >
               {L.hero.title}{" "}
               <span className="mt-1 block bg-gradient-to-l from-brand-600 to-accent-400 bg-clip-text text-transparent">
                 {L.hero.accent}
               </span>
             </h1>
-            <p className="mt-6 max-w-xl text-[1rem] leading-7 text-muted sm:mt-7 sm:text-lg sm:leading-8 lg:mt-8">
+            <p
+              data-reveal="inline-start"
+              className="mt-6 max-w-xl text-[1rem] leading-7 text-muted sm:mt-7 sm:text-lg sm:leading-8 lg:mt-8"
+            >
               {L.hero.subtitle}
             </p>
 
             {(T.heroPrimaryBtn || T.heroSecondaryBtn) && (
-            <div className="mt-8 flex flex-row flex-nowrap items-center justify-center gap-3 sm:mt-10">
+            <div
+              data-reveal="up"
+              className="mt-8 flex flex-row flex-nowrap items-center justify-center gap-3 sm:mt-10"
+            >
               {T.heroPrimaryBtn && (
               <a
                 href={wa}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-primary min-w-0 gap-1.5 whitespace-nowrap px-3 py-3 text-xs sm:gap-2 sm:px-6 sm:py-3.5 sm:text-[1rem]"
+                className="btn-primary motion-action min-w-0 gap-1.5 whitespace-nowrap px-3 py-3 text-xs sm:gap-2 sm:px-6 sm:py-3.5 sm:text-[1rem]"
               >
                 <MessageCircle className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
                 {L.hero.primaryBtn}
@@ -141,7 +150,7 @@ export default async function LandingPage() {
               {T.heroSecondaryBtn && (
               <a
                 href="#portfolio"
-                className="flex min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl border border-line bg-surface px-3 py-3 text-xs font-bold text-fg transition-colors hover:bg-surface-2 sm:gap-2 sm:px-6 sm:py-3.5 sm:text-[1rem]"
+                className="motion-action flex min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl border border-line bg-surface px-3 py-3 text-xs font-bold text-fg transition-colors hover:bg-surface-2 sm:gap-2 sm:px-6 sm:py-3.5 sm:text-[1rem]"
               >
                 {L.hero.secondaryBtn}
                 <ArrowLeft className="h-4 w-4" />
@@ -154,7 +163,11 @@ export default async function LandingPage() {
           </div>
 
           {showHeroImage && (
-          <div className="relative order-1 mx-auto w-full max-w-md sm:max-w-lg lg:order-2 lg:max-w-none">
+          <div
+            data-reveal="up"
+            data-parallax="10"
+            className="relative order-1 mx-auto w-full max-w-md sm:max-w-lg lg:order-2 lg:max-w-none"
+          >
             <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-tr from-brand-600/25 to-accent-400/15 blur-2xl" />
             {heroImgLocal ? (
               <Image
@@ -202,19 +215,23 @@ export default async function LandingPage() {
       {show("about") && (
       <section id="about" style={ord("about")} className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
         <div className={`grid items-center gap-10 ${T.aboutCards ? "lg:grid-cols-2" : ""}`}>
-          <div className="order-2 lg:order-1">
+          <div className="order-2 lg:order-1" data-stagger>
             <SectionBadge icon={<Globe className="h-4 w-4" />} text={L.about.badge} />
-            <h2 className="mt-4 text-3xl font-extrabold text-fg sm:text-4xl">
+            <h2 data-reveal="inline-start" className="mt-4 text-3xl font-extrabold text-fg sm:text-4xl">
               {L.about.title}
             </h2>
-            <p className="mt-5 text-lg leading-8 text-muted">
+            <p data-reveal="inline-start" className="mt-5 text-lg leading-8 text-muted">
               {settings.aboutText ||
                 "معون منصة متكاملة أنشئ بها متاجر إلكترونية للعملاء على نطاقات فرعية خاصة، أجهزها بالكامل وأسلّم كل متجر لصاحبه ليديره بنفسه."}
             </p>
             {T.aboutBullets && (
-            <ul className="mt-6 space-y-3">
+            <ul className="mt-6 space-y-3" data-stagger>
               {L.about.bullets.map((t, i) => (
-                <li key={`${t}-${i}`} className="flex items-start gap-3 text-ink-300">
+                <li
+                  key={`${t}-${i}`}
+                  data-reveal="inline-start"
+                  className="flex items-start gap-3 text-ink-300"
+                >
                   <BadgeCheck className="mt-1 h-5 w-5 shrink-0 text-accent-400" />
                   <span>{t.replace("{domain}", domain)}</span>
                 </li>
@@ -223,7 +240,7 @@ export default async function LandingPage() {
             )}
           </div>
           {T.aboutCards && (
-          <div className="order-1 grid grid-cols-2 gap-4 lg:order-2">
+          <div className="order-1 grid grid-cols-2 gap-4 lg:order-2" data-stagger>
             {L.about.cards.map((c, i) => {
               const Icon = ABOUT_CARD_ICONS[i % ABOUT_CARD_ICONS.length];
               return (
@@ -249,13 +266,14 @@ export default async function LandingPage() {
           title={L.heads.services.title}
           sub={L.heads.services.sub}
         />
-        <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3" data-stagger>
           {L.services.map((s, i) => {
             const Icon = SERVICE_ICONS[i % SERVICE_ICONS.length];
             return (
               <div
                 key={`${s.title}-${i}`}
-                className="card-dark group rounded-3xl p-6 transition-all hover:-translate-y-1 hover:border-brand-500/40"
+                data-reveal="up"
+                className="card-dark motion-card group rounded-3xl p-6 transition-all hover:-translate-y-1 hover:border-brand-500/40"
               >
                 <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600/25 to-accent-400/15 ring-1 ring-brand-500/30">
                   <Icon className="h-6 w-6 text-brand-300" />
@@ -277,14 +295,15 @@ export default async function LandingPage() {
           title={L.heads.portfolio.title}
           sub={L.heads.portfolio.sub}
         />
-        <div className="mt-8 grid gap-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3" data-stagger>
           {portfolio.map((p) => (
             <a
               key={p.id}
+              data-reveal="up"
               href={p.storeUrl || "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className="card-dark group overflow-hidden rounded-3xl transition-all hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-black/30"
+              className="card-dark motion-card group overflow-hidden rounded-3xl transition-all hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-black/30"
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-ink-800">
                 <Image
@@ -355,11 +374,12 @@ export default async function LandingPage() {
             title={L.heads.offers.title}
             sub={L.heads.offers.sub}
           />
-          <div className="mt-8 grid gap-5 sm:mt-10 md:grid-cols-2">
+          <div className="mt-8 grid gap-5 sm:mt-10 md:grid-cols-2" data-stagger>
             {liveOffers.map((o) => (
               <div
                 key={o.id}
-                className="card-dark relative overflow-hidden rounded-3xl border-accent-400/25 bg-gradient-to-l from-brand-600/15 via-transparent to-transparent p-6"
+                data-reveal="up"
+                className="card-dark motion-card relative overflow-hidden rounded-3xl border-accent-400/25 bg-gradient-to-l from-brand-600/15 via-transparent to-transparent p-6"
               >
                 <span className="absolute -left-8 -top-8 h-32 w-32 rounded-full bg-accent-400/10 blur-2xl" />
                 <div className="flex items-start justify-between gap-4">
@@ -390,7 +410,7 @@ export default async function LandingPage() {
                   href={wa}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-primary mt-5 px-5 py-2.5 text-sm"
+                  className="btn-primary motion-action mt-5 px-5 py-2.5 text-sm"
                 >
                   أحجز العرض
                   <ArrowLeft className="h-4 w-4" />
@@ -409,7 +429,7 @@ export default async function LandingPage() {
           title={L.heads.features.title}
           sub={L.heads.features.sub}
         />
-        <div className="mt-8 grid gap-x-8 gap-y-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-x-8 gap-y-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3" data-stagger>
           {(settings.features.length
             ? settings.features
             : [
@@ -417,7 +437,7 @@ export default async function LandingPage() {
                 { title: "تصميم مخصص", desc: "قوالب وخطوط وألوان قابلة للتخصيص." },
               ]
           ).map((f) => (
-            <div key={f.title} className="flex items-start gap-4">
+            <div key={f.title} data-reveal="up" className="flex items-start gap-4">
               <span className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-600/15 ring-1 ring-brand-500/30">
                 <Sparkles className="h-5 w-5 text-brand-300" />
               </span>
@@ -446,7 +466,11 @@ export default async function LandingPage() {
       {/* ============ CTA ============ */}
       {show("cta") && (
       <section id="cta" style={ord("cta")} className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6">
-        <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-l from-brand-600 via-brand-500 to-accent-400 px-6 py-14 text-center sm:px-12">
+        <div
+          data-reveal="scale"
+          data-parallax="6"
+          className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-l from-brand-600 via-brand-500 to-accent-400 px-6 py-14 text-center sm:px-12"
+        >
           <div className="pointer-events-none absolute -top-24 right-1/4 h-64 w-64 rounded-full bg-accent-400/25 blur-3xl" />
           <h2 className="text-3xl font-extrabold text-ink-950 sm:text-4xl">{L.cta.title}</h2>
           <p className="mx-auto mt-4 max-w-xl text-lg font-semibold text-ink-950/80">
@@ -456,7 +480,7 @@ export default async function LandingPage() {
             href={wa}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-8 inline-flex items-center gap-3 rounded-2xl bg-ink-950 px-8 py-4 text-lg font-extrabold text-accent-400 shadow-2xl shadow-ink-950/40 transition-transform hover:scale-[1.03] hover:bg-ink-900"
+            className="motion-action mt-8 inline-flex items-center gap-3 rounded-2xl bg-ink-950 px-8 py-4 text-lg font-extrabold text-accent-400 shadow-2xl shadow-ink-950/40 transition-transform hover:scale-[1.03] hover:bg-ink-900"
           >
             <MessageCircle className="h-6 w-6 text-emerald-400" />
             {L.cta.button}
@@ -469,8 +493,8 @@ export default async function LandingPage() {
       {/* ============ Footer ============ */}
       {T.footer && (
       <footer className="bg-base">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
-          <div className="md:col-span-2">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4" data-stagger>
+          <div data-reveal="up" className="md:col-span-2">
             <div className="flex flex-col gap-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -495,7 +519,7 @@ export default async function LandingPage() {
             )}
           </div>
           {T.footerLinks && navLinks.length > 0 && (
-          <div>
+          <div data-reveal="up">
             <h4 className="text-sm font-extrabold text-fg">روابط سريعة</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-muted">
               {navLinks.map((l) => (
@@ -505,7 +529,7 @@ export default async function LandingPage() {
           </div>
           )}
           {T.footerContact && (
-          <div>
+          <div data-reveal="up">
             <h4 className="text-sm font-extrabold text-fg">تواصل</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-muted">
               <li>
@@ -539,7 +563,7 @@ export default async function LandingPage() {
 
 function InfoCard({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
   return (
-    <div className="card-dark rounded-3xl p-6">
+    <div data-reveal="up" className="card-dark motion-card rounded-3xl p-6">
       <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-accent-400/10 text-accent-400">
         {icon}
       </span>
@@ -551,7 +575,7 @@ function InfoCard({ icon, title, desc }: { icon: React.ReactNode; title: string;
 
 function SectionBadge({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-600/10 px-4 py-1.5 text-xs font-bold text-brand-300">
+    <span data-reveal="inline-start" className="inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-600/10 px-4 py-1.5 text-xs font-bold text-brand-300">
       {icon}
       {text}
     </span>
@@ -560,12 +584,12 @@ function SectionBadge({ icon, text }: { icon: React.ReactNode; text: string }) {
 
 function SectionHead({ badge, title, sub }: { badge: string; title: string; sub: string }) {
   return (
-    <div className="mx-auto max-w-2xl text-center">
-      <span className="inline-flex items-center rounded-full border border-brand-500/30 bg-brand-600/10 px-4 py-1.5 text-xs font-bold text-brand-300">
+    <div className="mx-auto max-w-2xl text-center" data-stagger>
+      <span data-reveal="inline-start" className="inline-flex items-center rounded-full border border-brand-500/30 bg-brand-600/10 px-4 py-1.5 text-xs font-bold text-brand-300">
         {badge}
       </span>
-      <h2 className="mt-4 text-3xl font-extrabold text-fg sm:text-4xl">{title}</h2>
-      <p className="mt-3 text-lg text-muted">{sub}</p>
+      <h2 data-reveal="inline-start" className="mt-4 text-3xl font-extrabold text-fg sm:text-4xl">{title}</h2>
+      <p data-reveal="inline-end" className="mt-3 text-lg text-muted">{sub}</p>
     </div>
   );
 }

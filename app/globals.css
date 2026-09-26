@@ -56,6 +56,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* transform لحركات الدخول لا يجب أن ينشئ تمريرًا أفقيًا على الجوال. */
+  overflow-x: clip;
 }
 
 /* احترام تفضيل «تقليل الحركة» في نظام المستخدم */
@@ -68,6 +70,7 @@ html {
 body {
   @apply bg-ink-50 text-ink-900 antialiased;
   font-feature-settings: "ss01";
+  overflow-x: clip;
 }
 
 ::selection {
@@ -201,4 +204,154 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ------------------------------------------------------------
+   نظام الحركة العام — خفيف، مرتبط بالـ viewport، ومتوافق مع RTL
+   ------------------------------------------------------------
+   لا نحرك خصائص تؤثر في التخطيط (مثل width / height / margin)، لذلك
+   تبقى أبعاد العناصر محجوزة ولا ينتج عن الظهور أي CLS.
+   ------------------------------------------------------------ */
+[data-reveal] {
+  --motion-order: 0;
+  --motion-enter-x: 0px;
+  --motion-enter-y: 0px;
+  --motion-parallax-y: 0px;
+  --motion-hover-y: 0px;
+  --motion-hover-scale: 1;
+}
+
+/* لا تُخفى العناصر إلا بعد أن يؤكد السكربت المبكر دعم الحركة. */
+.motion-enabled [data-reveal] {
+  opacity: 0;
+  transform: translate3d(
+      var(--motion-enter-x),
+      calc(var(--motion-enter-y) + var(--motion-parallax-y)),
+      0
+    )
+    scale(0.992);
+  transition-property: opacity, transform, border-color, box-shadow, background-color;
+  transition-duration: 420ms, 520ms, 220ms, 220ms, 220ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--motion-order) * 65ms);
+  will-change: opacity, transform;
+}
+
+.motion-enabled [data-reveal="up"] {
+  --motion-enter-y: 22px;
+}
+
+.motion-enabled [data-reveal="scale"] {
+  --motion-enter-y: 10px;
+}
+
+/* inline-start = اليمين في RTL واليسار في LTR. */
+html[dir="rtl"].motion-enabled [data-reveal="inline-start"] {
+  --motion-enter-x: 22px;
+}
+html[dir="rtl"].motion-enabled [data-reveal="inline-end"] {
+  --motion-enter-x: -22px;
+}
+html[dir="ltr"].motion-enabled [data-reveal="inline-start"] {
+  --motion-enter-x: -22px;
+}
+html[dir="ltr"].motion-enabled [data-reveal="inline-end"] {
+  --motion-enter-x: 22px;
+}
+
+.motion-enabled [data-reveal].is-revealed {
+  opacity: 1;
+  transform: translate3d(
+      0,
+      calc(var(--motion-parallax-y) + var(--motion-hover-y)),
+      0
+    )
+    scale(var(--motion-hover-scale));
+}
+
+/* بعد اكتمال الدخول نزيل stagger كي يستجيب hover فورًا. */
+.motion-enabled [data-reveal].is-motion-settled {
+  transition-delay: 0ms;
+  will-change: auto;
+}
+.motion-enabled [data-reveal][data-parallax].is-motion-settled {
+  will-change: transform;
+}
+
+/* بطاقات وأزرار: حركة قصيرة ومحسوبة، وتعمل فقط على أجهزة hover الحقيقية. */
+.motion-card,
+.motion-action {
+  transition-property: transform, border-color, box-shadow, background-color, opacity;
+  transition-duration: 220ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.motion-action:focus-visible,
+.motion-card:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .motion-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 42px -24px rgba(15, 23, 42, 0.5);
+  }
+
+  .motion-action:hover {
+    transform: translateY(-2px);
+  }
+
+  .motion-action:active {
+    transform: translateY(0) scale(0.985);
+  }
+
+  /* دمج hover مع transform الخاص بحركة الدخول/الـ parallax. */
+  .motion-enabled [data-reveal].motion-card.is-revealed:hover {
+    --motion-hover-y: -4px;
+    --motion-hover-scale: 1.004;
+  }
+  .motion-enabled [data-reveal].motion-action.is-revealed:hover {
+    --motion-hover-y: -2px;
+  }
+}
+
+/*
+ * الرقم النهائي ظاهر افتراضيًا (ومن دون JavaScript). عند تفعيل الحركة
+ * يستبدله العداد المرئي، مع بقائه حاجزًا للمساحة نفسها لمنع CLS.
+ */
+.stat-final-value {
+  visibility: visible;
+}
+.stat-animated-value {
+  visibility: hidden;
+}
+.motion-enabled .stat-final-value {
+  visibility: hidden;
+}
+.motion-enabled .stat-animated-value {
+  visibility: visible;
+}
+
+/* إيقاف كامل وآمن للحركة وفق تفضيل نظام المستخدم. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    will-change: auto !important;
+  }
+
+  [data-parallax] {
+    --motion-parallax-y: 0px !important;
+  }
 }

@@ -28,8 +28,8 @@ export interface HeroStat {
   label: string;
 }
 
-/** مدة العدّ: سريعة وواضحة */
-const COUNT_DURATION_MS = 1600;
+/** مدة العدّ: قصيرة وناعمة دون إطالة الحركة */
+const COUNT_DURATION_MS = 1200;
 
 /** نسبة ظهور القسم في الشاشة التي يبدأ عندها العدّ */
 const VISIBLE_THRESHOLD = 0.4;
@@ -87,7 +87,11 @@ export default function HeroStats({ items }: { items: HeroStat[] }) {
 
   return (
     // مسافة واسعة فوق الكروت تفصلها بصريًا عن أزرار الغلاف (أكبر مسافة في الغلاف)
-    <div ref={ref} className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:grid-cols-4 sm:gap-4 lg:mt-14">
+    <div
+      ref={ref}
+      data-stagger
+      className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:grid-cols-4 sm:gap-4 lg:mt-14"
+    >
       {items.map((stat) => (
         <StatItem key={stat.label} stat={stat} progress={progress} />
       ))}
@@ -102,7 +106,10 @@ function StatItem({ stat, progress }: { stat: HeroStat; progress: number }) {
 
   return (
     // بطاقة داكنة أنيقة (#1E293B) بحد خافت وشريط عنبري صغير يجذب العين.
-    <div className="card-dark rounded-xl px-3 py-4 text-center transition-colors hover:border-accent-400/40 sm:rounded-2xl sm:px-4 sm:py-5">
+    <div
+      data-reveal="up"
+      className="card-dark motion-card rounded-xl px-3 py-4 text-center transition-colors hover:border-accent-400/40 sm:rounded-2xl sm:px-4 sm:py-5"
+    >
       <span
         aria-hidden="true"
         className="mx-auto mb-1.5 block h-0.5 w-6 rounded-full bg-gradient-to-l from-brand-600 to-accent-400 sm:mb-3 sm:h-1 sm:w-10"
@@ -110,10 +117,10 @@ function StatItem({ stat, progress }: { stat: HeroStat; progress: number }) {
       <p className="flex items-baseline justify-center gap-1 text-2xl font-extrabold text-fg sm:text-3xl lg:text-4xl">
         <span className="inline-grid tabular-nums">
           {/* يحجز عرض الرقم النهائي، ويظهر بدل العدّاد عند تعطيل جافاسكربت */}
-          <span aria-hidden="true" className="invisible col-start-1 row-start-1 noscript:visible">
+          <span aria-hidden="true" className="stat-final-value col-start-1 row-start-1">
             {finalText}
           </span>
-          <span aria-hidden="true" className="col-start-1 row-start-1 noscript:invisible">
+          <span aria-hidden="true" className="stat-animated-value col-start-1 row-start-1">
             {currentText}
           </span>
         </span>

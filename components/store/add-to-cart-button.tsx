@@ -28,7 +28,7 @@ export default function AddToCartButton({ product }: Props) {
     <button
       onClick={handleAdd}
       disabled={outOfStock}
-      className="mt-7 flex w-full items-center justify-center gap-2.5 rounded-2xl px-6 py-4 text-lg font-extrabold text-white shadow-lg transition-transform hover:scale-[1.02] disabled:opacity-50"
+      className="motion-action mt-7 flex w-full items-center justify-center gap-2.5 rounded-2xl px-6 py-4 text-lg font-extrabold text-white shadow-lg transition-transform hover:scale-[1.02] disabled:opacity-50"
       style={{ backgroundColor: added ? "#25D366" : "var(--store-primary)" }}
     >
       {added ? (

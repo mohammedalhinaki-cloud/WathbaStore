@@ -58,7 +58,7 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <StoreShell bundle={ctx.bundle} query={query} navLinks={navLinks}>
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="mb-8 flex items-center gap-3">
+        <div data-reveal="inline-start" className="mb-8 flex items-center gap-3">
           <span className="h-8 w-1.5 rounded-full" style={{ backgroundColor: "var(--store-primary)" }} />
           <div>
             <h1 className="text-2xl font-extrabold text-ink-900">{cat.name}</h1>

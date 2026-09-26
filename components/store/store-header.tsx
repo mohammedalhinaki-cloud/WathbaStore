@@ -113,8 +113,8 @@ export default function StoreHeader({ bundle, query, navLinks, overlay = false }
     : `rounded-lg px-3 py-2 text-sm font-bold text-white/90 transition-colors hover:bg-white/10 hover:text-white ${TEXT_SHADOW}`;
 
   const cartClass = solid
-    ? "relative flex shrink-0 items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-ink-700 transition-colors hover:bg-ink-50"
-    : `relative flex shrink-0 items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/15 ${TEXT_SHADOW}`;
+    ? "motion-action relative flex shrink-0 items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-ink-700 transition-colors hover:bg-ink-50"
+    : `motion-action relative flex shrink-0 items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/15 ${TEXT_SHADOW}`;
 
   const chipClass = solid
     ? "shrink-0 rounded-full bg-ink-100 px-3.5 py-1.5 text-xs font-bold text-ink-700 transition-colors"

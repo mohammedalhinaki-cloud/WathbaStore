@@ -43,7 +43,7 @@ export default function ProductsGrid({
 
   if (products.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-ink-200 py-16 text-center">
+      <div data-reveal="up" className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-ink-200 py-16 text-center">
         <span className="text-4xl">🛍️</span>
         <p className="mt-4 font-bold text-ink-700">لا توجد منتجات بعد</p>
         <p className="mt-1 text-sm text-ink-500">قريبًا ستجد هنا تشكيلة المنتجات</p>
@@ -56,7 +56,7 @@ export default function ProductsGrid({
   return (
     <div>
       {/* أدوات الفلترة */}
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div data-reveal="up" className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="no-scrollbar flex gap-2 overflow-x-auto">
           <Chip active={cat === "all"} onClick={() => setCat("all")}>
             الكل
@@ -79,11 +79,11 @@ export default function ProductsGrid({
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-ink-200 py-12 text-center text-sm text-ink-500">
+        <div data-reveal="up" className="rounded-2xl border border-dashed border-ink-200 py-12 text-center text-sm text-ink-500">
           لا توجد نتائج مطابقة
         </div>
       ) : modern ? (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" data-stagger>
           {filtered.map((p) => (
             <ProductCard
               key={p.id}
@@ -96,7 +96,7 @@ export default function ProductsGrid({
           ))}
         </div>
       ) : (
-        <div className="divide-y divide-ink-100 rounded-2xl border border-ink-100 px-5">
+        <div className="divide-y divide-ink-100 rounded-2xl border border-ink-100 px-5" data-stagger>
           {filtered.map((p) => (
             <ProductCard
               key={p.id}
@@ -125,7 +125,7 @@ function Chip({
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-colors ${
+      className={`motion-action shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-colors ${
         active ? "text-white" : "bg-ink-100 text-ink-600 hover:bg-ink-200"
       }`}
       style={active ? { backgroundColor: "var(--store-primary)" } : undefined}

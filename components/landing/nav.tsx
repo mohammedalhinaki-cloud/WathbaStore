@@ -81,7 +81,7 @@ export default function LandingNav({
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-primary hidden px-4 py-2.5 text-sm sm:inline-flex"
+            className="btn-primary motion-action hidden px-4 py-2.5 text-sm sm:inline-flex"
           >
             {nav.cta}
             <ArrowLeft className="h-4 w-4" />
@@ -89,7 +89,7 @@ export default function LandingNav({
           )}
           <button
             onClick={() => setOpen(!open)}
-            className="rounded-lg p-2 text-fg md:hidden"
+            className="motion-action rounded-lg p-2 text-fg md:hidden"
             aria-label="القائمة"
             aria-expanded={open}
           >
@@ -114,7 +114,7 @@ export default function LandingNav({
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-primary mt-2 flex px-4 py-2.5 text-sm"
+            className="btn-primary motion-action mt-2 flex px-4 py-2.5 text-sm"
           >
             {nav.ctaMobile}
           </a>

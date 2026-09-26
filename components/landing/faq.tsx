@@ -8,9 +8,13 @@ export default function Faq({ items }: { items: { q: string; a: string }[] }) {
   const [open, setOpen] = useState<number | null>(0);
   if (!items.length) return null;
   return (
-    <div className="mx-auto mt-8 max-w-3xl space-y-3 sm:mt-10">
+    <div className="mx-auto mt-8 max-w-3xl space-y-3 sm:mt-10" data-stagger>
       {items.map((it, i) => (
-        <div key={i} className="card-dark overflow-hidden rounded-2xl">
+        <div
+          key={i}
+          data-reveal="up"
+          className="card-dark motion-card overflow-hidden rounded-2xl"
+        >
           <button
             onClick={() => setOpen(open === i ? null : i)}
             className="flex w-full items-center justify-between gap-4 px-5 py-4 text-right"

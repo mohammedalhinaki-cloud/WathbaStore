@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { APP_NAME, APP_TAGLINE, mainDomain } from "@/lib/constants";
+import ScrollMotion from "@/components/motion/scroll-motion";
 import "./globals.css";
 import "@fontsource/cairo/400.css";
 import "@fontsource/cairo/500.css";
@@ -78,8 +79,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl">
-      <body className="font-sans min-h-screen">{children}</body>
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <head>
+        {/*
+          تفعيل الحركات قبل أول رسم يمنع وميض العناصر ثم اختفاءها عند hydration.
+          بدون JavaScript يبقى المحتوى ظاهرًا، ومع reduced-motion لا تُضاف الفئة أصلًا.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('motion-enabled')}catch(e){}",
+          }}
+        />
+      </head>
+      <body className="font-sans min-h-screen">
+        <ScrollMotion />
+        {children}
+      </body>
     </html>
   );
 }

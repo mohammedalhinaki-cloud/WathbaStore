@@ -41,7 +41,7 @@ export default function PricingPlans({
   if (!plans.length) return null;
 
   return (
-    <div className="mx-auto mt-8 max-w-3xl space-y-3 sm:mt-10">
+    <div className="mx-auto mt-8 max-w-3xl space-y-3 sm:mt-10" data-stagger>
       {plans.map((p, i) => {
         const isOpen = open === p.id;
         const buttonId = `${baseId}-plan-${i}`;
@@ -49,7 +49,8 @@ export default function PricingPlans({
         return (
           <div
             key={p.id}
-            className={`overflow-hidden rounded-2xl border ${
+            data-reveal="up"
+            className={`motion-card overflow-hidden rounded-2xl border ${
               p.isFeatured
                 ? "border-accent-400/50 bg-surface bg-gradient-to-l from-brand-600/15 to-transparent shadow-lg shadow-brand-600/10"
                 : "card-dark"
@@ -118,7 +119,7 @@ export default function PricingPlans({
                     href={orderHref}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-extrabold transition-transform hover:scale-[1.02] sm:w-fit ${
+                    className={`motion-action flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-extrabold transition-transform hover:scale-[1.02] sm:w-fit ${
                       p.features.length > 0 ? "mt-5" : ""
                     } ${
                       p.isFeatured
