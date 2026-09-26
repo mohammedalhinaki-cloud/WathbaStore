@@ -50,8 +50,8 @@
   --color-line: #2e3d52;
   --color-fg: #f8fafc;
   --color-muted: #94a3b8;
-  --color-primary: #f59e0b;
-  --color-primary-hover: #d97706;
+  --color-primary: #e65100;
+  --color-primary-hover: #ffd600;
 }
 
 html {
@@ -192,42 +192,6 @@ body {
  */
 .store-scroll-anchor {
   scroll-margin-top: calc(var(--store-header-h) + 1rem);
-}
-
-/* ------------------------------------------------------------
-   طبقة الحركة والهوية الجديدة للصفحة العامة
-   ------------------------------------------------------------ */
-.marquee-strip {
-  overflow: hidden;
-  background: #111c31;
-  border-block: 1px solid rgba(148,163,184,.12);
-  direction: ltr;
-  padding: .85rem 0;
-}
-.marquee-track { display: flex; width: max-content; animation: marquee-rtl 34s linear infinite; }
-.marquee-item { direction: rtl; display: inline-flex; align-items: center; gap: 2.5rem; padding-inline: 1.5rem; white-space: nowrap; color: #cbd5e1; font-size: .82rem; font-weight: 700; }
-.marquee-item b { color: #f59e0b; font-size: .75rem; }
-@keyframes marquee-rtl { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.hero-reveal { animation: hero-up .7s cubic-bezier(.22,1,.36,1) both; }
-.hero-reveal-delay-2 { animation-delay: .16s; }
-@keyframes hero-up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-/* التباين الهجين: أقسام المحتوى البيضاء تبقى مقروءة مع نص داكن */
-#services, #portfolio, #faq { max-width: none; padding-inline: max(1rem, calc((100vw - 80rem)/2)); background: #f8fafc; color: #0f172a; }
-#services > *, #portfolio > *, #faq > * { }
-#services h2, #portfolio h2, #faq h2, #services h3, #portfolio h3, #faq h3 { color: #0f172a; }
-#services p, #portfolio p, #faq p { color: #475569; }
-#services .card-dark, #portfolio .card-dark { background: white; border-color: #e2e8f0; box-shadow: 0 12px 30px -20px rgba(15,23,42,.35); }
-#services .card-dark h3, #portfolio .card-dark h3 { color: #0f172a; }
-#services .card-dark p, #portfolio .card-dark p { color: #64748b; }
-#services .card-dark:hover, #portfolio .card-dark:hover { box-shadow: 0 18px 36px -22px rgba(15,23,42,.45); }
-#services .card-dark, #portfolio .card-dark { animation: card-up .55s ease-out both; }
-#services .card-dark:nth-child(2), #portfolio .card-dark:nth-child(2) { animation-delay: .08s; }
-#services .card-dark:nth-child(3), #portfolio .card-dark:nth-child(3) { animation-delay: .16s; }
-@keyframes card-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-#faq { background: #f1f5f9; }
-.focus-ring:focus-visible, a:focus-visible, button:focus-visible { outline: 3px solid #f59e0b; outline-offset: 3px; }
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track, .hero-reveal { animation: none !important; }
 }
 
 /* إخفاء سكرول أفقي خفيف */
