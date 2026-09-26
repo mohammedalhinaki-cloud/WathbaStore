@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
   },
   title: {
-    default: `${APP_NAME} لبناء المواقع والمتاجر الإلكترونية | ${domain}`,
+    default: `${APP_NAME} لبناء المواقع والمتاجر الإلكترونية`,
     template: `%s | ${APP_NAME}`,
   },
   description:
