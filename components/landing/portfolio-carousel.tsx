@@ -29,7 +29,7 @@ export interface PortfolioCarouselItem {
 /** زمن بقاء المتجر ثابتًا أمام المستخدم */
 const HOLD_MS = 2000;
 /** زمن الانتقال الناعم بين متجر والذي يليه */
-const SLIDE_MS = 850;
+const SLIDE_MS = 500;
 /** هامش أمان بسيط بعد انتهاء الحركة قبل إعادة الضبط الصامتة */
 const RESET_BUFFER_MS = 60;
 
