@@ -35,6 +35,7 @@ export function db(): DatabaseSync {
   migrateLegacyPlatformData(db);
   completeSweetsShowcase(db);
   ensureHoneyShowcase(db);
+  ensureOsraShowcase(db);
   _db = db;
   return db;
 }
@@ -525,6 +526,169 @@ function ensureHoneyShowcase(database: DatabaseSync): void {
   database.prepare(
     "INSERT INTO activity_logs (store_id, user_id, actor_email, action, details, created_at) VALUES (?,?,?,?,?,?)"
   ).run(storeId, null, ownerEmail, "store.delivered", JSON.stringify({ subdomain: "honey" }), ago(1));
+}
+
+// ------------------------------------------------------------
+// بيانات متجر «أسرة منتجة — فطائر بيتي» (osra.maaoun.com)
+// متجر فطائر منزلية لأسرة منتجة: فطائر مخبوزة، صواني مناسبات،
+// وعجين مجمّد جاهز للخبز — بهوية زيتونية دافئة.
+// تُستخدم في ensureOsraShowcase (إدراج مرة واحدة بمعرّفات ثابتة).
+// ------------------------------------------------------------
+
+/** [id, name, slug, sortOrder] */
+const OSRA_CATEGORIES: [string, string, string, number][] = [
+  ["cat-o-fatayer", "فطائر بالجبن والزعتر", "fatayer", 0],
+  ["cat-o-savory", "فطائر محشية", "savory-pies", 1],
+  ["cat-o-trays", "صواني المناسبات", "party-trays", 2],
+  ["cat-o-frozen", "فطائر مجمّدة", "frozen", 3],
+];
+
+/** [id, categoryId, slug, name, description, price, oldPrice, stock, image] */
+const OSRA_PRODUCTS: [string, string, string, string, string, number, number | null, number, string][] = [
+  ["prod-o-cheese", "cat-o-fatayer", "cheese-fatayer", "فطائر الجبن", "فطائر جبن طازجة تُخبز في بيتنا يوميًا بعجينة هشة وحشوة جبن غنية بالقشطة والموزاريلا. تُقدَّم دافئة للفطور والعزائم. الطلبية 12 حبة.", 30, 36, 40, "/seed/o-p-cheese.jpg"],
+  ["prod-o-zaatar", "cat-o-fatayer", "zaatar-manakish", "مناقيش الزعتر", "مناقيش زعتر بلدي معجون بزيت زيتون أصلي على عجينة رقيقة مخبوزة في الفرن. مثالية لفطور الصباح أو مع الشاي. الطلبية 10 أقراص.", 25, null, 50, "/seed/o-p-zaatar.jpg"],
+  ["prod-o-spinach", "cat-o-savory", "spinach-fatayer", "فطائر السبانخ", "فطائر سبانخ مثلثة بحشوة سبانخ طازجة مع البصل والسماق وقليل من الليمون — حشوة متوازنة وعجينة خفيفة. الطلبية 12 حبة.", 32, 38, 35, "/seed/o-p-spinach.jpg"],
+  ["prod-o-lahm", "cat-o-savory", "lahm-bi-ajeen", "لحم بعجين", "أقراص لحم بعجين بلحم بقري طازج مفروم يوميًا مع الطماطم والبقدونس والبهارات البيتية. تُخبز على حرارة عالية لتبقى طرية. الطلبية 10 أقراص.", 45, 52, 30, "/seed/o-p-lahm.jpg"],
+  ["prod-o-chicken", "cat-o-savory", "chicken-pies", "فطائر الدجاج بالكريمة", "فطائر محشية صدور دجاج مقطعة مع صلصة كريمة وفطر وبهارات خفيفة، مزيّنة بالسمسم. وجبة عشاء سريعة ومحبوبة للأطفال. الطلبية 12 حبة.", 40, null, 28, "/seed/o-p-chicken.jpg"],
+  ["prod-o-potato", "cat-o-savory", "potato-pies", "فطائر البطاطس", "فطائر بحشوة بطاطس مهروسة بالبصل والكزبرة والبهارات — خيار نباتي مشبع ولذيذ يناسب رحلات المدرسة والعمل. الطلبية 12 حبة.", 28, null, 32, "/seed/o-p-potato.jpg"],
+  ["prod-o-pizza", "cat-o-fatayer", "mini-pizza", "ميني بيتزا منزلية", "بيتزا صغيرة بحجم اللقمة بصلصة طماطم بيتية وجبن موزاريلا وزيتون وفلفل — تُخبز طازجة يوم الطلب. الطلبية 12 حبة.", 38, 45, 26, "/seed/o-p-pizza.jpg"],
+  ["prod-o-tray", "cat-o-trays", "mixed-tray", "صينية فطائر مشكّلة", "صينية مناسبات تضم 40 قطعة مشكّلة: جبن، زعتر، سبانخ، ولحم بعجين — مغلّفة وجاهزة للتقديم في العزائم والمناسبات العائلية.", 120, 140, 15, "/seed/o-p-mixed.jpg"],
+  ["prod-o-frozen", "cat-o-frozen", "frozen-pies", "فطائر مجمّدة جاهزة للخبز", "عبوة فطائر نيّة مجمّدة (24 قطعة مشكّلة) تحفظينها في الفريزر وتخبزينها وقت ما تشائين خلال 15 دقيقة — طازجة كأنها من الفرن مباشرة.", 55, 65, 24, "/seed/o-p-frozen.jpg"],
+];
+
+/** [id, title, slug, content, sortOrder] */
+const OSRA_PAGES: [string, string, string, string, number][] = [
+  ["page-osra-about", "من نحن", "about", "«أسرة منتجة» مشروع بيتي صغير بدأ من مطبخ العائلة قبل خمس سنوات بصينية فطائر للجيران.\nاليوم نخبز يوميًا بكميات محدودة: عجينة تُعجن في نفس اليوم، حشوات طازجة، وزيت زيتون أصلي بلا أي مواد حافظة.\nنؤمن أن الطعم البيتي لا يُقلَّد، ولذلك لا نخبز إلا ما نقدّمه لأهلنا على مائدتنا.", 0],
+  ["page-osra-order", "كيف أطلب؟", "order", "١) اختاري المنتج من المتجر واضغطي «اطلب عبر واتساب».\n٢) تصلنا رسالتك باسم المنتج والكمية، ونؤكّد لك الطلب ووقت التسليم.\n٣) نستقبل الطلبات قبل يوم من موعد الاستلام، وطلبات المناسبات قبل يومين على الأقل.\nالطلب الواحد يبدأ من 50 ر.س، والدفع نقدًا عند الاستلام أو تحويلًا بنكيًا.", 1],
+  ["page-osra-delivery", "التوصيل والاستلام", "delivery", "التوصيل داخل المدينة يوميًا من 8 صباحًا حتى 12 ظهرًا، ومساءً من 5 إلى 8.\nرسوم التوصيل 15 ر.س داخل الأحياء القريبة، ومجانًا للطلبات فوق 200 ر.س.\nيمكنك أيضًا الاستلام من البيت بموعد مسبق، وتُسلَّم الفطائر ساخنة في علب كرتونية مخصّصة تحافظ على قرمشتها.", 2],
+  ["page-osra-quality", "السلامة الغذائية والاسترجاع", "quality", "نلتزم بالنظافة الكاملة في التحضير: مكونات طازجة يوميًا، أدوات معقّمة، وتغليف محكم عند التسليم.\nالفطائر المخبوزة تُستهلك خلال 24 ساعة، والمجمّدة تبقى صالحة شهرًا كاملًا في الفريزر.\nلطبيعة المنتجات الغذائية لا نقبل الاسترجاع بعد الاستلام، لكننا نستبدل أي طلب يصل غير مطابق أو تالفًا خلال ساعتين من التسليم.", 3],
+];
+
+const OSRA_SETTINGS = {
+  template: "modern",
+  font: "cairo",
+  primaryColor: "#6B7F4B",
+  secondaryColor: "#C77B4E",
+  sectionOrder: '["hero","products","pages","footer"]',
+  aboutText:
+    "«أسرة منتجة» مطبخ بيتي متخصص في الفطائر: جبن، زعتر، سبانخ، لحم بعجين، ودجاج بالكريمة — عجينة تُعجن يوميًا وحشوات طازجة بلا مواد حافظة. نجهّز كذلك صواني المناسبات وعبوات الفطائر المجمّدة الجاهزة للخبز في بيتك.",
+  instagram: "https://instagram.com/osra.fatayer",
+  snapchat: "osra_fatayer",
+  tiktok: "https://tiktok.com/@osra.fatayer",
+  whatsapp: "966561234567",
+  footerBgColor: "#2F3323",
+  /** آيبانات وهمية للعرض فقط (نمط SA + 22 خانة) — ليست حسابات حقيقية */
+  ibanRajhi: "SA0380000000608010167888",
+  ibanAlinmaa: "SA9211500000012345678955",
+  ibanAlahli: "SA4410000000012345678966",
+  seoTitle: "أسرة منتجة | فطائر بيتية طازجة وصواني مناسبات",
+  seoDescription:
+    "فطائر بيتية طازجة: جبن، زعتر، سبانخ، لحم بعجين، ودجاج بالكريمة، مع صواني المناسبات وفطائر مجمّدة جاهزة للخبز. اطلب عبر واتساب وتوصيل داخل المدينة.",
+  seoKeywords: "فطائر, فطاير بيتية, مناقيش زعتر, لحم بعجين, فطائر جبن, صواني مناسبات, أسرة منتجة, مخبوزات منزلية",
+  seoOgImage: "/seed/osra-cover.jpg",
+  seoFavicon: "/seed/osra-logo.png",
+  seoCanonical: "https://osra.maaoun.com",
+};
+
+// ------------------------------------------------------------
+// إضافة متجر «أسرة منتجة» للقواعد المحلية
+// ------------------------------------------------------------
+//
+// تُنشئ المتجر كاملًا مرة واحدة إن لم يكن موجودًا (سواء كانت القاعدة
+// جديدة أو مبذورة سابقًا) — بمعرّفات ثابتة وإدراجات INSERT OR IGNORE،
+// فلا تُكرّر البيانات ولا تلمس أي تعديل أجراه المستخدم.
+
+function ensureOsraShowcase(database: DatabaseSync): void {
+  const exists = database
+    .prepare("SELECT id FROM stores WHERE subdomain = 'osra'")
+    .get() as { id: string } | undefined;
+  if (exists) return;
+
+  const nowIso = new Date().toISOString();
+  const ago = (days: number) => new Date(Date.now() - days * 86400000).toISOString();
+  const storeId = "store-osra";
+
+  database.prepare(
+    "INSERT OR IGNORE INTO local_users (id, email, password_hash, name, role, created_at) VALUES (?,?,?,?,?,?)"
+  ).run("user-osra", "osra@demo.com", hashPassword("Osra#2026"), "أم عبدالله الحربي", "member", ago(3));
+
+  database.prepare(`INSERT OR IGNORE INTO stores
+      (id, name, subdomain, status, owner_name, owner_phone, owner_email, whatsapp, description, logo_url, cover_url, client_credentials, delivered_at, created_at, updated_at)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+    storeId, "أسرة منتجة", "osra", "delivered",
+    "أم عبدالله الحربي", "0561234567", "osra@demo.com", "966561234567",
+    "فطائر بيتية طازجة تُخبز يوميًا: جبن، زعتر، سبانخ، ولحم بعجين — مع صواني المناسبات وفطائر مجمّدة جاهزة للخبز.",
+    "/seed/osra-logo.png", "/seed/osra-cover.jpg",
+    JSON.stringify({ email: "osra@demo.com", password: "Osra#2026" }),
+    ago(1), ago(3), nowIso
+  );
+
+  database.prepare(`INSERT OR IGNORE INTO store_settings
+      (store_id, template, font, primary_color, secondary_color, section_order, about_text,
+       social_instagram, social_snapchat, social_tiktok, social_whatsapp, developer_url,
+       footer_bg_color, iban_rajhi, iban_alinmaa, iban_alahli,
+       seo_title, seo_description, seo_keywords, seo_og_image, seo_favicon, seo_canonical, updated_at)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+    storeId,
+    OSRA_SETTINGS.template, OSRA_SETTINGS.font, OSRA_SETTINGS.primaryColor, OSRA_SETTINGS.secondaryColor,
+    OSRA_SETTINGS.sectionOrder, OSRA_SETTINGS.aboutText,
+    OSRA_SETTINGS.instagram, OSRA_SETTINGS.snapchat, OSRA_SETTINGS.tiktok, OSRA_SETTINGS.whatsapp,
+    "https://maaoun.com",
+    OSRA_SETTINGS.footerBgColor, OSRA_SETTINGS.ibanRajhi, OSRA_SETTINGS.ibanAlinmaa, OSRA_SETTINGS.ibanAlahli,
+    OSRA_SETTINGS.seoTitle, OSRA_SETTINGS.seoDescription, OSRA_SETTINGS.seoKeywords,
+    OSRA_SETTINGS.seoOgImage, OSRA_SETTINGS.seoFavicon, OSRA_SETTINGS.seoCanonical,
+    nowIso
+  );
+
+  const insCat = database.prepare(
+    "INSERT OR IGNORE INTO categories (id, store_id, name, slug, sort_order, is_visible, created_at) VALUES (?,?,?,?,?,1,?)"
+  );
+  for (const [id, name, slug, sort] of OSRA_CATEGORIES) {
+    insCat.run(id, storeId, name, slug, sort, ago(3));
+  }
+
+  const insProd = database.prepare(`INSERT OR IGNORE INTO products
+      (id, store_id, slug, category_id, name, description, price, old_price, stock, is_visible, sort_order, created_at, updated_at)
+    VALUES (?,?,?,?,?,?,?,?,?,1,?,?,?)`);
+  const insImg = database.prepare(
+    "INSERT OR IGNORE INTO product_images (id, product_id, store_id, url, sort_order) VALUES (?,?,?,?,0)"
+  );
+  for (const [i, [id, cat, slug, name, desc, price, old, stock, img]] of OSRA_PRODUCTS.entries()) {
+    insProd.run(id, storeId, slug, cat, name, desc, price, old, stock, i, ago(3), nowIso);
+    insImg.run(`img-${id}`, id, storeId, img);
+  }
+
+  const insPage = database.prepare(
+    "INSERT OR IGNORE INTO pages (id, store_id, title, slug, content, is_visible, sort_order, updated_at) VALUES (?,?,?,?,?,1,?,?)"
+  );
+  for (const [id, title, slug, content, sort] of OSRA_PAGES) {
+    insPage.run(id, storeId, title, slug, content, sort, ago(3));
+  }
+
+  const osraUser = database
+    .prepare("SELECT id FROM local_users WHERE lower(email) = 'osra@demo.com'")
+    .get() as { id: string } | undefined;
+  if (osraUser) {
+    database.prepare(
+      "INSERT OR IGNORE INTO store_members (id, store_id, user_id, role, created_at) VALUES (?,?,?,?,?)"
+    ).run("mem-5", storeId, osraUser.id, "owner", ago(2));
+  }
+
+  database.prepare(`INSERT OR IGNORE INTO portfolio_items
+      (id, title, description, image_url, store_url, tags, is_visible, sort_order, created_at)
+    VALUES (?,?,?,?,?,?,1,?,?)`).run(
+    "pf-osra", "أسرة منتجة",
+    "متجر فطائر بيتية لأسرة منتجة بهوية زيتونية دافئة: كتالوج فطائر وصواني مناسبات، طلب عبر واتساب، وحسابات تحويل بنكي.",
+    "/seed/osra-cover.jpg", "https://osra.maaoun.com", "فطائر, مأكولات بيتية, أسرة منتجة", 4, ago(1)
+  );
+
+  const ownerEmail = process.env.LOCAL_OWNER_EMAIL || "owner@maaoun.com";
+  const insLog = database.prepare(
+    "INSERT INTO activity_logs (store_id, user_id, actor_email, action, details, created_at) VALUES (?,?,?,?,?,?)"
+  );
+  insLog.run(null, null, ownerEmail, "store.created", JSON.stringify({ store: storeId, name: "أسرة منتجة" }), ago(3));
+  insLog.run(storeId, null, ownerEmail, "product.created", JSON.stringify({ name: "فطائر الجبن" }), ago(2));
+  insLog.run(storeId, null, ownerEmail, "store.delivered", JSON.stringify({ subdomain: "osra" }), ago(1));
 }
 
 // ------------------------------------------------------------
