@@ -57,6 +57,8 @@ npm run dev
 | عميل (كافيه رشف) | `rshaf@demo.com` | `Rshaf#2026` |
 | عميل (عود وروائح) | `oud@demo.com` | `Oud#2026` |
 | عميل (دار رشف للحلويات) | `sara@demo.com` | `Sara#2026` |
+| عميل (منحل الوثبة) | `honey@demo.com` | `Honey#2026` |
+| عميل (أسرة منتجة — فطائر) | `osra@demo.com` | `Osra#2026` |
 
 ### محاكاة النطاقات الفرعية في التطوير
 
@@ -66,6 +68,7 @@ npm run dev
 |---|---|
 | `rshaf.maaoun.com` | `/?store=rshaf` |
 | `sweets.maaoun.com` | `/?store=sweets` |
+| `osra.maaoun.com` | `/?store=osra` |
 | `rshaf.maaoun.com/products/latte` | `/products/latte?store=rshaf` |
 | `rshaf.maaoun.com/checkout` | `/checkout?store=rshaf` |
 | `rshaf.maaoun.com/admin` | `/admin?store=rshaf` |
@@ -133,6 +136,7 @@ npm run dev
 4. على قاعدة **جديدة فارغة** فقط، يمكن تشغيل `supabase/migrations/0002_demo_data.sql` لإضافة المتاجر والمنتجات والباقات العربية الجاهزة. **لا تُعد تشغيل 0002 على قاعدة فيها بيانات.**
    على قاعدة الإنتاج الحالية شغّل مرة واحدة `supabase/migrations/0006_rebrand_maaoun.sql` — يعيد كتابة روابط `waathba.com` ونصوص الموقع العام إلى معون / `maaoun.com` دون حذف صفوف أو تغيير حسابات الدخول أو النطاقات الفرعية.
    ثم شغّل `supabase/migrations/0007_complete_sweets_store.sql` — يُكمل متجر العرض «دار رشف للحلويات» على النطاق `sweets.maaoun.com` (تسليم + شعار وغلاف + 4 أقسام + 8 منتجات بصورها + 4 صفحات + حسابات تواصل + آيبانات بنوك وهمية للعرض + SEO + إدخال في معرض الأعمال). آمن للتكرار.
+   ثم شغّل `supabase/migrations/0012_osra_fatayer_store.sql` — يضيف متجر العرض «أسرة منتجة» للفطائر البيتية على النطاق `osra.maaoun.com` (تسليم + شعار وغلاف + 4 أقسام + 9 منتجات فطائر بصورها + 4 صفحات + SEO + إدخال في معرض الأعمال). آمن للتكرار.
    ثم شغّل `supabase/migrations/0008_rebrand_maaoun_final.sql` — يوحّد الاسم التجاري في النصوص المخزّنة بتحويل «معين» إلى «معون» داخل إعدادات الموقع العام فقط (آمن للتكرار، ولا يمسّ النطاق `maaoun.com` ولا حسابات الدخول).
 5. عبّئ متغيرات البيئة على **Cloudflare → Workers & Pages → Settings → Variables and Secrets**:
    ```env
