@@ -1,12 +1,7 @@
-import { getSitemapEntries, renderUrlSet, sitemapPageSize } from "@/lib/sitemap";
+import { getSitemapResult, renderUrlSet, sitemapPageSize } from "@/lib/sitemap";
 
-export const revalidate = 3600;
-
-const headers = {
-  "Content-Type": "application/xml; charset=utf-8",
-  "Cache-Control": "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
-  "X-Content-Type-Options": "nosniff",
-};
+// منع التوليد وقت البناء للسبب نفسه الموضح في /sitemap.xml.
+export const dynamic = "force-dynamic";
 
 type RouteContext = { params: Promise<{ index: string }> };
 
@@ -21,12 +16,21 @@ export async function GET(_request: Request, { params }: RouteContext) {
     return new Response("Not Found", { status: 404 });
   }
 
-  const entries = await getSitemapEntries();
+  const result = await getSitemapResult();
   const start = index * sitemapPageSize;
-  if (start >= entries.length) return new Response("Not Found", { status: 404 });
+  if (start >= result.entries.length) return new Response("Not Found", { status: 404 });
 
-  return new Response(renderUrlSet(entries.slice(start, start + sitemapPageSize)), {
+  const failedWithoutData = result.source === "fallback";
+  return new Response(renderUrlSet(result.entries.slice(start, start + sitemapPageSize)), {
     status: 200,
-    headers,
+    headers: {
+      "Content-Type": "application/xml; charset=utf-8",
+      "Cache-Control": failedWithoutData
+        ? "no-store, max-age=0"
+        : "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
+      "X-Content-Type-Options": "nosniff",
+      "X-Sitemap-Source": result.source,
+      "X-Sitemap-Urls": String(Math.min(sitemapPageSize, result.entries.length - start)),
+    },
   });
 }
