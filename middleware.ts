@@ -90,7 +90,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // كل المسارات ما عدا الملفات الثابتة
-    "/((?!_next/static|_next/image|favicon.ico|icon.svg|uploads/|seed/|api/uploads/.*\\..*).*)",
+    // لا نمرر ملفات SEO أو الـ API عبر middleware: يجب أن تصل مباشرة إلى
+    // Route Handler/Metadata Route حتى لا تتأخر أو تتغير ترويساتها.
+    "/((?!api|_next|sitemap\\.xml|sitemap-[0-9]+\\.xml|robots\\.txt|favicon\\.ico|icon\\.svg|uploads/|seed/).*)",
   ],
 };

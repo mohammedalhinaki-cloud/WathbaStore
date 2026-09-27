@@ -1,35 +1,22 @@
 // ============================================================
-// معون — robots.txt الديناميكي
-// يسمح بفهرسة الصفحات العامة، ويمنع لوحات الإدارة والدخول
-// والـ API وسلّة/الدفع والملفات الخاصة. يُحال إلى خريطة الموقع.
-// يُولَّد لكل hostname ليكون توجيه host دقيقًا لكل نطاق فرعي.
+// معون — robots.txt ثابت وخفيف
 // ============================================================
 
 import type { MetadataRoute } from "next";
-import { headers } from "next/headers";
-import { mainDomain, replaceLegacyPlatformDomain } from "@/lib/constants";
+import { mainDomain } from "@/lib/constants";
 
-export const dynamic = "force-dynamic";
-
-export default async function robots(): Promise<MetadataRoute.Robots> {
-  const h = await headers();
-  const rawHost = (h.get("x-forwarded-host") || h.get("host") || "")
-    .split(",")[0]
-    .trim();
-  const host = rawHost.replace(/:\d+$/, "").toLowerCase();
-  // حتى إذا طُلب robots عبر اسم النطاق القديم أثناء الانتقال، لا نعيد
-  // نشره داخل host أو أي رابط SEO آخر.
-  const origin = replaceLegacyPlatformDomain(host ? `https://${host}` : `https://${mainDomain()}`);
-
+/**
+ * لا نضع Host هنا: هذا الحقل غير مدعوم من Google ويجعل بعض أدوات الفحص
+ * تعتبر robots.txt غير قياسي. الروابط العامة للصور المرفوعة تبدأ بـ /uploads
+ * لذلك لا نحجبها، بينما تبقى مسارات الإدارة والـ API والشراء خاصة.
+ */
+export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: ["/admin", "/api", "/checkout", "/cart", "/uploads", "/seed"],
-      },
-    ],
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      disallow: ["/admin", "/api", "/checkout", "/cart", "/seed"],
+    },
     sitemap: `https://${mainDomain()}/sitemap.xml`,
-    host: origin,
   };
 }

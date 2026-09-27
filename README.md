@@ -124,6 +124,7 @@ npm run dev
 ## Supabase وCloudflare (الإنتاج)
 
 > الدليل العربي الكامل خطوة بخطوة: [`docs/DEPLOY_CLOUDFLARE_AR.md`](docs/DEPLOY_CLOUDFLARE_AR.md)
+> إصلاح sitemap وrobots وخطوات Google Search Console: [`docs/SEO_SITEMAP_AR.md`](docs/SEO_SITEMAP_AR.md)
 
 1. أنشئ مشروعًا في [Supabase](https://supabase.com/dashboard).
 2. شغّل `supabase/migrations/0001_init.sql` — يجهّز الجداول وRLS والتخزين.
