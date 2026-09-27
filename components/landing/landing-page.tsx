@@ -39,6 +39,7 @@ import PricingPlans from "./pricing-plans";
 import PortfolioCarousel from "./portfolio-carousel";
 import SocialLinks from "@/components/social-links";
 import SiteJsonLd from "@/components/site/site-json-ld";
+import FaqJsonLd from "@/components/site/faq-json-ld";
 import type { LandingSectionKey } from "@/lib/types";
 
 /**
@@ -430,6 +431,7 @@ export default async function LandingPage() {
       {/* ============ FAQ ============ */}
       {show("faq") && settings.faq.length > 0 && (
       <section id="faq" style={ord("faq")} className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
+        <FaqJsonLd items={settings.faq} />
         <SectionHead
           badge={L.heads.faq.badge}
           title={L.heads.faq.title}
