@@ -260,6 +260,16 @@ export interface SiteSettings {
   socialInstagram: string;
   socialSnapchat: string;
   socialTiktok: string;
+  /** إعدادات SEO للموقع الرئيسي (maaoun.com) القابلة للتحرير من لوحة المالك */
+  seoTitle: string;
+  seoDescription: string;
+  seoKeywords: string;
+  /** شعار المنصة الذي يظهر في نتائج بحث قوقل (Organization logo في البيانات المنظمة) */
+  seoLogo: string;
+  /** الصورة التي تظهر عند مشاركة الرابط (Open Graph / Twitter) */
+  seoOgImage: string;
+  /** أيقونة المتصفح/نتائج البحث (favicon) */
+  seoFavicon: string;
   /** محتوى الموقع العام القابل للتحرير من لوحة المالك (يُدمج دائمًا مع الافتراضي) */
   landing: LandingContent;
   updatedAt: string;

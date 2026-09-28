@@ -7,7 +7,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getStoreCtx } from "@/lib/tenant";
-import { storePageMetadata } from "@/lib/seo";
+import { storePageMetadata, siteMainMetadata } from "@/lib/seo";
 import { isHeroEnabled } from "@/lib/types";
 import LandingPage from "@/components/landing/landing-page";
 import StoreShell from "@/components/store/store-shell";
@@ -23,7 +23,9 @@ export async function generateMetadata(): Promise<Metadata> {
       images: og ? [og] : undefined,
     });
   }
-  return {};
+  // الموقع الرئيسي (maaoun.com): SEO يحرره المالك من لوحة الإعدادات
+  const settings = await services().getSiteSettings();
+  return siteMainMetadata(settings);
 }
 
 export default async function HomePage() {

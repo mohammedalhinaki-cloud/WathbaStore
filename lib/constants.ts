@@ -163,6 +163,12 @@ export function presentSiteSettings(settings: SiteSettings): SiteSettings {
     socialInstagram: rewritePlatformMarketing(settings.socialInstagram),
     socialSnapchat: rewritePlatformMarketing(settings.socialSnapchat),
     socialTiktok: rewritePlatformMarketing(settings.socialTiktok),
+    seoTitle: rewritePlatformMarketing(settings.seoTitle ?? ""),
+    seoDescription: rewritePlatformMarketing(settings.seoDescription ?? ""),
+    seoKeywords: rewritePlatformMarketing(settings.seoKeywords ?? ""),
+    seoLogo: replaceLegacyPlatformDomain(settings.seoLogo ?? ""),
+    seoOgImage: replaceLegacyPlatformDomain(settings.seoOgImage ?? ""),
+    seoFavicon: replaceLegacyPlatformDomain(settings.seoFavicon ?? ""),
     landing: mergeLandingContent(settings.landing),
   };
 }

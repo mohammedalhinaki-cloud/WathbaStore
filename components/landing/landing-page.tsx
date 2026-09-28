@@ -85,7 +85,7 @@ export default async function LandingPage() {
   return (
     <div id="top" className="bg-base text-fg">
       {/* بيانات Structured Data للموقع العام (WebSite + Organization) */}
-      <SiteJsonLd />
+      <SiteJsonLd settings={settings} />
 
       <LandingNav whatsappHref={wa} content={{ ...L.nav, links: navLinks }} showCta={T.navCta} />
 

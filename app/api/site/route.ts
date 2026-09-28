@@ -105,6 +105,12 @@ const SCHEMA = z.object({
   socialInstagram: z.string().max(300).optional(),
   socialSnapchat: z.string().max(300).optional(),
   socialTiktok: z.string().max(300).optional(),
+  seoTitle: z.string().max(200).optional(),
+  seoDescription: z.string().max(500).optional(),
+  seoKeywords: z.string().max(300).optional(),
+  seoLogo: z.string().max(500).optional(),
+  seoOgImage: z.string().max(500).optional(),
+  seoFavicon: z.string().max(500).optional(),
   landing: LANDING_SCHEMA,
 });
 
