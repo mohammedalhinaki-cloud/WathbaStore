@@ -16,6 +16,7 @@ import { formatPrice, mainDomain, APP_NAME, APP_TAGLINE } from "@/lib/constants"
 import { Card, Field, inputCls, PrimaryBtn, GhostBtn, Toggle, EmptyState } from "./ui";
 import { FormAlerts } from "./use-api";
 import UploadField from "./upload-field";
+import ImageField from "./image-field";
 
 // ------------------------------------------------------------
 // قائمة نشاط عام
@@ -534,52 +535,94 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
             <input className={inputCls} value={seoKeywords} onChange={(e) => setSeoKeywords(e.target.value)} placeholder="بناء المواقع, متجر إلكتروني, تصميم متجر" />
           </Field>
 
-          {/* شعار قوقل — Organization logo */}
-          <div className="rounded-2xl border border-ink-150 bg-ink-50/40 p-4">
-            <UploadField
+          {/* صور SEO — كلها برفع/سحب مباشر أو رابط */}
+          <div className="grid gap-4">
+            <ImageField
               storeId="site"
               folder="logo"
               label="شعار الموقع في نتائج قوقل (Logo)"
-              value={seoLogo ? [seoLogo] : []}
-              onChange={(urls) => setSeoLogo(urls[urls.length - 1] ?? "")}
-              hint="يظهر بجانب اسم الموقع في نتائج البحث والبطاقة التعريفية. يُفضّل صورة مربّعة واضحة (PNG بخلفية شفافة)، ولا تقل عن 112×112 بكسل."
+              value={seoLogo}
+              onChange={setSeoLogo}
+              shape="square"
+              recommend="مربّعة 112×112 فأكثر"
+              hint="يظهر بجانب اسم الموقع في نتائج البحث والبطاقة التعريفية. يُفضّل صورة مربّعة واضحة (PNG بخلفية شفافة)."
+              urlLabel="أو الصق رابط الشعار مباشرة"
+              urlPlaceholder={`https://${mainDomain()}/logo.png`}
             />
-            <div className="mt-3">
-              <Field label="أو الصق رابط الشعار مباشرة" hint="اختياري — يُستخدم إن لم ترفع صورة">
-                <input className={inputCls} dir="ltr" value={seoLogo} onChange={(e) => setSeoLogo(e.target.value)} placeholder={`https://${mainDomain()}/logo.png`} />
-              </Field>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <ImageField
+                storeId="site"
+                folder="cover"
+                label="صورة المشاركة (Open Graph)"
+                value={seoOgImage}
+                onChange={setSeoOgImage}
+                shape="wide"
+                recommend="عرضية 1200×630"
+                hint="تظهر عند مشاركة رابط الموقع في واتساب وتويتر وبقية المنصات."
+                urlLabel="أو الصق رابط الصورة مباشرة"
+                urlPlaceholder={`https://${mainDomain()}/og-image.png`}
+              />
+              <ImageField
+                storeId="site"
+                folder="logo"
+                label="أيقونة المتصفح (Favicon)"
+                value={seoFavicon}
+                onChange={setSeoFavicon}
+                shape="icon"
+                recommend="مربّعة 512×512"
+                hint="الأيقونة الصغيرة في تبويب المتصفح وبجانب الرابط في نتائج البحث."
+                urlLabel="أو الصق رابط الأيقونة مباشرة"
+                urlPlaceholder={`https://${mainDomain()}/favicon.png`}
+              />
             </div>
           </div>
 
+          {/* معاينات: نتيجة قوقل + بطاقة المشاركة */}
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="صورة المشاركة (Open Graph)" hint="تظهر عند مشاركة الرابط في واتساب وتويتر">
-              <input className={inputCls} dir="ltr" value={seoOgImage} onChange={(e) => setSeoOgImage(e.target.value)} placeholder={`https://${mainDomain()}/og-image.png`} />
-            </Field>
-            <Field label="أيقونة المتصفح (Favicon)" hint="اختياري — الأيقونة الصغيرة في نتائج البحث والتبويب">
-              <input className={inputCls} dir="ltr" value={seoFavicon} onChange={(e) => setSeoFavicon(e.target.value)} placeholder={`https://${mainDomain()}/favicon.png`} />
-            </Field>
-          </div>
+            <div>
+              <p className="mb-2 text-sm font-bold text-ink-700">معاينة نتيجة قوقل</p>
+              <div className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm">
+                <div className="flex items-center gap-2">
+                  {seoFavicon || seoLogo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={seoFavicon || seoLogo} alt="" className="h-6 w-6 rounded-full object-contain ring-1 ring-ink-200" />
+                  ) : (
+                    <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-100 text-[10px] font-bold text-brand-700">م</span>
+                  )}
+                  <div className="leading-tight">
+                    <p className="text-xs font-bold text-ink-700">{APP_NAME}</p>
+                    <p className="text-[11px] text-emerald-700" dir="ltr">https://{mainDomain()}</p>
+                  </div>
+                </div>
+                <p className="mt-1.5 truncate text-lg text-blue-700">{seoTitle || `${APP_NAME} ${APP_TAGLINE}`}</p>
+                <p className="mt-1 line-clamp-2 text-sm leading-6 text-ink-500">
+                  {seoDescription || `${APP_NAME} ${APP_TAGLINE} — نصمّم ونجهّز ونسلّم متجرك جاهزًا للإدارة.`}
+                </p>
+              </div>
+            </div>
 
-          {/* معاينة نتيجة البحث */}
-          <div>
-            <p className="mb-2 text-sm font-bold text-ink-700">معاينة نتيجة قوقل</p>
-            <div className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm">
-              <div className="flex items-center gap-2">
-                {seoLogo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={seoLogo} alt="" className="h-6 w-6 rounded-full object-contain ring-1 ring-ink-200" />
-                ) : (
-                  <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-100 text-[10px] font-bold text-brand-700">م</span>
-                )}
-                <div className="leading-tight">
-                  <p className="text-xs font-bold text-ink-700">{APP_NAME}</p>
-                  <p className="text-[11px] text-emerald-700" dir="ltr">https://{mainDomain()}</p>
+            <div>
+              <p className="mb-2 text-sm font-bold text-ink-700">معاينة بطاقة المشاركة</p>
+              <div className="overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-sm">
+                <div className="grid aspect-[1200/630] w-full place-items-center bg-ink-100">
+                  {seoOgImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={seoOgImage} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="px-4 text-center text-xs font-bold text-ink-400">
+                      لم تُضبط صورة مشاركة — ستظهر بطاقة بلا صورة
+                    </span>
+                  )}
+                </div>
+                <div className="p-3">
+                  <p className="text-[11px] text-ink-400" dir="ltr">{mainDomain()}</p>
+                  <p className="mt-0.5 truncate text-sm font-bold text-ink-800">{seoTitle || `${APP_NAME} ${APP_TAGLINE}`}</p>
+                  <p className="mt-0.5 line-clamp-2 text-xs leading-5 text-ink-500">
+                    {seoDescription || `${APP_NAME} ${APP_TAGLINE}`}
+                  </p>
                 </div>
               </div>
-              <p className="mt-1.5 truncate text-lg text-blue-700">{seoTitle || `${APP_NAME} ${APP_TAGLINE}`}</p>
-              <p className="mt-1 line-clamp-2 text-sm leading-6 text-ink-500">
-                {seoDescription || `${APP_NAME} ${APP_TAGLINE} — نصمّم ونجهّز ونسلّم متجرك جاهزًا للإدارة.`}
-              </p>
             </div>
           </div>
         </div>

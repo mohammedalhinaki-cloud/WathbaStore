@@ -11,6 +11,7 @@ import type { Store, StoreSettings } from "@/lib/types";
 import { mainDomain } from "@/lib/constants";
 import { Card, Field, inputCls, PrimaryBtn } from "./ui";
 import { FormAlerts } from "./use-api";
+import ImageField from "./image-field";
 
 interface Props {
   store: Store;
@@ -77,12 +78,30 @@ export default function SeoForm({ store, settings, canonicalBase }: Props) {
             <input className={inputCls} value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="قهوة, لاتيه, حلويات" />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="صورة Open Graph" hint="تظهر عند مشاركة الرابط">
-              <input className={inputCls} dir="ltr" value={ogImage} onChange={(e) => setOgImage(e.target.value)} placeholder={store.coverUrl || ""} />
-            </Field>
-            <Field label="Favicon">
-              <input className={inputCls} dir="ltr" value={favicon} onChange={(e) => setFavicon(e.target.value)} placeholder={store.logoUrl || ""} />
-            </Field>
+            <ImageField
+              storeId={store.id}
+              folder="cover"
+              label="صورة المشاركة (Open Graph)"
+              value={ogImage}
+              onChange={setOgImage}
+              shape="wide"
+              recommend="عرضية 1200×630"
+              hint="تظهر عند مشاركة رابط المتجر في واتساب وتويتر. إن تركتها فارغة تُستخدم صورة غلاف المتجر."
+              urlLabel="أو الصق رابط الصورة مباشرة"
+              urlPlaceholder={store.coverUrl || "https://…/og-image.png"}
+            />
+            <ImageField
+              storeId={store.id}
+              folder="logo"
+              label="أيقونة المتصفح (Favicon)"
+              value={favicon}
+              onChange={setFavicon}
+              shape="icon"
+              recommend="مربّعة 512×512"
+              hint="الأيقونة الصغيرة في تبويب المتصفح ونتائج البحث. إن تركتها فارغة يُستخدم شعار المتجر."
+              urlLabel="أو الصق رابط الأيقونة مباشرة"
+              urlPlaceholder={store.logoUrl || "https://…/favicon.png"}
+            />
           </div>
           <Field label="Canonical URL" hint="اتركه افتراضيًا إلا لرغبة خاصة">
             <input className={inputCls} dir="ltr" value={canonical} onChange={(e) => setCanonical(e.target.value)} />
@@ -103,12 +122,36 @@ export default function SeoForm({ store, settings, canonicalBase }: Props) {
           معاينة نتيجة البحث
         </h3>
         <div className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm">
-          <p className="text-xs text-emerald-700" dir="ltr">{url}</p>
+          <div className="flex items-center gap-2">
+            {favicon ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={favicon} alt="" className="h-5 w-5 shrink-0 rounded-full object-contain ring-1 ring-ink-200" />
+            ) : (
+              <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-100 text-[9px] font-bold text-brand-700">
+                {(store.name || "م").slice(0, 1)}
+              </span>
+            )}
+            <p className="truncate text-xs text-emerald-700" dir="ltr">{url}</p>
+          </div>
           <p className="mt-1 truncate text-lg text-blue-700">{title || "عنوان المتجر"}</p>
           <p className="mt-1 line-clamp-3 text-sm leading-6 text-ink-500">
             {desc || "وصف المتجر يظهر هنا… أضف وصفًا محسنًا لمحركات البحث."}
           </p>
         </div>
+
+        {ogImage && (
+          <div className="mt-4">
+            <p className="mb-2 text-sm font-bold text-ink-700">بطاقة المشاركة</p>
+            <div className="overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-sm">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={ogImage} alt="" className="aspect-[1200/630] w-full object-cover" />
+              <div className="p-3">
+                <p className="truncate text-sm font-bold text-ink-800">{title || store.name}</p>
+                <p className="mt-0.5 line-clamp-2 text-xs leading-5 text-ink-500">{desc}</p>
+              </div>
+            </div>
+          </div>
+        )}
         <p className="mt-4 flex items-center gap-1.5 text-xs text-ink-400">
           <Globe className="h-3.5 w-3.5" />
           SEO مستقل لكل متجر على نطاقه الفرعي

@@ -1,33 +1,36 @@
 // ============================================================
-// معون — حقل رفع صورة (متعددة) مع معاينة
+// معون — حقل رفع صور (متعددة) مع معاينة
 //
 // ملاحظة تشخيصية مهمة: كان الحقل يعرض «فشل الرفع» في كل حالة لا يعود
 // فيها الخادم برد JSON يحوي error — وأكثر حالاتها استجابة 500 فارغة من
-// خطأ غير ملتقط في الخادم. الآن:
+// خطأ غير ملتقط في الخادم. الآن (داخل خطاف useImageUpload المشترك):
 //   • نقرأ النص أولًا ثم نحاول تحليله JSON (لا نفترض الشكل).
 //   • نعرض رمز HTTP ورسالة الخادم الحقيقية ورمز الخطأ التقني.
 //   • الحذف (زر ×) يحذف الصورة من التخزين أيضًا (استبدال/تنظيف حقيقي).
+//
+// لحقل صورة واحدة (شعار، Open Graph، Favicon…) استخدم ImageField في
+// components/admin/image-field.tsx — يشارك نفس منطق الرفع.
 // ============================================================
 
 "use client";
 
 import { useRef, useState } from "react";
 import { ImagePlus, X, Loader2, AlertTriangle } from "lucide-react";
+import {
+  ACCEPT_IMAGES,
+  UPLOAD_FORMATS_HINT,
+  useImageUpload,
+  type UploadFolder,
+} from "./use-upload";
 
 interface Props {
   storeId: string;
-  folder: "logo" | "cover" | "products" | "pages";
+  folder: UploadFolder;
   label: string;
   value: string[];
   onChange: (urls: string[]) => void;
   hint?: string;
   maxSize?: number;
-}
-
-interface ApiError {
-  error?: string;
-  code?: string;
-  detail?: string;
 }
 
 export default function UploadField({
@@ -37,89 +40,27 @@ export default function UploadField({
   value,
   onChange,
   hint,
-  maxSize = 5 * 1024 * 1024,
+  maxSize,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [errorCode, setErrorCode] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
-
-  async function readResponse(res: Response): Promise<ApiError> {
-    const text = await res.text().catch(() => "");
-    if (!text) return {};
-    try {
-      const parsed = JSON.parse(text) as ApiError;
-      return parsed && typeof parsed === "object" ? parsed : {};
-    } catch {
-      return {};
-    }
-  }
+  const { uploading, error, errorCode, upload, removeUploaded } = useImageUpload({
+    storeId,
+    folder,
+    maxSize,
+  });
 
   async function handleFiles(files: FileList | null) {
-    if (!files || files.length === 0) return;
-    setError(null);
-    setErrorCode(null);
-    setUploading(true);
-    try {
-      const urls = [...value];
-      for (const file of Array.from(files)) {
-        if (file.size > maxSize) {
-          setError(`"${file.name}" أكبر من الحد المسموح (5MB)`);
-          continue;
-        }
-        const form = new FormData();
-        form.append("storeId", storeId);
-        form.append("folder", folder);
-        form.append("file", file);
-        let res: Response;
-        try {
-          res = await fetch("/api/upload", { method: "POST", body: form });
-        } catch {
-          setError("تعذر الاتصال بالخادم — تحقق من الشبكة ثم أعد المحاولة");
-          setErrorCode("network");
-          continue;
-        }
-        const data = await readResponse(res);
-        if (!res.ok) {
-          setError(
-            data.error
-              ? `${data.error}${data.detail ? ` — ${data.detail}` : ""}`
-              : `فشل الرفع — استجابة غير متوقعة من الخادم (HTTP ${res.status})`
-          );
-          setErrorCode(data.code ?? `http_${res.status}`);
-          continue;
-        }
-        if (!data.error && "url" in data && typeof (data as { url?: string }).url === "string") {
-          urls.push((data as { url: string }).url);
-        } else {
-          setError("لم يُرجع الخادم رابط الصورة — أعد المحاولة");
-          setErrorCode("no_url");
-        }
-      }
-      onChange(urls);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "فشل الرفع");
-      setErrorCode("unexpected");
-    } finally {
-      setUploading(false);
-      if (inputRef.current) inputRef.current.value = "";
-    }
+    const uploaded = await upload(files);
+    if (uploaded.length > 0) onChange([...value, ...uploaded]);
+    if (inputRef.current) inputRef.current.value = "";
   }
 
   async function removeAt(i: number) {
     const url = value[i];
     onChange(value.filter((_, idx) => idx !== i));
     // تنظيف فعلي: نحذف الكائن من التخزين إن كان من مرفوعاتنا (لا يعطّل الواجهة)
-    try {
-      await fetch("/api/upload", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ storeId, url }),
-      });
-    } catch {
-      /* تجاهل: الحذف من السجل تم أصلًا */
-    }
+    await removeUploaded(url);
   }
 
   return (
@@ -147,13 +88,13 @@ export default function UploadField({
           <>
             <ImagePlus className="h-8 w-8 text-ink-400" />
             <p className="mt-2 text-sm font-bold text-ink-600">اسحب الصور هنا أو اضغط للاختيار</p>
-            <p className="mt-1 text-xs text-ink-400">JPG, PNG, WebP — حتى 5MB</p>
+            <p className="mt-1 text-xs text-ink-400">{UPLOAD_FORMATS_HINT}</p>
           </>
         )}
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
+          accept={ACCEPT_IMAGES}
           multiple
           className="hidden"
           onChange={(e) => void handleFiles(e.target.files)}
