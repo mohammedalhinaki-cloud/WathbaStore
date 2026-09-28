@@ -14,22 +14,23 @@ import {
   LogOut,
   Menu,
   Palette,
-  ShieldCheck,
   Store,
   Tags,
   X,
 } from "lucide-react";
 import { APP_NAME, mainDomain } from "@/lib/constants";
-import { ownerPanelHref } from "@/lib/store-links";
 import { useState } from "react";
 
 interface Props {
   storeName: string;
   subdomain: string;
+  /**
+   * هوية صاحب المتجر المعروضة في اللوحة — دائمًا بيانات صاحب المتجر نفسه،
+   * بصرف النظر عمّن دخل فعليًا (حتى لو كان المالك الرئيسي). بهذا لا يظهر
+   * حساب المالك الرئيسي إطلاقًا داخل لوحة أي متجر، ويدخل دون أن يعلم أحد.
+   */
   user: { name: string; email: string };
   storeUrl: string;
-  /** المالك الرئيسي يرى نفس اللوحة كاملة + شارة وروابط إضافية */
-  masterOwner?: boolean;
   children: React.ReactNode;
 }
 
@@ -46,7 +47,6 @@ export default function ClientShell({
   subdomain,
   user,
   storeUrl,
-  masterOwner = false,
   children,
 }: Props) {
   const pathname = usePathname();
@@ -101,21 +101,6 @@ export default function ClientShell({
           <ExternalLink className="h-4 w-4" />
           زيارة المتجر
         </a>
-        {masterOwner && (
-          <Link
-            href={ownerPanelHref()}
-            className="mb-2 flex items-center gap-2 rounded-xl bg-brand-500/15 px-3.5 py-2.5 text-sm font-bold text-brand-300 transition-colors hover:bg-brand-500/25"
-          >
-            <ShieldCheck className="h-4 w-4" />
-            لوحة المالك الرئيسي
-          </Link>
-        )}
-        {masterOwner && (
-          <div className="mb-2 flex items-center gap-2 rounded-xl bg-amber-400/10 px-3 py-2.5 text-[11px] font-bold text-amber-300 ring-1 ring-amber-400/20">
-            <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
-            تدخل الآن كمالك رئيسي — كل وظائف صاحب المتجر متاحة لك هنا
-          </div>
-        )}
         <div className="mb-2 flex items-center gap-3 rounded-xl bg-white/5 px-3 py-2.5">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-500/20 text-sm font-extrabold text-brand-300">
             {user.name?.charAt(0) || "ع"}
@@ -148,7 +133,6 @@ export default function ClientShell({
         </button>
         <span className="flex items-center gap-1.5 font-extrabold text-ink-900">
           لوحة {storeName}
-          {masterOwner && <ShieldCheck className="h-4 w-4 text-amber-500" />}
         </span>
         <Link
           href={storeUrl}

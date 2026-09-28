@@ -20,7 +20,20 @@ import UploadField from "./upload-field";
 // ------------------------------------------------------------
 // قائمة نشاط عام
 // ------------------------------------------------------------
-export function ActivityList({ logs, stores }: { logs: ActivityLog[]; stores: { id: string; name: string }[] }) {
+export function ActivityList({
+  logs,
+  stores,
+  hideActor = false,
+}: {
+  logs: ActivityLog[];
+  stores: { id: string; name: string }[];
+  /**
+   * أخفِ بريد المنفّذ (actorEmail). يُستخدم في لوحة أي متجر حتى لا يظهر
+   * بريد المالك الرئيسي عند تدخّله في متجر — فلا يظهر حساب المالك في أي
+   * قائمة داخل لوحة المتجر.
+   */
+  hideActor?: boolean;
+}) {
   const storeName = (id: string | null) => stores.find((s) => s.id === id)?.name ?? "المنصة";
   if (logs.length === 0) {
     return <EmptyState icon="📝" title="لا توجد نشاطات" sub="ستظهر هنا كل العمليات التي تمت" />;
@@ -34,9 +47,11 @@ export function ActivityList({ logs, stores }: { logs: ActivityLog[]; stores: { 
               <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-brand-500" />
               <div>
                 <p className="text-sm font-bold text-ink-800">{ACTIVITY_LABELS[l.action] ?? l.action}</p>
-                <p className="mt-0.5 text-xs text-ink-400">
-                  {storeName(l.storeId)} · {l.actorEmail || "النظام"}
-                </p>
+                {!hideActor && (
+                  <p className="mt-0.5 text-xs text-ink-400">
+                    {storeName(l.storeId)} · {l.actorEmail || "النظام"}
+                  </p>
+                )}
               </div>
             </div>
             <span className="shrink-0 text-xs text-ink-400">{formatDate(l.createdAt)}</span>

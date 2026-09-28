@@ -6,13 +6,18 @@
 //   • المالك الرئيسي Master Owner → **كل** متجر بنفس واجهة صاحب المتجر
 //     (نفس الصفحات والوظائف: المنتجات، الأقسام، المظهر، السجل)، وأعلى منها
 //     في لوحة المالك (تسليم، حالة، نطاق فرعي، حذف…).
+//
+// ⚠️ سرّية الدخول: عندما يدخل المالك الرئيسي لوحة أي متجر، يجب ألّا يظهر أي
+// أثر لحسابه هناك — لا رابط للوحة المالك، ولا هويته، ولا بريده. لهذا تُعرض
+// هوية صاحب المتجر الحقيقية دائمًا (store.ownerName/ownerEmail) بصرف النظر
+// عن هوية الحساب الذي دخل فعليًا.
 // ============================================================
 
 import { notFound, redirect } from "next/navigation";
 import { getStoreCtx } from "@/lib/tenant";
 import { getCurrentUser } from "@/lib/session";
 import { storeHref } from "@/lib/links";
-import { canAccessStorePanel, isMasterOwner } from "@/lib/authorize";
+import { canAccessStorePanel } from "@/lib/authorize";
 import ClientShell from "@/components/admin/client-shell";
 
 export default async function ClientLayout({
@@ -35,9 +40,8 @@ export default async function ClientLayout({
     <ClientShell
       storeName={store.name}
       subdomain={store.subdomain}
-      user={user}
+      user={{ name: store.ownerName, email: store.ownerEmail }}
       storeUrl={await storeHref(store.subdomain)}
-      masterOwner={isMasterOwner(user)}
     >
       {children}
     </ClientShell>
