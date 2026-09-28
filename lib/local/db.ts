@@ -171,6 +171,12 @@ function initSchema(db: DatabaseSync): void {
     social_instagram TEXT,
     social_snapchat TEXT,
     social_tiktok TEXT,
+    seo_title TEXT,
+    seo_description TEXT,
+    seo_keywords TEXT,
+    seo_logo TEXT,
+    seo_og_image TEXT,
+    seo_favicon TEXT,
     landing TEXT,
     updated_at TEXT NOT NULL
   );
@@ -221,8 +227,13 @@ function initSchema(db: DatabaseSync): void {
  */
 function ensureSiteColumns(database: DatabaseSync): void {
   const cols = database.prepare("PRAGMA table_info(site_settings)").all() as { name: string }[];
-  if (!cols.some((c) => c.name === "landing")) {
+  const has = (name: string) => cols.some((c) => c.name === name);
+  if (!has("landing")) {
     database.exec("ALTER TABLE site_settings ADD COLUMN landing TEXT;");
+  }
+  // أعمدة SEO للموقع الرئيسي (تُضاف للقواعد المحلية المُنشأة قبل هذه النسخة)
+  for (const col of ["seo_title", "seo_description", "seo_keywords", "seo_logo", "seo_og_image", "seo_favicon"]) {
+    if (!has(col)) database.exec(`ALTER TABLE site_settings ADD COLUMN ${col} TEXT;`);
   }
 }
 

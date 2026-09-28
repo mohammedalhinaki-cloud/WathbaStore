@@ -738,6 +738,12 @@ export class LocalServices implements Services {
       socialInstagram: (r.social_instagram as string) ?? "",
       socialSnapchat: (r.social_snapchat as string) ?? "",
       socialTiktok: (r.social_tiktok as string) ?? "",
+      seoTitle: (r.seo_title as string) ?? "",
+      seoDescription: (r.seo_description as string) ?? "",
+      seoKeywords: (r.seo_keywords as string) ?? "",
+      seoLogo: (r.seo_logo as string) ?? "",
+      seoOgImage: (r.seo_og_image as string) ?? "",
+      seoFavicon: (r.seo_favicon as string) ?? "",
       landing: mergeLandingContent(landing),
       updatedAt: (r.updated_at as string) ?? now(),
     };
@@ -749,6 +755,7 @@ export class LocalServices implements Services {
       return {
         whatsappNumber: "", developerUrl: "", aboutText: "", heroTitle: "", heroSubtitle: "",
         features: [], faq: [], socialInstagram: "", socialSnapchat: "", socialTiktok: "",
+        seoTitle: "", seoDescription: "", seoKeywords: "", seoLogo: "", seoOgImage: "", seoFavicon: "",
         landing: DEFAULT_LANDING_CONTENT, updatedAt: now(),
       };
     }
@@ -761,17 +768,23 @@ export class LocalServices implements Services {
     const next = { ...cur, ...(clean as Partial<SiteSettings>), updatedAt: now() };
     db().prepare(`INSERT INTO site_settings
       (id, whatsapp_number, developer_url, about_text, hero_title, hero_subtitle, features, faq,
-       social_instagram, social_snapchat, social_tiktok, landing, updated_at)
-      VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?)
+       social_instagram, social_snapchat, social_tiktok,
+       seo_title, seo_description, seo_keywords, seo_logo, seo_og_image, seo_favicon,
+       landing, updated_at)
+      VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
       ON CONFLICT(id) DO UPDATE SET
         whatsapp_number=excluded.whatsapp_number, developer_url=excluded.developer_url,
         about_text=excluded.about_text, hero_title=excluded.hero_title, hero_subtitle=excluded.hero_subtitle,
         features=excluded.features, faq=excluded.faq, social_instagram=excluded.social_instagram,
         social_snapchat=excluded.social_snapchat, social_tiktok=excluded.social_tiktok,
+        seo_title=excluded.seo_title, seo_description=excluded.seo_description,
+        seo_keywords=excluded.seo_keywords, seo_logo=excluded.seo_logo,
+        seo_og_image=excluded.seo_og_image, seo_favicon=excluded.seo_favicon,
         landing=excluded.landing, updated_at=excluded.updated_at`).run(
       next.whatsappNumber, next.developerUrl, next.aboutText, next.heroTitle, next.heroSubtitle,
       JSON.stringify(next.features), JSON.stringify(next.faq),
       next.socialInstagram, next.socialSnapchat, next.socialTiktok,
+      next.seoTitle, next.seoDescription, next.seoKeywords, next.seoLogo, next.seoOgImage, next.seoFavicon,
       JSON.stringify(next.landing), next.updatedAt
     );
     return next;

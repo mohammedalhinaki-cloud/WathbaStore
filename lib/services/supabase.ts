@@ -864,6 +864,12 @@ export class SupabaseServices implements Services {
       socialInstagram: (r.social_instagram as string) ?? "",
       socialSnapchat: (r.social_snapchat as string) ?? "",
       socialTiktok: (r.social_tiktok as string) ?? "",
+      seoTitle: (r.seo_title as string) ?? "",
+      seoDescription: (r.seo_description as string) ?? "",
+      seoKeywords: (r.seo_keywords as string) ?? "",
+      seoLogo: (r.seo_logo as string) ?? "",
+      seoOgImage: (r.seo_og_image as string) ?? "",
+      seoFavicon: (r.seo_favicon as string) ?? "",
       landing: mergeLandingContent(r.landing),
       updatedAt: (r.updated_at as string) ?? new Date().toISOString(),
     };
@@ -879,6 +885,7 @@ export class SupabaseServices implements Services {
       return {
         whatsappNumber: "", developerUrl: "", aboutText: "", heroTitle: "", heroSubtitle: "",
         features: [], faq: [], socialInstagram: "", socialSnapchat: "", socialTiktok: "",
+        seoTitle: "", seoDescription: "", seoKeywords: "", seoLogo: "", seoOgImage: "", seoFavicon: "",
         landing: DEFAULT_LANDING_CONTENT,
         updatedAt: new Date().toISOString(),
       };
@@ -901,19 +908,30 @@ export class SupabaseServices implements Services {
       social_instagram: next.socialInstagram,
       social_snapchat: next.socialSnapchat,
       social_tiktok: next.socialTiktok,
+      seo_title: next.seoTitle,
+      seo_description: next.seoDescription,
+      seo_keywords: next.seoKeywords,
+      seo_logo: next.seoLogo,
+      seo_og_image: next.seoOgImage,
+      seo_favicon: next.seoFavicon,
       landing: next.landing,
     };
-    const { error } = await (await supabaseServer()).from("site_settings").upsert(row);
-    if (error) {
-      // توافق مؤقت: إن لم يُطبَّق ترحيل 0010 بعد (لا يوجد عمود landing)
-      // يُعاد الحفظ بدونه حتى لا تتعطل بقية الإعدادات.
-      if (/landing/i.test(error.message)) {
-        delete row.landing;
-        const retry = await (await supabaseServer()).from("site_settings").upsert(row);
-        if (retry.error) throw new Error(retry.error.message);
-        return next;
-      }
-      throw new Error(error.message);
+    // أعمدة قد لا تكون مطبَّقة بعد على الإنتاج (ترحيلات 0010/0013).
+    // نحاول الحفظ كاملًا، وإن اشتكى Supabase من عمود مفقود نُسقطه ونعيد
+    // المحاولة حتى لا تتعطل بقية الإعدادات قبل تطبيق الترحيل.
+    const optionalCols = [
+      "landing", "seo_title", "seo_description", "seo_keywords",
+      "seo_logo", "seo_og_image", "seo_favicon",
+    ];
+    let attempt = { ...row };
+    for (let i = 0; i <= optionalCols.length; i++) {
+      const { error } = await (await supabaseServer()).from("site_settings").upsert(attempt);
+      if (!error) return next;
+      const missing = optionalCols.find(
+        (c) => c in attempt && new RegExp(`\\b${c}\\b`, "i").test(error.message)
+      );
+      if (!missing) throw new Error(error.message);
+      delete attempt[missing];
     }
     return next;
   }

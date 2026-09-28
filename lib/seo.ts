@@ -5,9 +5,84 @@
 // ============================================================
 
 import type { Metadata } from "next";
-import type { StoreBundle } from "./types";
-import { mainDomain, APP_NAME, replaceLegacyPlatformDomain } from "./constants";
+import type { SiteSettings, StoreBundle } from "./types";
+import { mainDomain, APP_NAME, APP_TAGLINE, replaceLegacyPlatformDomain } from "./constants";
 import { services } from "./services";
+
+// ============================================================
+// SEO الموقع الرئيسي (maaoun.com) — قيم يحررها المالك من لوحة
+// الإعدادات، مع رجوع آمن إلى الافتراضي عند غياب أي قيمة.
+// ============================================================
+
+/** الروابط/العناوين الافتراضية للموقع الرئيسي عند عدم ضبط قيمة من اللوحة */
+function siteDefaults() {
+  const url = `https://${mainDomain()}`;
+  return {
+    url,
+    title: `${APP_NAME} ${APP_TAGLINE}`,
+    description: `${APP_NAME} ${APP_TAGLINE} في السعودية. ننشئ لك موقعًا أو متجرًا إلكترونيًا احترافيًا مع التصميم والتجهيز والتسليم والدعم.`,
+    logo: `${url}/logo.png`,
+    ogImage: `${url}/og-image.png`,
+  };
+}
+
+/** شعار المنصة الذي يظهر في نتائج بحث قوقل (Organization logo) */
+export function siteLogoUrl(settings: SiteSettings): string {
+  const d = siteDefaults();
+  const raw = settings.seoLogo?.trim() || d.logo;
+  return replaceLegacyPlatformDomain(raw);
+}
+
+/** صورة المشاركة (Open Graph) للموقع الرئيسي */
+export function siteOgImageUrl(settings: SiteSettings): string {
+  const d = siteDefaults();
+  const raw = settings.seoOgImage?.trim() || settings.seoLogo?.trim() || d.ogImage;
+  return replaceLegacyPlatformDomain(raw);
+}
+
+/**
+ * يبني Metadata للموقع الرئيسي من إعدادات المالك.
+ * يُستدعى في generateMetadata للصفحة الرئيسية (حالة الـ Landing فقط)
+ * فيتجاوز الافتراضي المكتوب في app/layout.tsx عند وجود قيمة مضبوطة.
+ */
+export function siteMainMetadata(settings: SiteSettings): Metadata {
+  const d = siteDefaults();
+  const title = settings.seoTitle?.trim() || d.title;
+  const description = settings.seoDescription?.trim() || d.description;
+  const keywords = settings.seoKeywords
+    ?.split(",")
+    .map((k) => k.trim())
+    .filter(Boolean);
+  const ogImage = siteOgImageUrl(settings);
+  const favicon = settings.seoFavicon?.trim()
+    ? replaceLegacyPlatformDomain(settings.seoFavicon.trim())
+    : null;
+
+  const meta: Metadata = {
+    title: { absolute: title },
+    description,
+    keywords: keywords?.length ? keywords : undefined,
+    alternates: { canonical: d.url },
+    openGraph: {
+      title,
+      description,
+      url: d.url,
+      siteName: APP_NAME,
+      locale: "ar_SA",
+      type: "website",
+      images: [{ url: ogImage }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
+  };
+  // أيقونة مخصّصة من المالك تتجاوز أيقونة layout الافتراضية
+  if (favicon) meta.icons = { icon: favicon, apple: favicon };
+  return meta;
+}
 
 /** الرابط الأساسي للمتجر: يفضّل seoCanonical المضبوط، وإلا يُبنى من النطاق الفرعي */
 export function storeBaseUrl(bundle: StoreBundle): string {

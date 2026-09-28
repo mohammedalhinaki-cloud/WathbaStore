@@ -8,11 +8,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import type { ActivityLog, Offer, PortfolioItem, PricingPlan, SiteSettings } from "@/lib/types";
 import { ACTIVITY_LABELS } from "@/lib/types";
 import { formatDate } from "@/lib/constants";
-import { formatPrice } from "@/lib/constants";
+import { formatPrice, mainDomain, APP_NAME, APP_TAGLINE } from "@/lib/constants";
 import { Card, Field, inputCls, PrimaryBtn, GhostBtn, Toggle, EmptyState } from "./ui";
 import { FormAlerts } from "./use-api";
 import UploadField from "./upload-field";
@@ -455,6 +455,14 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
   const [features, setFeatures] = useState(settings.features.map((f) => ({ ...f })));
   const [faq, setFaq] = useState(settings.faq.map((f) => ({ ...f })));
 
+  // إعدادات SEO للموقع الرئيسي (maaoun.com)
+  const [seoTitle, setSeoTitle] = useState(settings.seoTitle ?? "");
+  const [seoDescription, setSeoDescription] = useState(settings.seoDescription ?? "");
+  const [seoKeywords, setSeoKeywords] = useState(settings.seoKeywords ?? "");
+  const [seoLogo, setSeoLogo] = useState(settings.seoLogo ?? "");
+  const [seoOgImage, setSeoOgImage] = useState(settings.seoOgImage ?? "");
+  const [seoFavicon, setSeoFavicon] = useState(settings.seoFavicon ?? "");
+
   async function save() {
     setBusy(true);
     setError(null);
@@ -470,6 +478,12 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
           socialInstagram: instagram.trim(),
           socialSnapchat: snapchat.trim(),
           socialTiktok: tiktok.trim(),
+          seoTitle: seoTitle.trim(),
+          seoDescription: seoDescription.trim(),
+          seoKeywords: seoKeywords.trim(),
+          seoLogo: seoLogo.trim(),
+          seoOgImage: seoOgImage.trim(),
+          seoFavicon: seoFavicon.trim(),
           features: features.filter((f) => f.title.trim()),
           faq: faq.filter((f) => f.q.trim()),
         }),
@@ -497,6 +511,77 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
           <Field label="رابط الموقع المطور (DEVELOPER_URL)">
             <input className={inputCls} dir="ltr" value={devUrl} onChange={(e) => setDevUrl(e.target.value)} />
           </Field>
+        </div>
+      </Card>
+
+      <Card>
+        <div className="mb-1 flex items-center gap-2">
+          <Search className="h-4 w-4 text-brand-600" />
+          <h3 className="font-extrabold text-ink-900">SEO الموقع الرئيسي (قوقل)</h3>
+        </div>
+        <p className="mb-4 text-sm text-ink-500">
+          هذه الإعدادات تتحكم بظهور <span dir="ltr" className="font-bold">{mainDomain()}</span> في نتائج بحث قوقل ونتائج المشاركة.
+          اترك أي حقل فارغًا ليُستخدم النص الافتراضي.
+        </p>
+        <div className="space-y-4">
+          <Field label="عنوان الموقع (Title)" hint={`${seoTitle.length}/60 حرف — يظهر كعنوان أزرق في نتائج البحث وتبويب المتصفح`}>
+            <input className={inputCls} value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} placeholder={`${APP_NAME} ${APP_TAGLINE}`} />
+          </Field>
+          <Field label="وصف الموقع (Meta Description)" hint={`${seoDescription.length}/160 حرف — يظهر أسفل العنوان في نتائج البحث`}>
+            <textarea className={inputCls} rows={3} value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} placeholder={`${APP_NAME} ${APP_TAGLINE} — نصمّم ونجهّز ونسلّم متجرك جاهزًا.`} />
+          </Field>
+          <Field label="الكلمات المفتاحية" hint="افصلها بفواصل">
+            <input className={inputCls} value={seoKeywords} onChange={(e) => setSeoKeywords(e.target.value)} placeholder="بناء المواقع, متجر إلكتروني, تصميم متجر" />
+          </Field>
+
+          {/* شعار قوقل — Organization logo */}
+          <div className="rounded-2xl border border-ink-150 bg-ink-50/40 p-4">
+            <UploadField
+              storeId="site"
+              folder="logo"
+              label="شعار الموقع في نتائج قوقل (Logo)"
+              value={seoLogo ? [seoLogo] : []}
+              onChange={(urls) => setSeoLogo(urls[urls.length - 1] ?? "")}
+              hint="يظهر بجانب اسم الموقع في نتائج البحث والبطاقة التعريفية. يُفضّل صورة مربّعة واضحة (PNG بخلفية شفافة)، ولا تقل عن 112×112 بكسل."
+            />
+            <div className="mt-3">
+              <Field label="أو الصق رابط الشعار مباشرة" hint="اختياري — يُستخدم إن لم ترفع صورة">
+                <input className={inputCls} dir="ltr" value={seoLogo} onChange={(e) => setSeoLogo(e.target.value)} placeholder={`https://${mainDomain()}/logo.png`} />
+              </Field>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="صورة المشاركة (Open Graph)" hint="تظهر عند مشاركة الرابط في واتساب وتويتر">
+              <input className={inputCls} dir="ltr" value={seoOgImage} onChange={(e) => setSeoOgImage(e.target.value)} placeholder={`https://${mainDomain()}/og-image.png`} />
+            </Field>
+            <Field label="أيقونة المتصفح (Favicon)" hint="اختياري — الأيقونة الصغيرة في نتائج البحث والتبويب">
+              <input className={inputCls} dir="ltr" value={seoFavicon} onChange={(e) => setSeoFavicon(e.target.value)} placeholder={`https://${mainDomain()}/favicon.png`} />
+            </Field>
+          </div>
+
+          {/* معاينة نتيجة البحث */}
+          <div>
+            <p className="mb-2 text-sm font-bold text-ink-700">معاينة نتيجة قوقل</p>
+            <div className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm">
+              <div className="flex items-center gap-2">
+                {seoLogo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={seoLogo} alt="" className="h-6 w-6 rounded-full object-contain ring-1 ring-ink-200" />
+                ) : (
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-100 text-[10px] font-bold text-brand-700">م</span>
+                )}
+                <div className="leading-tight">
+                  <p className="text-xs font-bold text-ink-700">{APP_NAME}</p>
+                  <p className="text-[11px] text-emerald-700" dir="ltr">https://{mainDomain()}</p>
+                </div>
+              </div>
+              <p className="mt-1.5 truncate text-lg text-blue-700">{seoTitle || `${APP_NAME} ${APP_TAGLINE}`}</p>
+              <p className="mt-1 line-clamp-2 text-sm leading-6 text-ink-500">
+                {seoDescription || `${APP_NAME} ${APP_TAGLINE} — نصمّم ونجهّز ونسلّم متجرك جاهزًا للإدارة.`}
+              </p>
+            </div>
+          </div>
         </div>
       </Card>
 
