@@ -17,7 +17,9 @@ export default async function ClientLogsPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <PageHeader title="سجل النشاط" sub="آخر العمليات على متجرك" />
-      <ActivityList logs={logs} stores={[{ id: store.id, name: store.name }]} />
+      {/* hideActor: لا يظهر بريد المنفّذ هنا حتى لا يُكشَف حساب المالك
+          الرئيسي عند تدخّله في هذا المتجر */}
+      <ActivityList logs={logs} stores={[{ id: store.id, name: store.name }]} hideActor />
     </div>
   );
 }

@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
 import { getTenant, getStoreCtx } from "@/lib/tenant";
 import { getCurrentUser } from "@/lib/session";
-import { canAccessStorePanel, isMasterOwner } from "@/lib/authorize";
+import { canAccessStorePanel } from "@/lib/authorize";
 import { services } from "@/lib/services";
 import { storeHref } from "@/lib/links";
 import { mainDomain } from "@/lib/constants";
@@ -50,10 +50,11 @@ export default async function AdminHome() {
     }
     return (
       <ClientDashboard
-        user={user}
+        // ⚠️ هوية صاحب المتجر الحقيقية دائمًا — حتى لو الداخل هو المالك
+        // الرئيسي، فلا يظهر أي أثر لحسابه داخل لوحة المتجر.
+        user={{ name: store.ownerName, email: store.ownerEmail }}
         storeId={store.id}
         storeUrlHref={await storeHref(store.subdomain)}
-        masterOwner={isMasterOwner(user)}
       />
     );
   }
@@ -211,12 +212,10 @@ async function ClientDashboard({
   user,
   storeId,
   storeUrlHref,
-  masterOwner = false,
 }: {
   user: { name: string; email: string };
   storeId: string;
   storeUrlHref: string;
-  masterOwner?: boolean;
 }) {
   const [store, products, categories, logs] = await Promise.all([
     services().getStore(storeId),
@@ -236,7 +235,6 @@ async function ClientDashboard({
       subdomain={store.subdomain}
       user={user}
       storeUrl={storeUrlHref}
-      masterOwner={masterOwner}
     >
       <PageHeader
         title={`أهلًا ${user.name || store.ownerName} 👋`}
