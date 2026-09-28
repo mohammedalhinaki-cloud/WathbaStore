@@ -21,6 +21,7 @@ import {
 } from "@/lib/types";
 import { Card, Field, inputCls, PrimaryBtn, GhostBtn } from "./ui";
 import { FormAlerts } from "./use-api";
+import ImageField from "./image-field";
 
 const TABS = [
   { key: "sections", label: "الأقسام والإظهار" },
@@ -193,9 +194,18 @@ function HeroTab({
             <input className={inputCls} value={data.secondaryBtn} onChange={(e) => set("secondaryBtn", e.target.value)} />
           </Field>
         </div>
-        <Field label="صورة الغلاف" hint="مسار محلي مثل /seed/hero.jpg أو رابط صورة خارجي كامل https://…">
-          <input className={inputCls} dir="ltr" value={data.imageUrl} onChange={(e) => set("imageUrl", e.target.value)} />
-        </Field>
+        <ImageField
+          storeId="site"
+          folder="cover"
+          label="صورة الغلاف"
+          value={data.imageUrl}
+          onChange={(url) => set("imageUrl", url)}
+          shape="wide"
+          recommend="عرضية 1200×800"
+          hint="ارفعها من جهازك مباشرة، أو استخدم مسارًا محليًا مثل /seed/hero.jpg أو رابطًا خارجيًا كاملًا."
+          urlLabel="أو الصق مسار/رابط الصورة مباشرة"
+          urlPlaceholder="/seed/hero.jpg"
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="بطاقة التسليم — العنوان" hint="الشارة العائمة أسفل الصورة">
             <input className={inputCls} value={data.badgeTitle} onChange={(e) => set("badgeTitle", e.target.value)} />
