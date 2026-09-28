@@ -27,6 +27,7 @@ import {
   ArrowLeft,
   ExternalLink,
   MessageCircle,
+  MessageSquareText,
   Plus,
   Palette,
   Activity as ActivityIcon,
@@ -257,6 +258,14 @@ async function ClientDashboard({
         <StatCard icon={<Store className="h-6 w-6" />} label="الأقسام" value={categories.length} tone="violet" />
         <StatCard icon={<MessageCircle className="h-6 w-6" />} label="واتساب المتجر" value={store.whatsapp ? "مفعّل" : "غير مضبوط"} tone={store.whatsapp ? "emerald" : "rose"} />
       </div>
+
+      <Link href="/admin/google-replies" className="mt-6 flex items-center justify-between gap-4 rounded-2xl border border-brand-100 bg-gradient-to-l from-brand-50 to-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+        <div className="flex items-center gap-4">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-600 text-white"><MessageSquareText className="h-5 w-5" /></span>
+          <div><p className="font-extrabold text-ink-900">كاتب ردود Google maps</p><p className="mt-1 text-xs text-ink-500">ردود احترافية ودافئة على تقييمات عملائك — جرّبه الآن</p></div>
+        </div>
+        <ArrowLeft className="h-5 w-5 shrink-0 text-brand-600" />
+      </Link>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
