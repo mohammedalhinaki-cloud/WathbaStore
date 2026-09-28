@@ -13,7 +13,6 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  MessageSquareText,
   Palette,
   ShieldCheck,
   Store,
@@ -40,7 +39,6 @@ const NAV = [
   { href: "/admin/categories", label: "الأقسام", icon: Tags },
   { href: "/admin/appearance", label: "المظهر والبيانات", icon: Palette },
   { href: "/admin/logs", label: "سجل النشاط", icon: Activity },
-  { href: "/admin/google-replies", label: "كاتب ردود Google maps", icon: MessageSquareText },
 ];
 
 export default function ClientShell({
