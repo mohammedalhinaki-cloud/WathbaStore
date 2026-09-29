@@ -558,10 +558,11 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
                 value={seoOgImage}
                 onChange={setSeoOgImage}
                 shape="wide"
-                recommend="عرضية 1200×630"
-                hint="تظهر عند مشاركة رابط الموقع في واتساب وتويتر وبقية المنصات."
+                recommend="عرضية 1200×630 — أقل من 300KB (يُضغط تلقائيًا عند الرفع)"
+                hint="تظهر عند مشاركة رابط الموقع في واتساب وتويتر وبقية المنصات. واتساب يتجاهل الصور الكبيرة بصمت؛ لذلك نضغطها تلقائيًا عند الرفع من جهازك."
                 urlLabel="أو الصق رابط الصورة مباشرة"
                 urlPlaceholder={`https://${mainDomain()}/og-image.png`}
+                shareOptimized
               />
               <ImageField
                 storeId="site"
