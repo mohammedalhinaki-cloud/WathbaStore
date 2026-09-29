@@ -48,6 +48,13 @@ interface Props {
   /** نص حقل الرابط الاختياري */
   urlLabel?: string;
   urlPlaceholder?: string;
+  /**
+   * فعّلها لحقول صورة المشاركة (Open Graph) تحديدًا: تضغط الصورة في
+   * المتصفح قبل الرفع (تصغير الأبعاد وإعادة الترميز JPEG) حتى تبقى
+   * دائمًا ضمن الحد الآمن لمعاينات واتساب (~300KB). لا تُفعَّل لحقول
+   * الشعار أو غلاف المتجر المرئي حتى لا تتأثر جودة عرضها في الموقع.
+   */
+  shareOptimized?: boolean;
 }
 
 export default function ImageField({
@@ -61,6 +68,7 @@ export default function ImageField({
   shape = "square",
   urlLabel = "أو الصق رابط صورة جاهز",
   urlPlaceholder,
+  shareOptimized = false,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -68,7 +76,12 @@ export default function ImageField({
   const { uploading, error, errorCode, clearError, upload } = useImageUpload({ storeId, folder });
 
   async function handleFiles(files: FileList | File[] | null) {
-    const urls = await upload(files);
+    let list = files ? Array.from(files as ArrayLike<File>) : [];
+    if (shareOptimized && list.length) {
+      const { compressForSocialShare } = await import("./compress-for-share");
+      list = await Promise.all(list.map((f) => compressForSocialShare(f)));
+    }
+    const urls = await upload(list);
     const last = urls[urls.length - 1];
     if (last) {
       setBroken(false);

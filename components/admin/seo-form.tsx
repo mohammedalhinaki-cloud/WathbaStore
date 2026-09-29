@@ -89,6 +89,7 @@ export default function SeoForm({ store, settings, canonicalBase }: Props) {
               hint="تظهر عند مشاركة رابط المتجر في واتساب وتويتر. إن تركتها فارغة تُستخدم صورة غلاف المتجر."
               urlLabel="أو الصق رابط الصورة مباشرة"
               urlPlaceholder={store.coverUrl || "https://…/og-image.png"}
+              shareOptimized
             />
             <ImageField
               storeId={store.id}

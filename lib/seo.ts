@@ -33,11 +33,68 @@ export function siteLogoUrl(settings: SiteSettings): string {
   return replaceLegacyPlatformDomain(raw);
 }
 
-/** صورة المشاركة (Open Graph) للموقع الرئيسي */
+/** صورة المشاركة (Open Graph) للموقع الرئيسي — القيمة «الخام» كما ضُبطت من اللوحة */
 export function siteOgImageUrl(settings: SiteSettings): string {
   const d = siteDefaults();
   const raw = settings.seoOgImage?.trim() || settings.seoLogo?.trim() || d.ogImage;
   return replaceLegacyPlatformDomain(raw);
+}
+
+// ------------------------------------------------------------
+// شبكة أمان لصورة المشاركة: سبب اختفاء صورة معاينة واتساب سابقًا
+// ------------------------------------------------------------
+// واتساب (خلافًا لفيسبوك/تويتر) يتجاهل og:image بصمت — بلا أي خطأ
+// ظاهر — إن كان حجم الملف أكبر من ~300-600 كيلوبايت تقريبًا. حين
+// استُبدل شعار الموقع ورُفعت صورة غلاف جديدة عبر لوحة الإعدادات (بلا
+// أي ضغط في مسار الرفع) أصبح seoOgImage يشير إلى ملف بحجم ~1 ميجابايت
+// فتوقفت معاينة واتساب رغم أن الرابط صحيح تمامًا ويعمل في المتصفح
+// وفي فيسبوك/تويتر (الأكثر تسامحًا مع الحجم).
+//
+// هذه الدالة تتحقق فعليًا (HEAD) أن الصورة المضبوطة صورة حقيقية وأن
+// حجمها ضمن الحد الآمن لمعاينات واتساب؛ فإن فشل أي شرط نستخدم
+// الصورة الافتراضية للمنصة (شعار MAAOUN الحالي، 1200×630، مضغوطة)
+// بدل أن تختفي المعاينة بالكامل.
+const MAX_SHAREABLE_IMAGE_BYTES = 300 * 1024; // 300KB — الحد الآمن المعروف لمعاينات واتساب
+const OG_IMAGE_CHECK_TIMEOUT_MS = 4000;
+
+async function isShareableImage(url: string): Promise<boolean> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), OG_IMAGE_CHECK_TIMEOUT_MS);
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        method: "HEAD",
+        signal: controller.signal,
+        // يُخفّف تكرار الطلب لكل زيارة للصفحة الرئيسية دون تجاهل تغييرات لاحقة
+        next: { revalidate: 1800 },
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+    if (!res.ok) return false;
+    const type = (res.headers.get("content-type") || "").toLowerCase();
+    // SVG/GIF غير مدعومة عمليًا في بطاقة واتساب — نطلب صورة نقطية حقيقية
+    if (!type.startsWith("image/") || type.includes("svg")) return false;
+    const len = Number(res.headers.get("content-length") || "");
+    if (!Number.isFinite(len) || len <= 0) return false;
+    return len <= MAX_SHAREABLE_IMAGE_BYTES;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * صورة المشاركة الفعلية للموقع الرئيسي بعد التحقق من قابليتها فعليًا
+ * للعرض في معاينات واتساب. تُستخدم هذه بدل siteOgImageUrl مباشرة في
+ * بناء الـ Metadata حتى لا تكسر صورة كبيرة أو مسار معطوب معاينة الرابط.
+ */
+export async function resolveSiteOgImage(settings: SiteSettings): Promise<string> {
+  const d = siteDefaults();
+  const candidate = siteOgImageUrl(settings);
+  if (candidate === d.ogImage) return candidate; // أصلًا الصورة الافتراضية — لا داعي للتحقق
+  const safe = await isShareableImage(candidate);
+  return safe ? candidate : d.ogImage;
 }
 
 /**
@@ -45,7 +102,7 @@ export function siteOgImageUrl(settings: SiteSettings): string {
  * يُستدعى في generateMetadata للصفحة الرئيسية (حالة الـ Landing فقط)
  * فيتجاوز الافتراضي المكتوب في app/layout.tsx عند وجود قيمة مضبوطة.
  */
-export function siteMainMetadata(settings: SiteSettings): Metadata {
+export async function siteMainMetadata(settings: SiteSettings): Promise<Metadata> {
   const d = siteDefaults();
   const title = settings.seoTitle?.trim() || d.title;
   const description = settings.seoDescription?.trim() || d.description;
@@ -53,7 +110,8 @@ export function siteMainMetadata(settings: SiteSettings): Metadata {
     ?.split(",")
     .map((k) => k.trim())
     .filter(Boolean);
-  const ogImage = siteOgImageUrl(settings);
+  const ogImage = await resolveSiteOgImage(settings);
+  const isDefaultOgImage = ogImage === d.ogImage;
   const favicon = settings.seoFavicon?.trim()
     ? replaceLegacyPlatformDomain(settings.seoFavicon.trim())
     : null;
@@ -70,7 +128,13 @@ export function siteMainMetadata(settings: SiteSettings): Metadata {
       siteName: APP_NAME,
       locale: "ar_SA",
       type: "website",
-      images: [{ url: ogImage }],
+      // الأبعاد معروفة فقط للصورة الافتراضية المضبوطة يدويًا في المشروع؛
+      // صورة مخصّصة من المالك قد تكون بأي مقاس فلا نخترع أبعادًا خاطئة.
+      images: [
+        isDefaultOgImage
+          ? { url: ogImage, width: 1200, height: 630, alt: `${APP_NAME} — ${APP_TAGLINE}` }
+          : { url: ogImage },
+      ],
     },
     twitter: {
       card: "summary_large_image",

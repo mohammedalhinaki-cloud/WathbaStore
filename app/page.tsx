@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
   // الموقع الرئيسي (maaoun.com): SEO يحرره المالك من لوحة الإعدادات
   const settings = await services().getSiteSettings();
-  return siteMainMetadata(settings);
+  return await siteMainMetadata(settings);
 }
 
 export default async function HomePage() {
