@@ -132,6 +132,20 @@ function joinUrl(base: string, path: string): string {
 }
 
 /**
+ * يحوّل أي رابط صورة إلى رابط مطلق (https://…).
+ * Google ومنصات المشاركة (واتساب/تويتر) تتجاهل الروابط النسبية في
+ * البيانات المنظمة (JSON-LD) وتفضّل المطلقة في og:image، بينما
+ * صور المتاجر تُخزَّن غالبًا كمسارات نسبية (/uploads/… أو /seed/…).
+ * الروابط المطلقة أصلًا تُعاد كما هي.
+ */
+export function absoluteAssetUrl(raw: string | null | undefined, base: string): string | null {
+  const u = raw?.trim();
+  if (!u) return null;
+  if (/^https?:\/\//i.test(u)) return u;
+  return joinUrl(base, u);
+}
+
+/**
  * يبني بيانات Structured Data (schema.org) لمتجر واحد:
  * - WebSite    → ليفهم Google أن hostname معيّن = اسم المتجر
  * - LocalBusiness → اسم النشاط التجاري وبياناته (النوع العام الأنسب بلا تصنيف مخزّن)
@@ -141,8 +155,16 @@ export function buildStoreJsonLd(bundle: StoreBundle): Record<string, unknown> {
   const url = storeBaseUrl(bundle);
   const name = store.name;
   const description = storeDescription(bundle);
-  const logo = replaceLegacyPlatformDomain(settings.seoFavicon?.trim() || store.logoUrl || "") || null;
-  const image = replaceLegacyPlatformDomain(store.coverUrl || settings.seoOgImage || logo || "") || null;
+  // الشعار والصورة في البيانات المنظمة يجب أن تكون روابط مطلقة —
+  // Google يتجاهل logo النسبي فلا يظهر الشعار في نتائج البحث.
+  const logo = absoluteAssetUrl(
+    replaceLegacyPlatformDomain(settings.seoFavicon?.trim() || store.logoUrl || "") || null,
+    url
+  );
+  const image = absoluteAssetUrl(
+    replaceLegacyPlatformDomain(store.coverUrl || settings.seoOgImage || logo || "") || null,
+    url
+  );
   const telephone = (store.whatsapp || store.ownerPhone || "").replace(/[^\d+]/g, "");
 
   const business: Record<string, unknown> = {
@@ -196,8 +218,15 @@ export function storePageMetadata(
 
   const title = opts?.title ?? storeTitle(bundle);
   const description = (opts?.description ?? storeDescription(bundle)) || undefined;
-  const images = opts?.images?.length
-    ? opts.images.map((u) => ({ url: replaceLegacyPlatformDomain(u) }))
+  // روابط الصور النسبية تُحَل ضد نطاق المتجر نفسه (وليس نطاق المنصة
+  // في metadataBase) حتى تشير og:image دائمًا إلى أصل المتجر الصحيح.
+  const resolvedImages = opts?.images?.length
+    ? opts.images
+        .map((u) => absoluteAssetUrl(replaceLegacyPlatformDomain(u), base))
+        .filter((u): u is string => Boolean(u))
+    : [];
+  const images = resolvedImages.length
+    ? resolvedImages.map((u) => ({ url: u }))
     : undefined;
 
   const keywords = opts?.keywords?.length
@@ -211,6 +240,13 @@ export function storePageMetadata(
     title: { absolute: title },
     description,
     keywords: keywords?.length ? keywords : undefined,
+    // أيقونة واحدة ديناميكية واعية بالنطاق (/icon). بدون هذا التجاوز
+    // ترث صفحات المتجر أيقونات المنصة الثابتة من layout الجذر
+    // (icon.svg، favicon-32x32…) فيظهر شعار «معون» في تبويب المتجر.
+    icons: {
+      icon: [{ url: "/icon", sizes: "any" }],
+      apple: [{ url: "/icon" }],
+    },
     alternates: { canonical },
     openGraph: {
       title,
@@ -219,6 +255,13 @@ export function storePageMetadata(
       images,
       locale: "ar_SA",
       type: "website",
+    },
+    // بلا هذا يرث المتجر بطاقة تويتر الخاصة بالمنصة من layout الجذر.
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: description || undefined,
+      images: resolvedImages.length ? resolvedImages : undefined,
     },
   };
 }

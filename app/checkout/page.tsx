@@ -15,6 +15,12 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
+  // صفحة الدفع جزء من واجهة المتجر — أيقونتها يجب أن تكون أيقونة
+  // المتجر (المسار الديناميكي /icon الواعي بالنطاق) وليس أيقونة المنصة.
+  icons: {
+    icon: [{ url: "/icon", sizes: "any" }],
+    apple: [{ url: "/icon" }],
+  },
 };
 
 export default async function CheckoutPage() {
