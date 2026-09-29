@@ -83,7 +83,9 @@ export default function ImageField({
   const hasValue = Boolean(value.trim());
 
   return (
-    <div className="rounded-2xl border border-ink-150 bg-ink-50/40 p-4">
+    // min-w-0: الصندوق عنصر داخل grid — بدونها قد يفرض محتواه
+    // حدًّا أدنى أعرض من عمود الشبكة على شاشات الجوال الضيقة
+    <div className="min-w-0 rounded-2xl border border-ink-150 bg-ink-50/40 p-4">
       <div className="mb-2 flex items-center justify-between gap-3">
         <span className="text-sm font-bold text-ink-700">{label}</span>
         {hasValue && (
@@ -142,7 +144,9 @@ export default function ImageField({
             <p className="text-sm font-bold text-ink-600">جارٍ رفع الصورة…</p>
           </div>
         ) : hasValue ? (
-          <div className="flex items-center gap-4 text-right">
+          // على الجوال: المعاينة فوق والنص تحتها (لا تنحشر بجانب بعضها).
+          // من شاشة sm وما فوق تعود بجانب النص كما كانت.
+          <div className="flex flex-col items-start gap-3 text-right sm:flex-row sm:items-center sm:gap-4">
             <div
               className={`grid shrink-0 place-items-center overflow-hidden rounded-xl bg-white ring-1 ring-ink-200 ${PREVIEW_BOX[shape]}`}
             >
@@ -161,12 +165,12 @@ export default function ImageField({
                 />
               )}
             </div>
-            <div className="min-w-0 flex-1">
+            <div className="w-full min-w-0 sm:flex-1">
               <p className="inline-flex items-center gap-1.5 text-sm font-bold text-ink-700">
-                <RefreshCw className="h-3.5 w-3.5 text-brand-600" />
+                <RefreshCw className="h-3.5 w-3.5 shrink-0 text-brand-600" />
                 اسحب صورة جديدة هنا أو اضغط للاستبدال
               </p>
-              <p className="mt-1 truncate text-xs text-ink-400" dir="ltr">
+              <p className="mt-1 w-full truncate text-xs text-ink-400" dir="ltr">
                 {value}
               </p>
             </div>
@@ -202,7 +206,9 @@ export default function ImageField({
       {error && (
         <div className="mt-2 flex items-start gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-500" />
-          <p className="text-xs font-semibold leading-5 text-rose-700">
+          {/* break-words: رسائل الخادم قد تحمل رابطًا طويلًا بلا فراغات
+              فتخرج عن حدود الصندوق على الجوال بدونها */}
+          <p className="min-w-0 break-words text-xs font-semibold leading-5 text-rose-700">
             {error}
             {errorCode && (
               <span className="mt-0.5 block font-mono text-[10px] text-rose-400">{errorCode}</span>

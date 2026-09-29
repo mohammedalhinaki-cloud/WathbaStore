@@ -669,10 +669,14 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
         </div>
         <div className="space-y-3">
           {features.map((f, i) => (
-            <div key={i} className="flex gap-2">
-              <input className={`${inputCls} flex-1`} placeholder="العنوان" value={f.title} onChange={(e) => setFeatures(features.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)))} />
-              <input className={`${inputCls} flex-[2]`} placeholder="الوصف" value={f.desc} onChange={(e) => setFeatures(features.map((x, j) => (j === i ? { ...x, desc: e.target.value } : x)))} />
-              <button onClick={() => setFeatures(features.filter((_, j) => j !== i))} className="rounded-lg px-3 text-rose-500 hover:bg-rose-50">
+            // ملاحظة تجاوب: حقل الإدخال له حد أدنى فطري (~20 خانة) وعناصر
+            // flex لا تنكمش تحته (min-width:auto) — صف واحد بحقلين + زر
+            // يتجاوز حد البطاقة على الجوال. نرصّهم عموديًا على الجوال
+            // ونعيد الصف الأفقي من sm فصاعدًا مع min-w-0 للانكماش الآمن.
+            <div key={i} className="flex flex-col gap-2 sm:flex-row sm:items-start">
+              <input className={`${inputCls} min-w-0 sm:flex-1`} placeholder="العنوان" value={f.title} onChange={(e) => setFeatures(features.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)))} />
+              <input className={`${inputCls} min-w-0 sm:flex-[2]`} placeholder="الوصف" value={f.desc} onChange={(e) => setFeatures(features.map((x, j) => (j === i ? { ...x, desc: e.target.value } : x)))} />
+              <button onClick={() => setFeatures(features.filter((_, j) => j !== i))} className="self-end rounded-lg px-3 py-2 text-rose-500 hover:bg-rose-50 sm:self-auto sm:py-2.5" aria-label="حذف الميزة">
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>
@@ -692,8 +696,8 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
           {faq.map((f, i) => (
             <div key={i} className="space-y-2 rounded-xl border border-ink-100 p-3">
               <div className="flex gap-2">
-                <input className={`${inputCls} flex-1`} placeholder="السؤال" value={f.q} onChange={(e) => setFaq(faq.map((x, j) => (j === i ? { ...x, q: e.target.value } : x)))} />
-                <button onClick={() => setFaq(faq.filter((_, j) => j !== i))} className="rounded-lg px-3 text-rose-500 hover:bg-rose-50">
+                <input className={`${inputCls} min-w-0 flex-1`} placeholder="السؤال" value={f.q} onChange={(e) => setFaq(faq.map((x, j) => (j === i ? { ...x, q: e.target.value } : x)))} />
+                <button onClick={() => setFaq(faq.filter((_, j) => j !== i))} className="shrink-0 rounded-lg px-3 text-rose-500 hover:bg-rose-50" aria-label="حذف السؤال">
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>

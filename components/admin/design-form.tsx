@@ -85,17 +85,19 @@ export default function DesignForm({ store, settings }: Props) {
                 ))}
               </select>
             </Field>
-            <div className="grid grid-cols-2 gap-3">
+            {/* عمود واحد: صف اللون (منتقي 56px + حقل HEX بحد أدنى فطري)
+                لا يتّسع في نصف عمود على الجوال فيتجاوز حدود الحقل */}
+            <div className="grid grid-cols-1 gap-3 min-[480px]:grid-cols-2">
               <Field label="اللون الأساسي">
                 <div className="flex items-center gap-2">
-                  <input type="color" className="h-11 w-14 cursor-pointer rounded-xl border border-ink-200 bg-white p-1" value={primary} onChange={(e) => setPrimary(e.target.value)} />
-                  <input className={inputCls} dir="ltr" value={primary} onChange={(e) => setPrimary(e.target.value)} />
+                  <input type="color" className="h-11 w-14 shrink-0 cursor-pointer rounded-xl border border-ink-200 bg-white p-1" value={primary} onChange={(e) => setPrimary(e.target.value)} />
+                  <input className={`${inputCls} min-w-0 flex-1`} dir="ltr" value={primary} onChange={(e) => setPrimary(e.target.value)} />
                 </div>
               </Field>
               <Field label="اللون الثانوي">
                 <div className="flex items-center gap-2">
-                  <input type="color" className="h-11 w-14 cursor-pointer rounded-xl border border-ink-200 bg-white p-1" value={secondary} onChange={(e) => setSecondary(e.target.value)} />
-                  <input className={inputCls} dir="ltr" value={secondary} onChange={(e) => setSecondary(e.target.value)} />
+                  <input type="color" className="h-11 w-14 shrink-0 cursor-pointer rounded-xl border border-ink-200 bg-white p-1" value={secondary} onChange={(e) => setSecondary(e.target.value)} />
+                  <input className={`${inputCls} min-w-0 flex-1`} dir="ltr" value={secondary} onChange={(e) => setSecondary(e.target.value)} />
                 </div>
               </Field>
             </div>

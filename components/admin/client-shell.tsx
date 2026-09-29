@@ -159,7 +159,8 @@ export default function ClientShell({
         </div>
       )}
 
-      <div className="lg:mr-64">
+      {/* نفس حماية لوحة المالك: قصّ أي تجاوز أفقي عند حد المحتوى على الجوال */}
+      <div className="min-w-0 overflow-x-clip lg:mr-64">
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</div>
       </div>
     </div>
