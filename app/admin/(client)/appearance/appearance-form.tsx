@@ -147,25 +147,26 @@ export default function ClientAppearanceForm({ store, settings }: Props) {
 
       <Card>
         <h3 className="mb-4 font-extrabold text-ink-900">الألوان والمظهر</h3>
-        <div className="grid grid-cols-2 gap-4">
+        {/* عمود واحد على الجوال: صف اللون لا يتّسع في نصف عمود ضيق */}
+        <div className="grid gap-4 sm:grid-cols-2">
           <Field label="اللون الأساسي">
             <div className="flex items-center gap-2">
-              <input type="color" className="h-11 w-14 cursor-pointer rounded-xl border border-ink-200 bg-white p-1" value={primary} onChange={(e) => setPrimary(e.target.value)} />
-              <input className={inputCls} dir="ltr" value={primary} onChange={(e) => setPrimary(e.target.value)} />
+              <input type="color" className="h-11 w-14 shrink-0 cursor-pointer rounded-xl border border-ink-200 bg-white p-1" value={primary} onChange={(e) => setPrimary(e.target.value)} />
+              <input className={`${inputCls} min-w-0 flex-1`} dir="ltr" value={primary} onChange={(e) => setPrimary(e.target.value)} />
             </div>
           </Field>
           <Field label="اللون الثانوي">
             <div className="flex items-center gap-2">
-              <input type="color" className="h-11 w-14 cursor-pointer rounded-xl border border-ink-200 bg-white p-1" value={secondary} onChange={(e) => setSecondary(e.target.value)} />
-              <input className={inputCls} dir="ltr" value={secondary} onChange={(e) => setSecondary(e.target.value)} />
+              <input type="color" className="h-11 w-14 shrink-0 cursor-pointer rounded-xl border border-ink-200 bg-white p-1" value={secondary} onChange={(e) => setSecondary(e.target.value)} />
+              <input className={`${inputCls} min-w-0 flex-1`} dir="ltr" value={secondary} onChange={(e) => setSecondary(e.target.value)} />
             </div>
           </Field>
         </div>
         <div className="mt-4">
           <Field label="لون خلفية الفوتر">
             <div className="flex items-center gap-2">
-              <input type="color" className="h-11 w-14 cursor-pointer rounded-xl border border-ink-200 bg-white p-1" value={footerBgColor} onChange={(e) => setFooterBgColor(e.target.value)} />
-              <input className={inputCls} dir="ltr" value={footerBgColor} onChange={(e) => setFooterBgColor(e.target.value)} placeholder="#f9fafb" />
+              <input type="color" className="h-11 w-14 shrink-0 cursor-pointer rounded-xl border border-ink-200 bg-white p-1" value={footerBgColor} onChange={(e) => setFooterBgColor(e.target.value)} />
+              <input className={`${inputCls} min-w-0 flex-1`} dir="ltr" value={footerBgColor} onChange={(e) => setFooterBgColor(e.target.value)} placeholder="#f9fafb" />
             </div>
           </Field>
         </div>

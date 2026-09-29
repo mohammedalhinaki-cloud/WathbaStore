@@ -157,7 +157,10 @@ export default function OwnerShell({
         </div>
       )}
 
-      <div className="lg:mr-64">
+      {/* overflow-x-clip: أي عنصر داخلي أعرض من الشاشة يُقصّ عند حد
+          المحتوى بدل أن يسحب الصفحة كلها أفقيًا على الجوال
+          (clip لا ينشئ سياق تمرير فلا يكسر sticky) */}
+      <div className="min-w-0 overflow-x-clip lg:mr-64">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</div>
       </div>
     </div>

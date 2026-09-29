@@ -324,7 +324,7 @@ function AboutTab({
           {data.bullets.map((b, i) => (
             <div key={i} className="flex gap-2">
               <input
-                className={`${inputCls} flex-1`}
+                className={`${inputCls} min-w-0 flex-1`}
                 value={b}
                 onChange={(e) =>
                   onChange({ ...data, bullets: data.bullets.map((x, j) => (j === i ? e.target.value : x)) })
@@ -334,7 +334,7 @@ function AboutTab({
               <button
                 onClick={() => data.bullets.length > 1 && onChange({ ...data, bullets: data.bullets.filter((_, j) => j !== i) })}
                 disabled={data.bullets.length <= 1}
-                className="rounded-lg px-3 text-rose-500 hover:bg-rose-50 disabled:opacity-30"
+                className="shrink-0 rounded-lg px-3 text-rose-500 hover:bg-rose-50 disabled:opacity-30"
                 aria-label="حذف"
               >
                 <Trash2 className="h-4 w-4" />
@@ -390,7 +390,7 @@ function TitleDescList({
           <div key={i} className="space-y-2 rounded-xl border border-ink-100 p-3">
             <div className="flex gap-2">
               <input
-                className={`${inputCls} flex-1`}
+                className={`${inputCls} min-w-0 flex-1`}
                 placeholder="العنوان"
                 value={f.title}
                 onChange={(e) => onChange(items.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)))}
@@ -398,7 +398,7 @@ function TitleDescList({
               <button
                 onClick={() => items.length > 1 && onChange(items.filter((_, j) => j !== i))}
                 disabled={items.length <= 1}
-                className="rounded-lg px-3 text-rose-500 hover:bg-rose-50 disabled:opacity-30"
+                className="shrink-0 rounded-lg px-3 text-rose-500 hover:bg-rose-50 disabled:opacity-30"
                 aria-label="حذف"
               >
                 <Trash2 className="h-4 w-4" />
@@ -481,7 +481,7 @@ function NavTab({
                 {l.href}
               </span>
               <input
-                className={`${inputCls} flex-1`}
+                className={`${inputCls} min-w-0 flex-1`}
                 value={l.label}
                 onChange={(e) =>
                   onChange({ ...data, links: data.links.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)) })

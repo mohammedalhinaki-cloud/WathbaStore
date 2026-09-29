@@ -14,7 +14,9 @@ export function Card({
   className?: string;
 }) {
   return (
-    <div className={`rounded-2xl border border-ink-150 bg-white p-5 shadow-sm ${className}`}>
+    // min-w-0: البطاقة قد تقع داخل grid — نمنع المحتوى من فرض
+    // حد أدنى أعرض من عمود الشبكة على شاشات الجوال
+    <div className={`min-w-0 rounded-2xl border border-ink-150 bg-white p-5 shadow-sm ${className}`}>
       {children}
     </div>
   );
