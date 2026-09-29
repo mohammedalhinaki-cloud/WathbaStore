@@ -580,7 +580,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
 
           {/* معاينات: نتيجة قوقل + بطاقة المشاركة */}
           <div className="grid gap-4 sm:grid-cols-2">
-            <div>
+            <div className="min-w-0">
               <p className="mb-2 text-sm font-bold text-ink-700">معاينة نتيجة قوقل</p>
               <div className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm">
                 <div className="flex items-center gap-2">
@@ -602,7 +602,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
               </div>
             </div>
 
-            <div>
+            <div className="min-w-0">
               <p className="mb-2 text-sm font-bold text-ink-700">معاينة بطاقة المشاركة</p>
               <div className="overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-sm">
                 <div className="grid aspect-[1200/630] w-full place-items-center bg-ink-100">
