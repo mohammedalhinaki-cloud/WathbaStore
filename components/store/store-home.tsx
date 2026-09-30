@@ -21,6 +21,7 @@
 import Image from "next/image";
 import { services } from "@/lib/services";
 import { isOptimizableSrc, pickFirstImage } from "@/lib/images";
+import { loadStoreAndNav } from "./load-nav";
 import { isHeroEnabled, type StoreBundle } from "@/lib/types";
 import ProductsGrid from "./products-grid";
 import HeroCtaButton from "./hero-cta-button";
@@ -32,11 +33,13 @@ interface Props {
 
 export default async function StoreHome({ bundle, query }: Props) {
   const { store, settings } = bundle;
-  const [products, categories, pages] = await Promise.all([
+  // loadStoreAndNav مغلّفة بـ cache() — الأقسام والصفحات مجلوبة مسبقًا في
+  // app/page.tsx لبناء روابط الهيدر، فلا تتكرر الرحلة إلى قاعدة البيانات.
+  const [products, nav] = await Promise.all([
     services().listProducts(store.id),
-    services().listCategories(store.id),
-    services().listPages(store.id),
+    loadStoreAndNav(store.id),
   ]);
+  const { categories, pages } = nav;
 
   const visibleCats = categories.filter((c) => c.isVisible);
   const visiblePages = pages.filter((p) => p.isVisible);
@@ -95,10 +98,16 @@ export default async function StoreHome({ bundle, query }: Props) {
           <div className="hero-inner relative mx-auto w-full max-w-6xl px-4 pb-16 sm:pb-20">
             <div className="max-w-xl" data-stagger>
               {store.logoUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                // كان <img> خامًا: يُنزّل الشعار بحجمه الأصلي (ملف الشعار
+                // 1408×768 و1.8MB) ليُعرض في 64 بكسل. next/image يطلب
+                // النسخة المناسبة للمقاس فقط.
+                <Image
                   src={store.logoUrl}
                   alt={heroTitle}
+                  width={64}
+                  height={64}
+                  priority
+                  unoptimized={!isOptimizableSrc(store.logoUrl)}
                   data-reveal="up"
                   className="mb-4 h-16 w-16 rounded-2xl object-cover ring-4 ring-white/20"
                 />

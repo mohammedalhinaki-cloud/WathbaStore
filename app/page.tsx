@@ -12,6 +12,7 @@ import { isHeroEnabled } from "@/lib/types";
 import LandingPage from "@/components/landing/landing-page";
 import StoreShell from "@/components/store/store-shell";
 import StoreHome from "@/components/store/store-home";
+import { loadStoreAndNav } from "@/components/store/load-nav";
 import { services } from "@/lib/services";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -36,8 +37,9 @@ export default async function HomePage() {
     const { store, settings } = ctx.bundle;
     const query = ctx.tenant.isPreview ? `?store=${store.subdomain}` : "";
 
-    const categories = await services().listCategories(store.id);
-    const pages = await services().listPages(store.id);
+    // عبر loadStoreAndNav المغلّفة بـ cache(): نفس البيانات يعيد StoreHome
+    // طلبها أدناه، فتُجلب مرة واحدة لكل طلب بدل مرتين — ومتوازية بدل متتابعة.
+    const { categories, pages } = await loadStoreAndNav(store.id);
     const navLinks = [
       ...categories
         .filter((c) => c.isVisible)

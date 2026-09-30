@@ -22,7 +22,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { ShoppingBag } from "lucide-react";
+import { isOptimizableSrc } from "@/lib/images";
 import type { StoreBundle } from "@/lib/types";
 import { storeHomeHref } from "@/lib/store-links";
 import { useCart } from "./cart-context";
@@ -144,10 +146,15 @@ export default function StoreHeader({ bundle, query, navLinks, overlay = false }
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
         <a href={homeHref} className="flex min-w-0 items-center gap-2.5">
           {store.logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            // الهيدر يظهر في كل صفحة — تحميل الشعار الخام هنا كان يضيف
+            // ميغابايتًا كاملًا لكل زيارة. next/image يطلب مقاس 40 بكسل.
+            <Image
               src={store.logoUrl}
               alt={store.name}
+              width={40}
+              height={40}
+              priority
+              unoptimized={!isOptimizableSrc(store.logoUrl)}
               className={`h-10 w-10 shrink-0 rounded-xl object-cover ${
                 solid ? "" : "ring-1 ring-white/40"
               }`}
