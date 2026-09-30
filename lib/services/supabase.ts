@@ -40,6 +40,13 @@ import {
   type StoreInput,
 } from "./types";
 
+/**
+ * مطابق UUID — أعمدة المعرّفات في المخطط من نوع `uuid`.
+ * Postgres يرفض مقارنة عمود uuid بنص ليس UUID ويرمي 22P02، لذلك نفحص
+ * القيمة قبل إدراجها في شرط `id.eq.` (انظر getProduct).
+ */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function slugify(name: string): string {
   const s = (name || "")
     .normalize("NFKD")
@@ -639,23 +646,68 @@ export class SupabaseServices implements Services {
     q = q.order("sort_order", { ascending: false }).order("created_at", { ascending: false });
     const { data, error } = await q;
     if (error) throw new Error(error.message);
-    const out: Product[] = [];
-    for (const r of data ?? []) {
-      const p = this.mapProd(r as Record<string, unknown>, await this.loadImages((r as Record<string, unknown>).id as string));
-      out.push(p);
+
+    // ⚠️ كان هنا استعلام N+1: حلقة تنتظر loadImages() لكل منتج على حدة،
+    // أي 10 منتجات = 10 رحلات متتابعة إلى Supabase قبل أن تبدأ الصفحة بالظهور.
+    // الآن نجلب صور كل المنتجات دفعة واحدة (استعلام واحد) ثم نوزّعها محليًا.
+    const rows = (data ?? []) as Record<string, unknown>[];
+    if (rows.length === 0) return [];
+    const byProduct = await this.loadImagesFor(rows.map((r) => r.id as string));
+    return rows.map((r) => this.mapProd(r, byProduct.get(r.id as string) ?? []));
+  }
+
+  /** صور عدة منتجات في استعلام واحد (بديل حلقة loadImages المتتابعة) */
+  private async loadImagesFor(productIds: string[]): Promise<Map<string, ProductImage[]>> {
+    const map = new Map<string, ProductImage[]>();
+    if (productIds.length === 0) return map;
+    const { data, error } = await (await supabaseServer())
+      .from("product_images")
+      .select("*")
+      .in("product_id", productIds)
+      .order("sort_order");
+    if (error) {
+      console.error("[loadImagesFor] فشل جلب الصور:", error.message);
+      return map;
     }
-    return out;
+    for (const r of data ?? []) {
+      const img: ProductImage = {
+        id: r.id as string,
+        productId: r.product_id as string,
+        storeId: r.store_id as string,
+        url: r.url as string,
+        sortOrder: r.sort_order as number,
+      };
+      const list = map.get(img.productId);
+      if (list) list.push(img);
+      else map.set(img.productId, [img]);
+    }
+    return map;
   }
 
   async getProduct(storeId: string, idOrSlug: string): Promise<Product | null> {
-    const { data } = await (await supabaseServer())
-      .from("products")
-      .select("*")
-      .eq("store_id", storeId)
-      .or(`id.eq.${idOrSlug},slug.eq.${idOrSlug}`)
-      .maybeSingle();
+    const key = (idOrSlug ?? "").trim();
+    if (!key) return null;
+
+    // ⚠️ لا تقارن عمود uuid بنص ليس UUID.
+    // الصيغة القديمة كانت: .or(`id.eq.${idOrSlug},slug.eq.${idOrSlug}`)
+    // وعند فتح /products/sidr-honey يبني PostgREST الشرط:
+    //   where id = 'sidr-honey' or slug = 'sidr-honey'
+    // فيفشل Postgres بالخطأ 22P02 (invalid input syntax for type uuid)
+    // ويعود data = null، وبما أن error كان مُهمَلًا كانت كل صفحات المنتجات
+    // تُعرض كـ «الصفحة غير موجودة» رغم وجود المنتج فعليًا.
+    // الحل: نطابق id فقط عندما تكون القيمة UUID صالحًا، وإلا نطابق slug.
+    let q = (await supabaseServer()).from("products").select("*").eq("store_id", storeId);
+    q = UUID_RE.test(key) ? q.or(`id.eq.${key},slug.eq.${key}`) : q.eq("slug", key);
+
+    const { data, error } = await q.maybeSingle();
+    if (error) {
+      // لا نبتلع الخطأ بصمت: خطأ قاعدة بيانات ليس «منتجًا غير موجود».
+      console.error("[getProduct] فشل الاستعلام:", { storeId, key, error: error.message });
+      return null;
+    }
     if (!data) return null;
-    return this.mapProd(data as Record<string, unknown>, await this.loadImages((data as Record<string, unknown>).id as string));
+    const row = data as Record<string, unknown>;
+    return this.mapProd(row, await this.loadImages(row.id as string));
   }
 
   async createProduct(storeId: string, input: ProductInput): Promise<Product> {

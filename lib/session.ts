@@ -2,13 +2,19 @@
 // معون — الجلسة الحالية (Supabase Auth أو جلسة محلية)
 // ============================================================
 
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { isSupabaseConfigured, supabaseServer } from "./supabase/client";
 import { services } from "./services";
 import type { AppUser } from "./types";
 import { SESSION_COOKIE, verifySession } from "./local/auth";
 
-export async function getCurrentUser(): Promise<AppUser | null> {
+/**
+ * مغلّفة بـ cache(): كانت تُستدعى أكثر من مرة في الطلب الواحد
+ * (generateMetadata + التخطيط + الصفحة)، وكل استدعاء يصل إلى Supabase Auth
+ * ثم جدول profiles. الآن مرة واحدة لكل طلب.
+ */
+export const getCurrentUser = cache(async function getCurrentUser(): Promise<AppUser | null> {
   if (isSupabaseConfigured()) {
     const sb = await supabaseServer();
     const {
@@ -28,7 +34,7 @@ export async function getCurrentUser(): Promise<AppUser | null> {
   const session = verifySession(token);
   if (!session) return null;
   return services().userById(session.uid);
-}
+});
 
 /** المستخدم المطلوب (لصاحب متجر محدد) — يُستخدم في لوحة العميل */
 export async function getStoreActor(storeId: string): Promise<AppUser | null> {

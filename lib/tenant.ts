@@ -3,6 +3,7 @@
 // middleware يضبط الترويسات: x-tenant / x-store-slug
 // ============================================================
 
+import { cache } from "react";
 import { headers } from "next/headers";
 import { platformHostOf } from "./constants";
 import { services } from "./services";
@@ -17,7 +18,12 @@ export interface TenantCtx {
   isPreview: boolean;
 }
 
-export async function getTenant(): Promise<TenantCtx> {
+/**
+ * مغلّفة بـ cache() من React: Next يستدعي generateMetadata ثم التخطيط ثم
+ * الصفحة في نفس الطلب، وكل واحدة كانت تعيد قراءة الترويسات وتكرّر العمل.
+ * الآن تُحسب مرة واحدة لكل طلب وتُعاد النتيجة نفسها للبقية.
+ */
+export const getTenant = cache(async function getTenant(): Promise<TenantCtx> {
   const h = await headers();
   // يُفضَّل x-forwarded-host إن وُجد: عند النشر خلف بروكسي (Cloudflare Worker
   // يعيد توجيه *.maaoun.com إلى الموقع) يحمل الترويسة النطاق الأصلي الذي
@@ -45,16 +51,19 @@ export async function getTenant(): Promise<TenantCtx> {
 
   const isPreview = !platform?.subdomain;
   return { tenant, slug, host, isPreview };
-}
+});
 
 /**
  * سياق المتجر الكامل (لصفحات المتاجر):
  * - إن كان المتجر غير موجود أو غير ظاهر للزائر → null
  */
-export async function getStoreCtx(): Promise<{ tenant: TenantCtx; bundle: StoreBundle | null } | null> {
+export const getStoreCtx = cache(async function getStoreCtx(): Promise<{
+  tenant: TenantCtx;
+  bundle: StoreBundle | null;
+} | null> {
   const tenant = await getTenant();
   if (tenant.tenant !== "store" || !tenant.slug) return null;
   const actor = await getCurrentUser();
   const bundle = await services().getVisibleStoreBySubdomain(tenant.slug, actor);
   return { tenant, bundle };
-}
+});

@@ -16,6 +16,17 @@
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
+  },
+  // ⚠️ ضروري: بدون ربط IMAGES يرد مسار /_next/image بخطأ 500 على Cloudflare،
+  // فتفشل كل صور المنتجات والأغلفة في الصفحة (المتصفح ينتظر ثم يستسلم)
+  // وهو السبب المباشر لبطء ظهور الصفحة رغم وصول HTML بسرعة.
+  // المرجع: https://opennext.js.org/cloudflare/howtos/image
+  "images": {
+    "binding": "IMAGES"
+  },
+  // تفعيل السجلات لتشخيص أي خطأ لاحقًا من لوحة Cloudflare
+  "observability": {
+    "enabled": true
   }
   // ملاحظة حول النطاق العرضي (Wildcard) تحت *.maaoun.com:
   // أضِف النطاقات من لوحة Cloudflare → Workers & Pages → مشروعك → Settings
