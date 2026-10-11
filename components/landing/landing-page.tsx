@@ -41,7 +41,6 @@ import SocialLinks from "@/components/social-links";
 import SiteJsonLd from "@/components/site/site-json-ld";
 import FaqJsonLd from "@/components/site/faq-json-ld";
 import type { LandingSectionKey } from "@/lib/types";
-import { isDemoPortfolio, presentPricingPlan } from "@/lib/landing-marketing";
 
 /**
  * أيقونات ثابتة بالترتيب — النصوص (العناوين والأوصاف) تأتي من
@@ -66,8 +65,7 @@ export default async function LandingPage() {
     return true;
   });
 
-  const hasContact = Boolean(settings.whatsappNumber?.trim());
-  const wa = hasContact ? waChatLink(settings.whatsappNumber, "السلام عليكم، أبي متجر لنشاطي على معون. أرجو توضيح الباقة المناسبة وإجمالي التكلفة وموعد التسليم وشروط الاشتراك.") : "#contact";
+  const wa = settings.whatsappNumber ? waChatLink(settings.whatsappNumber) : "#";
   const devUrl = developerUrl(settings.developerUrl);
   const domain = mainDomain();
   const L = settings.landing;
@@ -76,21 +74,16 @@ export default async function LandingPage() {
   const T = L.toggles;
   const hidden = new Set(L.sections.hidden);
   /** يظهر القسم؟ وترتيبه (CSS order) حسب ما يحدده المالك */
-  const show = (k: LandingSectionKey) => !hidden.has(k)
-    && (k !== "portfolio" || portfolio.length > 0)
-    && (k !== "pricing" || plans.length > 0)
-    && (k !== "offers" || liveOffers.length > 0)
-    && (k !== "faq" || settings.faq.length > 0);
+  const show = (k: LandingSectionKey) => !hidden.has(k);
   const ord = (k: LandingSectionKey) => ({ order: L.sections.order.indexOf(k) });
   const navLinks = L.nav.links.filter((l) => {
     const key = l.href.slice(1) as LandingSectionKey;
-    return !L.sections.order.includes(key) || show(key);
+    return !(L.sections.order.includes(key) && hidden.has(key));
   });
   const showHeroImage = T.heroImage;
 
   return (
-    <div id="top" className="maaoun-landing bg-base text-fg">
-      <a href="#main-content" className="sr-only z-50 rounded-xl bg-surface px-5 py-3 text-fg focus:not-sr-only focus:fixed focus:right-4 focus:top-20">انتقل إلى المحتوى</a>
+    <div id="top" className="bg-base text-fg">
       {/* بيانات Structured Data للموقع العام (WebSite + Organization) */}
       <SiteJsonLd settings={settings} />
 
@@ -102,8 +95,7 @@ export default async function LandingPage() {
         الإحصائيات — لا يظهر أي قسم آخر ضمن الشاشة الأولى.
         بلا حد سفلي: يتصل الغلاف بالقسم التالي على نفس الخلفية مباشرة.
       */}
-      <main id="main-content">
-      <section aria-label="متجرك مع معون" className="relative flex flex-col overflow-hidden pt-16">
+      <section className="relative flex min-h-[100svh] flex-col overflow-hidden pt-16">
         {/*
           التوهّجات الزخرفية تتلاشى تدريجيًا قبل الحافة السفلية للغلاف
           (mask) — فلا تظهر حافة مقطوعة بسبب overflow-hidden، وينتقل
@@ -144,44 +136,39 @@ export default async function LandingPage() {
             {(T.heroPrimaryBtn || T.heroSecondaryBtn) && (
             <div
               data-reveal="up"
-              className="mt-8 flex flex-wrap items-center gap-3 sm:mt-10"
+              className="mt-8 flex flex-row flex-nowrap items-center justify-center gap-3 sm:mt-10"
             >
               {T.heroPrimaryBtn && (
               <a
                 href={wa}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-primary motion-action min-h-12 gap-2 px-5 py-3 text-sm sm:px-6 sm:text-base"
+                className="btn-primary motion-action min-w-0 gap-1.5 whitespace-nowrap px-3 py-3 text-xs sm:gap-2 sm:px-6 sm:py-3.5 sm:text-[1rem]"
               >
                 <MessageCircle className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
                 {L.hero.primaryBtn}
               </a>
               )}
-              {T.heroSecondaryBtn && (show("portfolio") || show("pricing")) && (
+              {T.heroSecondaryBtn && (
               <a
-                href={show("portfolio") ? "#portfolio" : "#pricing"}
-                className="motion-action flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-line bg-surface px-5 py-3 text-sm font-bold text-fg transition-colors hover:bg-surface-2 sm:px-6 sm:text-base"
+                href="#portfolio"
+                className="motion-action flex min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl border border-line bg-surface px-3 py-3 text-xs font-bold text-fg transition-colors hover:bg-surface-2 sm:gap-2 sm:px-6 sm:py-3.5 sm:text-[1rem]"
               >
-                {show("portfolio") ? L.hero.secondaryBtn : "شاهد الباقات"}
+                {L.hero.secondaryBtn}
                 <ArrowLeft className="h-4 w-4" />
               </a>
               )}
             </div>
             )}
 
-            <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-300">
-              {["رابط خاص بمتجرك", "إدارة من الجوال", "طلب عبر واتساب"].map((text) => (
-                <li key={text} className="flex items-center gap-2"><BadgeCheck aria-hidden="true" className="h-4 w-4 text-brand-400" />{text}</li>
-              ))}
-            </ul>
-            {T.heroStats && L.stats.length > 0 && <HeroStats items={L.stats} />}
+            {T.heroStats && <HeroStats items={L.stats} />}
           </div>
 
           {showHeroImage && (
           <div
             data-reveal="up"
             data-parallax="10"
-            className="relative order-3 mx-auto w-full max-w-md sm:max-w-lg lg:order-2 lg:max-w-none"
+            className="relative order-1 mx-auto w-full max-w-md sm:max-w-lg lg:order-2 lg:max-w-none"
           >
             <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-tr from-brand-600/25 to-accent-400/15 blur-2xl" />
             {heroImgLocal ? (
@@ -191,7 +178,6 @@ export default async function LandingPage() {
                 width={1200}
                 height={900}
                 priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="relative w-full rounded-3xl border border-line shadow-2xl shadow-black/40"
               />
             ) : (
@@ -200,8 +186,6 @@ export default async function LandingPage() {
                 src={heroImg}
                 alt="معاينة متاجر معون"
                 loading="eager"
-                width={1200}
-                height={900}
                 className="relative w-full rounded-3xl border border-line shadow-2xl shadow-black/40"
               />
             )}
@@ -240,7 +224,7 @@ export default async function LandingPage() {
             </h2>
             <p data-reveal="inline-start" className="mt-5 text-lg leading-8 text-muted">
               {settings.aboutText ||
-                "نجهّز متجرًا يجمع منتجاتك وأسعارك في رابط واحد، وتديره من جوالك بعد التسليم."}
+                "معون منصة متكاملة أنشئ بها متاجر إلكترونية للعملاء على نطاقات فرعية خاصة، أجهزها بالكامل وأسلّم كل متجر لصاحبه ليديره بنفسه."}
             </p>
             {T.aboutBullets && (
             <ul className="mt-6 space-y-3" data-stagger>
@@ -326,37 +310,17 @@ export default async function LandingPage() {
               imageUrl: p.imageUrl,
               storeUrl: p.storeUrl,
               tags: p.tags,
-              isDemo: isDemoPortfolio(p),
-              requestHref: hasContact ? waChatLink(settings.whatsappNumber, `السلام عليكم، أبي متجر مثل نموذج «${p.title}» على معون.\nرابط النموذج: ${p.storeUrl}\nأرجو توضيح الباقة والتكلفة وموعد التسليم.`) : null,
             }))}
           />
         </div>
       </section>
       )}
 
-      {show("steps") && (
-        <section id="steps" style={ord("steps")} className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
-          <SectionHead badge="من الطلب إلى التسليم" title="كيف تحصل على متجرك؟" sub="نتفق على التفاصيل قبل البدء، ثم نجهّز المتجر ونسلّمك طريقة إدارته." />
-          <ol className="mt-8 grid gap-5 md:grid-cols-3">
-            {[
-              { title: "أرسل نشاطك ومنتجاتك", desc: "أرسل اسم نشاطك وصور المنتجات أو المنيو، واختر نموذجًا يعجبك." },
-              { title: "نتفق على الباقة والتجهيز", desc: "نحدّد إجمالي التكلفة وعدد المنتجات وما ستجهّزه بنفسك وما سنتولى تجهيزه، وموعد التسليم." },
-              { title: "جرّب المتجر واستلم حسابك", desc: "راجع الصور والأسعار وطريقة الطلب، ثم استلم رابط المتجر وحساب الإدارة." },
-            ].map((step, index) => (
-              <li key={step.title} className="card-dark rounded-3xl p-6">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600/15 font-extrabold text-brand-300">{index + 1}</span>
-                <h3 className="mt-4 text-lg font-bold text-fg">{step.title}</h3>
-                <p className="mt-2 text-sm leading-7 text-muted">{step.desc}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
-
       {/* ============ الأسعار ============ */}
       {/*
-        المزايا والسعر ومدة الاشتراك وزر الطلب ظاهرة مباشرة.
-        الأسعار وروابط واتساب المخصصة تُنسَّق هنا في الخادم.
+        الباقات قائمة مطوية مثل «الأسئلة الشائعة»: الاسم والسعر ظاهران،
+        والتفاصيل (المزايا + زر الطلب) تُفتح وتُغلق بالضغط — فلا يأخذ
+        القسم مساحة رأسية كبيرة. الأسعار تُنسَّق هنا في الخادم.
       */}
       {show("pricing") && plans.length > 0 && (
       <section id="pricing" style={ord("pricing")} className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
@@ -366,19 +330,16 @@ export default async function LandingPage() {
           sub={L.heads.pricing.sub}
         />
         <PricingPlans
-          billingLabel={L.commerce.billingLabel}
-          plans={plans.map(presentPricingPlan).map((p) => ({
+          orderHref={wa}
+          plans={plans.map((p) => ({
             id: p.id,
             name: p.name,
             price: formatPrice(p.price, p.currency),
             oldPrice: p.oldPrice != null ? formatPrice(p.oldPrice, p.currency) : null,
             features: p.features,
             isFeatured: p.isFeatured,
-            orderHref: hasContact ? waChatLink(settings.whatsappNumber, `السلام عليكم، أرغب في ${p.name} من معون.\nالسعر المعروض: ${formatPrice(p.price, p.currency)} ${L.commerce.billingLabel}.\nاسم نشاطي:\nأرجو تأكيد إجمالي التكلفة وأي رسوم إضافية وموعد التسليم وشروط الإلغاء والدعم.`) : null,
           }))}
         />
-        <p className="mt-5 text-sm leading-7 text-ink-300">{L.commerce.fees} {show("terms") && <a href="#terms" className="font-bold text-brand-300 underline underline-offset-4">تفاصيل الاشتراك والدعم</a>}</p>
-        <p className="mt-2 text-sm leading-7 text-muted">طلبات العملاء عبر واتساب والتحويل البنكي. الدفع بالبطاقات وApple Pay غير متاح حاليًا.</p>
       </section>
       )}
 
@@ -423,12 +384,12 @@ export default async function LandingPage() {
                   )}
                 </div>
                 <a
-                  href={hasContact ? waChatLink(settings.whatsappNumber, `السلام عليكم، أستفسر عن عرض «${o.title}» على معون. أرجو تأكيد السعر والمزايا والشروط.`) : "#contact"}
+                  href={wa}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-primary motion-action mt-5 px-5 py-2.5 text-sm"
                 >
-                  اطلب تفاصيل العرض
+                  أحجز العرض
                   <ArrowLeft className="h-4 w-4" />
                 </a>
               </div>
@@ -480,19 +441,6 @@ export default async function LandingPage() {
       </section>
       )}
 
-      {show("terms") && (
-        <section id="terms" style={ord("terms")} className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
-          <SectionHead badge="قبل الاشتراك" title="التكلفة والتواصل والدعم" sub="راجع تفاصيل الخدمة واسأل عن أي شرط قبل اعتماد طلبك." />
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            {[
-              { title: "الرسوم والإضافات", desc: L.commerce.fees },
-              { title: "الإلغاء وإيقاف التجديد", desc: L.commerce.cancellation },
-              { title: "الدعم الفني", desc: L.commerce.support },
-            ].map((item) => <article key={item.title} className="card-dark rounded-3xl p-6"><h3 className="font-bold text-fg">{item.title}</h3><p className="mt-3 whitespace-pre-line text-sm leading-7 text-muted">{item.desc}</p></article>)}
-          </div>
-        </section>
-      )}
-
       {/* ============ CTA ============ */}
       {show("cta") && (
       <section id="cta" style={ord("cta")} className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6">
@@ -519,15 +467,6 @@ export default async function LandingPage() {
       </section>
       )}
       </div>
-
-      <div id="contact" className="mx-auto max-w-7xl px-4 pb-12 sm:px-6">
-        <div className="rounded-2xl border border-line p-5">
-          <h2 className="font-bold text-fg">{L.commerce.providerName}</h2>
-          <p className="mt-2 whitespace-pre-line text-sm leading-7 text-muted">{L.commerce.providerDetails}</p>
-          {hasContact ? <a href={wa} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-11 flex-wrap items-center gap-2 font-bold text-brand-300"><MessageCircle className="h-5 w-5" />تواصل عبر واتساب <bdi dir="ltr">+{settings.whatsappNumber.replace(/[^\d]/g, "")}</bdi></a> : <p className="mt-3 text-sm text-muted">التواصل عبر واتساب غير متاح حاليًا.</p>}
-        </div>
-      </div>
-      </main>
 
       {/* ============ Footer ============ */}
       {T.footer && (

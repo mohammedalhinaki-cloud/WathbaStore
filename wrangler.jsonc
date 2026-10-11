@@ -24,12 +24,6 @@
   "images": {
     "binding": "IMAGES"
   },
-  // نشر الفروع عبر wrangler preview يحتاج تعريف ربط الصور داخل previews أيضًا.
-  "previews": {
-    "images": {
-      "binding": "IMAGES"
-    }
-  },
   // تفعيل السجلات لتشخيص أي خطأ لاحقًا من لوحة Cloudflare
   "observability": {
     "enabled": true

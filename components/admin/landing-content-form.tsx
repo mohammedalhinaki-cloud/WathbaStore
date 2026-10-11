@@ -32,7 +32,6 @@ const TABS = [
   { key: "heads", label: "ترويسات الأقسام" },
   { key: "nav", label: "التنقل" },
   { key: "cta", label: "الدعوة والتذييل" },
-  { key: "commerce", label: "الاشتراك والدعم" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -133,9 +132,6 @@ export default function LandingContentForm({ initial }: { initial: LandingConten
       {tab === "nav" && <NavTab data={data.nav} onChange={(v) => patch("nav", v)} />}
       {tab === "cta" && (
         <CtaTab cta={data.cta} footer={data.footer} onCta={(v) => patch("cta", v)} onFooter={(v) => patch("footer", v)} />
-      )}
-      {tab === "commerce" && (
-        <CommerceTab data={data.commerce} onChange={(v) => patch("commerce", v)} />
       )}
 
       {/* شريط الحفظ */}
@@ -280,35 +276,7 @@ function StatsTab({
           </div>
         ))}
       </div>
-      <p className="mt-3 text-xs text-ink-500">انشر أرقامًا يمكنك إثباتها فقط. لا تستخدم عدد النماذج التجريبية باعتباره عدد العملاء.</p>
-    </Card>
-  );
-}
-
-function CommerceTab({ data, onChange }: {
-  data: LandingContent["commerce"];
-  onChange: (value: LandingContent["commerce"]) => void;
-}) {
-  const labels: Record<keyof typeof data, string> = {
-    billingLabel: "مدة السعر المعروض (مثل: شهريًا)",
-    fees: "رسوم الاشتراك والتجهيز والإضافات",
-    cancellation: "سياسة إيقاف التجديد والإلغاء والاسترداد",
-    support: "نطاق الدعم ومدته ووقت الرد",
-    providerName: "اسم مقدّم الخدمة",
-    providerDetails: "بيانات مقدّم الخدمة وقنوات التواصل",
-  };
-  return (
-    <Card>
-      <h3 className="mb-3 font-extrabold text-ink-900">معلومات يقرأها العميل قبل الاشتراك</h3>
-      <p className="mb-5 text-sm leading-7 text-ink-600">اكتب شروطك الفعلية، وأضف بيانات الجهة المسجلة إن وجدت. النصوص الافتراضية تطلب التأكيد قبل الاشتراك ولا تفترض سياسة استرداد أو رسومًا لم تحددها.</p>
-      <div className="space-y-4">
-        {(Object.keys(labels) as (keyof typeof data)[]).map((key) => (
-          <Field key={key} label={labels[key]}>
-            <textarea className={inputCls} rows={key === "billingLabel" || key === "providerName" ? 1 : 3} maxLength={key === "billingLabel" ? 60 : key === "providerName" ? 120 : 600}
-              value={data[key]} onChange={(e) => onChange({ ...data, [key]: e.target.value })} />
-          </Field>
-        ))}
-      </div>
+      <p className="mt-3 text-xs text-ink-400">الأرقام تعدّ تلقائيًا من صفر حتى قيمتها عند ظهورها للزائر.</p>
     </Card>
   );
 }

@@ -15,7 +15,6 @@
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "test:rls": "node scripts/verify-rls.mjs",
     "test:flows": "node scripts/verify-local-flows.mjs",
-    "test:landing": "node scripts/verify-landing.mjs",
     "test:upload": "node scripts/repro-upload.mjs"
   },
   "dependencies": {

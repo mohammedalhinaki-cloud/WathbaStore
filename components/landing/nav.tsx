@@ -14,7 +14,7 @@
 // ============================================================
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X, ArrowLeft } from "lucide-react";
 import { APP_NAME } from "@/lib/constants";
 import { DEFAULT_LANDING_CONTENT, type LandingContent } from "@/lib/types";
@@ -32,22 +32,6 @@ export default function LandingNav({
   const links = content ? content.links : DEFAULT_LANDING_CONTENT.nav.links;
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const panelId = useId();
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-    const query = window.matchMedia("(min-width: 768px)");
-    const onResize = () => { if (query.matches) setOpen(false); };
-    window.addEventListener("keydown", onKey);
-    query.addEventListener("change", onResize);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      query.removeEventListener("change", onResize);
-    };
-  }, [open]);
 
   // ===== حالة التمرير: أي تمرير للأعلى/الأسفل يفعّل الخلفية الداكنة =====
   useEffect(() => {
@@ -79,7 +63,7 @@ export default function LandingNav({
           />
         </a>
 
-        <nav aria-label="التنقل الرئيسي" className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 md:flex">
           {links.map((l) => (
             <a
               key={l.href}
@@ -97,19 +81,17 @@ export default function LandingNav({
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-primary motion-action min-h-11 px-3 py-2.5 text-xs sm:px-4 sm:text-sm"
+            className="btn-primary motion-action hidden px-4 py-2.5 text-sm sm:inline-flex"
           >
             {nav.cta}
             <ArrowLeft className="h-4 w-4" />
           </a>
           )}
           <button
-            type="button"
             onClick={() => setOpen(!open)}
             className="motion-action rounded-lg p-2 text-fg md:hidden"
-            aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
+            aria-label="القائمة"
             aria-expanded={open}
-            aria-controls={panelId}
           >
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -117,7 +99,7 @@ export default function LandingNav({
       </div>
 
       {open && (
-        <nav id={panelId} aria-label="التنقل على الجوال" className="site-header-panel px-4 py-3 md:hidden">
+        <nav className="site-header-panel px-4 py-3 md:hidden">
           {links.map((l) => (
             <a
               key={l.href}
@@ -128,14 +110,14 @@ export default function LandingNav({
               {l.label}
             </a>
           ))}
-          {showCta && <a
+          <a
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-primary motion-action mt-2 flex px-4 py-2.5 text-sm"
           >
             {nav.ctaMobile}
-          </a>}
+          </a>
         </nav>
       )}
     </header>

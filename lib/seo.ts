@@ -6,7 +6,7 @@
 
 import type { Metadata } from "next";
 import type { SiteSettings, StoreBundle } from "./types";
-import { mainDomain, APP_NAME, APP_TAGLINE, SITE_DESCRIPTION, replaceLegacyPlatformDomain } from "./constants";
+import { mainDomain, APP_NAME, APP_TAGLINE, replaceLegacyPlatformDomain } from "./constants";
 import { services } from "./services";
 
 // ============================================================
@@ -20,7 +20,7 @@ function siteDefaults() {
   return {
     url,
     title: `${APP_NAME} ${APP_TAGLINE}`,
-    description: SITE_DESCRIPTION,
+    description: `${APP_NAME} ${APP_TAGLINE} في السعودية. ننشئ لك موقعًا أو متجرًا إلكترونيًا احترافيًا مع التصميم والتجهيز والتسليم والدعم.`,
     logo: `${url}/logo.png`,
     ogImage: `${url}/og-image.png`,
   };
