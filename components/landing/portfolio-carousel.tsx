@@ -16,7 +16,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowLeft, ExternalLink } from "lucide-react";
 
 export interface PortfolioCarouselItem {
   id: string;
@@ -25,8 +24,6 @@ export interface PortfolioCarouselItem {
   imageUrl: string;
   storeUrl: string;
   tags: string;
-  isDemo: boolean;
-  requestHref: string | null;
 }
 
 /** زمن بقاء المتجر ثابتًا أمام المستخدم */
@@ -45,7 +42,11 @@ function StoreCard({
   eager?: boolean;
 }) {
   return (
-    <article
+    <a
+      href={item.storeUrl || "#"}
+      target="_blank"
+      rel="noopener noreferrer"
+      draggable={false}
       className="card-dark motion-card group flex h-full flex-col overflow-hidden rounded-3xl transition-all hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-black/30"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-ink-800">
@@ -64,7 +65,7 @@ function StoreCard({
         <div className="flex items-center justify-between gap-2">
           <h3 className="font-bold text-fg">{item.title}</h3>
           <span className="rounded-full bg-emerald-500/15 px-2.5 py-1 text-[11px] font-bold text-emerald-400">
-            {item.isDemo ? "نموذج تجريبي" : "معاينة متجر"}
+            يعمل
           </span>
         </div>
         <p className="mt-1.5 line-clamp-2 text-sm text-muted">{item.description}</p>
@@ -80,13 +81,8 @@ function StoreCard({
             ))}
           </div>
         )}
-        {item.isDemo && <p className="mt-3 text-xs leading-6 text-muted">نموذج لعرض التصميم والمزايا، وليس إثباتًا لمتجر عميل.</p>}
-        <div className="mt-4 flex flex-wrap gap-3">
-          {item.storeUrl && <a href={item.storeUrl} target="_blank" rel="noopener noreferrer" draggable={false} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line px-4 py-2 text-sm font-bold text-fg hover:bg-surface-2">جرّب المتجر<ExternalLink aria-hidden="true" className="h-4 w-4" /></a>}
-          {item.requestHref && <a href={item.requestHref} target="_blank" rel="noopener noreferrer" className="btn-primary min-h-11 px-4 py-2 text-sm">أبي متجر مثل هذا<ArrowLeft aria-hidden="true" className="h-4 w-4" /></a>}
-        </div>
       </div>
-    </article>
+    </a>
   );
 }
 

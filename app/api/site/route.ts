@@ -84,14 +84,6 @@ const LANDING_SCHEMA = z
         button: z.string().max(80).optional(),
       })
       .optional(),
-    commerce: z.object({
-      billingLabel: z.string().max(60).optional(),
-      fees: z.string().max(600).optional(),
-      cancellation: z.string().max(600).optional(),
-      support: z.string().max(600).optional(),
-      providerName: z.string().max(120).optional(),
-      providerDetails: z.string().max(600).optional(),
-    }).optional(),
     footer: z.object({ tagline: z.string().max(120).optional() }).optional(),
   })
   .optional();
