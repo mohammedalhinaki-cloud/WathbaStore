@@ -4,11 +4,13 @@
 
 import type { SiteSettings, StoreStatus } from "./types";
 import { STORE_STATUS_LABELS, mergeLandingContent } from "./types";
+import { presentLandingContent } from "./landing-marketing";
 
 export const APP_NAME = "معون";
 export const APP_EN = "maaoun.com";
 /** الشعار/الوصف التسويقي المصاحب لاسم العلامة (يظهر مع الشعار وفي الـ SEO) */
 export const APP_TAGLINE = "لبناء المواقع والمتاجر الإلكترونية";
+export const SITE_DESCRIPTION = "معون | MAAOUN — متجر يجمع صور منتجاتك وأسعارك في رابط واحد، مع الطلب عبر واتساب والتحويل البنكي وإدارة المنتجات من الجوال. قارن الباقات الشهرية واختر ما يناسب نشاطك.";
 
 /** النص الافتراضي لعنوان قسم الغلاف في الصفحة العامة (عند غياب قيمة من site_settings) */
 export const HERO_TITLE = "متجرك الإلكتروني الاحترافي...";
@@ -146,10 +148,18 @@ function stripLandingAccent(title: string): string {
 
 /** عرض إعدادات الموقع العام بعد إعادة التسمية، دون كتابة فوق محتوى المتاجر */
 export function presentSiteSettings(settings: SiteSettings): SiteSettings {
+  const seoDescription = rewritePlatformMarketing(settings.seoDescription ?? "");
+  const aboutText = rewritePlatformMarketing(settings.aboutText);
+  // Correct the known obsolete one-time price without overwriting custom SEO.
+  const obsoleteDescription = /499|٤٩٩/.test(seoDescription) && /مرة واحدة|بدون رسوم إضافية/.test(seoDescription);
+  const landing = mergeLandingContent(settings.landing);
+  const brandedLanding = JSON.parse(rewritePlatformMarketing(JSON.stringify(landing))) as typeof landing;
   return {
     ...settings,
     developerUrl: replaceLegacyPlatformDomain(settings.developerUrl),
-    aboutText: rewritePlatformMarketing(settings.aboutText),
+    aboutText: /^(معون منصة متكاملة أنشئ بها|معون منصة لبناء المواقع والمتاجر الإلكترونية للعملاء:)/.test(aboutText)
+      ? "معون يجهّز لك متجرًا يجمع صور المنتجات والأسعار في رابط خاص، مع الطلب عبر واتساب والتحويل البنكي ولوحة لإدارة منتجاتك من الجوال. يشمل التجهيز ما تتفق عليه في باقتك."
+      : aboutText,
     heroTitle: stripLandingAccent(rewritePlatformMarketing(settings.heroTitle)),
     heroSubtitle: rewritePlatformMarketing(settings.heroSubtitle),
     features: (settings.features ?? []).map((item) => ({
@@ -164,12 +174,12 @@ export function presentSiteSettings(settings: SiteSettings): SiteSettings {
     socialSnapchat: rewritePlatformMarketing(settings.socialSnapchat),
     socialTiktok: rewritePlatformMarketing(settings.socialTiktok),
     seoTitle: rewritePlatformMarketing(settings.seoTitle ?? ""),
-    seoDescription: rewritePlatformMarketing(settings.seoDescription ?? ""),
+    seoDescription: obsoleteDescription ? SITE_DESCRIPTION : seoDescription,
     seoKeywords: rewritePlatformMarketing(settings.seoKeywords ?? ""),
     seoLogo: replaceLegacyPlatformDomain(settings.seoLogo ?? ""),
     seoOgImage: replaceLegacyPlatformDomain(settings.seoOgImage ?? ""),
     seoFavicon: replaceLegacyPlatformDomain(settings.seoFavicon ?? ""),
-    landing: mergeLandingContent(settings.landing),
+    landing: presentLandingContent(brandedLanding),
   };
 }
 

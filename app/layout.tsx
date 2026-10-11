@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { APP_NAME, APP_TAGLINE, mainDomain } from "@/lib/constants";
+import { APP_NAME, APP_TAGLINE, SITE_DESCRIPTION, mainDomain } from "@/lib/constants";
 import ScrollMotion from "@/components/motion/scroll-motion";
 import "./globals.css";
 import "@fontsource/cairo/400.css";
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     template: `%s | ${APP_NAME}`,
   },
   description:
-    `${APP_NAME} لبناء المواقع والمتاجر الإلكترونية في السعودية. ننشئ لك موقعًا أو متجرًا إلكترونيًا احترافيًا مع التصميم والتجهيز والتسليم والدعم.`,
+    SITE_DESCRIPTION,
   keywords: [
     APP_NAME,
     "معون لبناء المواقع",

@@ -62,6 +62,25 @@ html {
   overflow-x: clip;
 }
 
+.maaoun-landing {
+  --color-accent-100: #fff3e6;
+  --color-accent-200: #ffe0c2;
+  --color-accent-300: #ffc599;
+  --color-accent-400: #ff8433;
+  --color-accent-500: #f96a0d;
+  --color-accent-600: #e65100;
+  --color-primary-hover: #ff8433;
+}
+
+.maaoun-landing :is(section[id], #contact, #main-content) {
+  scroll-margin-top: 5rem;
+}
+
+.maaoun-landing :is(a, button):focus-visible {
+  outline: 3px solid var(--color-brand-300);
+  outline-offset: 4px;
+}
+
 /* احترام تفضيل «تقليل الحركة» في نظام المستخدم */
 @media (prefers-reduced-motion: reduce) {
   html {
