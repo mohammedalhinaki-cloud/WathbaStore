@@ -311,10 +311,12 @@ export const LANDING_SECTION_KEYS = [
   "about",
   "services",
   "portfolio",
+  "steps",
   "pricing",
   "offers",
   "features",
   "faq",
+  "terms",
   "cta",
 ] as const;
 export type LandingSectionKey = (typeof LANDING_SECTION_KEYS)[number];
@@ -323,10 +325,12 @@ export const LANDING_SECTION_LABELS: Record<LandingSectionKey, string> = {
   about: "عن معون",
   services: "الخدمات",
   portfolio: "الأعمال",
+  steps: "كيف تحصل على متجرك؟",
   pricing: "الأسعار",
   offers: "العروض",
   features: "المميزات",
   faq: "الأسئلة الشائعة",
+  terms: "الاشتراك والدعم",
   cta: "الدعوة الأخيرة (الصندوق البرتقالي)",
 };
 
@@ -397,17 +401,25 @@ export interface LandingContent {
     ctaMobile: string;
   };
   cta: { title: string; desc: string; button: string };
+  commerce: {
+    billingLabel: string;
+    fees: string;
+    cancellation: string;
+    support: string;
+    providerName: string;
+    providerDetails: string;
+  };
   footer: { tagline: string };
 }
 
 /**
- * المحتوى الافتراضي — يطابق النصوص الأصلية للموقع حرفيًا.
+ * محتوى افتراضي يوضح الفائدة والمزايا المتاحة دون أرقام غير موثقة.
  * `{domain}` في نقاط قسم «عن معون» تُستبدل بالنطاق الفعلي عند العرض.
  */
 export const DEFAULT_LANDING_CONTENT: LandingContent = {
   sections: { order: [...LANDING_SECTION_KEYS], hidden: [] },
   toggles: {
-    heroStats: true,
+    heroStats: false,
     heroImage: true,
     heroBadge: true,
     heroPrimaryBtn: true,
@@ -421,21 +433,16 @@ export const DEFAULT_LANDING_CONTENT: LandingContent = {
     footerSocial: true,
   },
   hero: {
-    title: "معون لبناء المواقع والمتاجر الإلكترونية",
-    accent: "باحتراف وبكل بساطة",
-    subtitle: "نحوّل فكرتك إلى موقع أو متجر إلكتروني احترافي يعكس هوية تجارتك ويسهّل وصول عملائك إلى منتجاتك وخدماتك.",
-    primaryBtn: "تواصل عبر واتساب",
-    secondaryBtn: "شاهد أعمالي",
+    title: "منتجاتك وأسعارك في متجر واحد",
+    accent: "والطلبات تصلك مرتّبة",
+    subtitle: "بدل ما تشرح كل منتج في الواتساب، أرسل رابط متجرك. العميل يشوف الصور والأسعار ويختار، وأنت تدير منتجاتك من جوالك. نجهّز المتجر معك حسب الباقة التي تختارها.",
+    primaryBtn: "أبي متجر لنشاطي",
+    secondaryBtn: "شاهد نماذج المتاجر",
     imageUrl: "/seed/hero.jpg",
     badgeTitle: "تسليم جاهز للعمل",
     badgeDesc: "نطاق فرعي + لوحة تحكم العميل",
   },
-  stats: [
-    { value: 100, suffix: "+", unit: "", label: "فكرة متجر بدأت معنا" },
-    { value: 499, suffix: "", unit: "ريال", label: "سعر يبدأ منه متجرك" },
-    { value: 7, suffix: "", unit: "أيام", label: "لتجهيز متجرك" },
-    { value: 100, suffix: "%", unit: "", label: "تحكمك في متجرك" },
-  ],
+  stats: [],
   about: {
     badge: "ما هو معون؟",
     title: "منصة لبناء المواقع والمتاجر وتسليمها جاهزة",
@@ -455,33 +462,41 @@ export const DEFAULT_LANDING_CONTENT: LandingContent = {
     { title: "تأسيس متجر كامل", desc: "من الفكرة إلى الإطلاق: أنشئ متجرك على نطاق فرعي خاص، بهيكله ومنتجاته وصفحاته." },
     { title: "تصميم بهوية متجرك", desc: "قوالب جاهزة قابلة للتخصيص: قوالب، خطوط عربية، وألوان تعكس هوية نشاطك." },
     { title: "الطلب عبر واتساب", desc: "زر «اطلب عبر واتساب» برسالة جاهزة تتضمن المنتج والسعر — بدون تعقيد ودون بوابات دفع." },
-    { title: "SEO محلي بالعربي", desc: "عناوين ووصف وكلمات مفتاحية مخصصة لكل متجر حتى يظهر في نتائج البحث." },
-    { title: "أمان وعزل كامل", desc: "عزل حقيقي لبيانات كل متجر على مستوى قاعدة البيانات وصلاحيات صارمة لكل حساب." },
+    { title: "تهيئة للبحث", desc: "نضبط العناوين والأوصاف لمساعدة محركات البحث على فهم متجرك، دون ضمان ترتيب معين." },
+    { title: "حساب خاص بمتجرك", desc: "تدير منتجاتك وأسعارك من حسابك، مع فصل صلاحيات المتاجر." },
     { title: "لوحة تحكم للعميل", desc: "بعد التسليم يدير العميل متجره بنفسه: منتجات، أسعار، صور، وأقسام — من لوحة مستقلة." },
   ],
   heads: {
     services: { badge: "الخدمات", title: "كل ما يحتاجه متجرك… في مكان واحد", sub: "من الإنشاء إلى التسليم، وكل خطوة بين المراحل" },
-    portfolio: { badge: "أعمالي", title: "متاجر بُنيت على معون", sub: "عينات من المتاجر التي أنشأتها وجاهزتها" },
-    pricing: { badge: "الأسعار", title: "باقات واضحة… بدون مفاجآت", sub: "اختر ما يناسب نشاطك، وابدأ عبر واتساب" },
+    portfolio: { badge: "نماذج المتاجر", title: "شاهد كيف ممكن يظهر متجرك", sub: "افتح النموذج وجرّب عرض المنتجات، ثم أرسل لنا التصميم الذي يناسب نشاطك." },
+    pricing: { badge: "الباقات", title: "اختر الباقة المناسبة لنشاطك", sub: "قارن المزايا والسعر، ثم أرسل طلبك عبر واتساب." },
     offers: { badge: "عروض حصرية", title: "العروض الحالية", sub: "فرص محدودة — لا تفوتها" },
-    features: { badge: "لماذا معون؟", title: "مميزات تجعل الفرق", sub: "بُنية مبنية لتتحمل نمو عدد المتاجر" },
+    features: { badge: "لماذا معون؟", title: "متجرك معك من الجوال", sub: "رابط تجمع فيه منتجاتك، ولوحة لإدارة الأسعار والصور." },
     faq: { badge: "الأسئلة الشائعة", title: "كل ما تريد معرفته", sub: "إن كان لديك سؤال آخر، تواصل عبر واتساب" },
   },
   nav: {
     links: [
       { href: "#services", label: "الخدمات" },
-      { href: "#portfolio", label: "أعمالي" },
+      { href: "#portfolio", label: "نماذج المتاجر" },
       { href: "#pricing", label: "الأسعار" },
       { href: "#offers", label: "العروض" },
       { href: "#faq", label: "الأسئلة" },
     ],
-    cta: "ابدأ مشروعك",
-    ctaMobile: "ابدأ مشروعك عبر واتساب",
+    cta: "أبي متجر لنشاطي",
+    ctaMobile: "أبي متجر لنشاطي",
   },
   cta: {
-    title: "جاهز تنطلق بثقتك؟",
-    desc: "أرسل لي رسالة عبر واتساب وأخبرني عن نشاطك — وسأجهز لك متجرًا جاهزًا خلال أيام.",
-    button: "ابدأ الآن عبر واتساب",
+    title: "خلّ عميلك يشوف منتجاتك قبل ما يسأل",
+    desc: "أرسل اسم نشاطك وصور منتجاتك أو المنيو، ونوضّح لك الباقة والتكلفة وموعد التسليم قبل البدء.",
+    button: "أبي متجر لنشاطي",
+  },
+  commerce: {
+    billingLabel: "شهريًا",
+    fees: "السعر المعروض هو الاشتراك الشهري. اطلب تأكيد إجمالي التكلفة وأي رسوم تجهيز أو خدمات إضافية قبل الاشتراك.",
+    cancellation: "اطلب شروط إيقاف التجديد والإلغاء والاسترداد عبر واتساب، وراجعها قبل اعتماد الاشتراك.",
+    support: "التواصل للدعم عبر واتساب معون. اطلب تحديد مدة الدعم ونطاقه ووقت الرد ضمن عرض باقتك قبل البدء.",
+    providerName: "معون | MAAOUN",
+    providerDetails: "تجهيز المتاجر الإلكترونية وإدارة المنتجات من الجوال. قناة التواصل الرسمية: واتساب معون المرتبط بهذا الموقع.",
   },
   footer: { tagline: "متجرك يبدأ من هنا" },
 };
@@ -543,6 +558,7 @@ export function mergeLandingContent(stored: unknown): LandingContent {
   const nav = asObj(o.nav);
   const cta = asObj(o.cta);
   const footer = asObj(o.footer);
+  const commerce = asObj(o.commerce);
   const sections = asObj(o.sections);
   const toggles = asObj(o.toggles);
   const isKey = (k: unknown): k is LandingSectionKey =>
@@ -550,8 +566,14 @@ export function mergeLandingContent(stored: unknown): LandingContent {
   const order = Array.isArray(sections.order)
     ? Array.from(new Set(sections.order.filter(isKey)))
     : [];
-  // أي قسم جديد غير موجود في الترتيب المخزّن يُضاف في النهاية
-  for (const k of LANDING_SECTION_KEYS) if (!order.includes(k)) order.push(k);
+  // الأقسام الجديدة تدخل قبل القسم المرتبط بها دون تغيير ترتيب الأقسام القديمة.
+  for (const k of LANDING_SECTION_KEYS) {
+    if (order.includes(k)) continue;
+    const anchor = k === "steps" ? "pricing" : k === "terms" ? "cta" : null;
+    const at = anchor ? order.indexOf(anchor) : -1;
+    if (at >= 0) order.splice(at, 0, k);
+    else order.push(k);
+  }
   const hidden = Array.isArray(sections.hidden)
     ? Array.from(new Set(sections.hidden.filter(isKey)))
     : [];
@@ -577,11 +599,12 @@ export function mergeLandingContent(stored: unknown): LandingContent {
       d.stats,
       (x, dd) => {
         const s = asObj(x);
+        const fallback = dd ?? { value: 0, suffix: "", unit: "", label: "" };
         return {
-          value: landingNum(s.value, dd.value),
-          suffix: typeof s.suffix === "string" ? s.suffix.slice(0, 8) : dd.suffix,
-          unit: typeof s.unit === "string" ? s.unit.slice(0, 20) : dd.unit,
-          label: landingStr(s.label, dd.label),
+          value: landingNum(s.value, fallback.value),
+          suffix: typeof s.suffix === "string" ? s.suffix.slice(0, 8) : fallback.suffix,
+          unit: typeof s.unit === "string" ? s.unit.slice(0, 20) : fallback.unit,
+          label: landingStr(s.label, fallback.label),
         };
       },
       LANDING_LIMITS.stats
@@ -621,6 +644,14 @@ export function mergeLandingContent(stored: unknown): LandingContent {
       button: landingStr(cta.button, d.cta.button),
     },
     footer: { tagline: landingStr(footer.tagline, d.footer.tagline) },
+    commerce: {
+      billingLabel: landingStr(commerce.billingLabel, d.commerce.billingLabel),
+      fees: landingStr(commerce.fees, d.commerce.fees),
+      cancellation: landingStr(commerce.cancellation, d.commerce.cancellation),
+      support: landingStr(commerce.support, d.commerce.support),
+      providerName: landingStr(commerce.providerName, d.commerce.providerName),
+      providerDetails: landingStr(commerce.providerDetails, d.commerce.providerDetails),
+    },
   };
 }
 

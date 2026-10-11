@@ -108,6 +108,22 @@ npm run cf-deploy        # = opennextjs-cloudflare build && deploy
 npm run cf-preview      # تعمل على http://localhost:8787
 ```
 
+عند نشر معاينة فرع من Cloudflare Workers Builds، يستخدم أمر النشر
+`npx wrangler preview`. يجب تعريف ربط الصور للمعاينات داخل `previews` في
+`wrangler.jsonc`، بالإضافة إلى ربط الصور الموجود للإنتاج:
+
+```json
+{
+  "previews": {
+    "images": { "binding": "IMAGES" }
+  }
+}
+```
+
+هذا الإعداد موجود في المستودع. إذا ظهر خطأ `missing a previews block`، تأكد أن
+البناء يستخدم أحدث نسخة من الفرع. تبقى إعدادات `assets` و`compatibility_flags`
+في المستوى الأعلى من الملف.
+
 ---
 
 ## 5) ربط النطاق `maaoun.com` والنطاق العرضي `*.maaoun.com`
