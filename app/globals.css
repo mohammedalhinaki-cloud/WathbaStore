@@ -223,8 +223,8 @@ body {
   --motion-hover-scale: 1;
 }
 
-/* لا تُخفى العناصر إلا بعد أن يؤكد السكربت المبكر دعم الحركة. */
-.motion-enabled [data-reveal] {
+/* المحتوى ظاهر افتراضيًا؛ تُجهّز الحركة للعناصر أسفل الشاشة فقط. */
+.motion-enabled [data-reveal].is-motion-pending {
   opacity: 0;
   transform: translate3d(
       var(--motion-enter-x),

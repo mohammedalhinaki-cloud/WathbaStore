@@ -37,9 +37,11 @@ export default async function HomePage() {
     const { store, settings } = ctx.bundle;
     const query = ctx.tenant.isPreview ? `?store=${store.subdomain}` : "";
 
-    // عبر loadStoreAndNav المغلّفة بـ cache(): نفس البيانات يعيد StoreHome
-    // طلبها أدناه، فتُجلب مرة واحدة لكل طلب بدل مرتين — ومتوازية بدل متتابعة.
-    const { categories, pages } = await loadStoreAndNav(store.id);
+    // Start products (and their images) alongside navigation, not after it.
+    const [{ categories, pages }, products] = await Promise.all([
+      loadStoreAndNav(store.id),
+      services().listProducts(store.id),
+    ]);
     const navLinks = [
       ...categories
         .filter((c) => c.isVisible)
@@ -63,7 +65,13 @@ export default async function HomePage() {
         navLinks={navLinks}
         overlayHeader={overlayHeader}
       >
-        <StoreHome bundle={ctx.bundle} query={query} />
+        <StoreHome
+          bundle={ctx.bundle}
+          query={query}
+          products={products}
+          categories={categories}
+          pages={pages}
+        />
       </StoreShell>
     );
   }
