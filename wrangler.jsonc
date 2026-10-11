@@ -24,6 +24,12 @@
   "images": {
     "binding": "IMAGES"
   },
+  // نشر معاينات الفروع يحتاج ربط الصور داخل previews أيضًا.
+  "previews": {
+    "images": {
+      "binding": "IMAGES"
+    }
+  },
   // تفعيل السجلات لتشخيص أي خطأ لاحقًا من لوحة Cloudflare
   "observability": {
     "enabled": true
