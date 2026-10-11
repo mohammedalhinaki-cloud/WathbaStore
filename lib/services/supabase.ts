@@ -238,8 +238,15 @@ export class SupabaseServices implements Services {
 
   async getVisibleStoreBySubdomain(subdomain: string, actor: AppUser | null): Promise<StoreBundle | null> {
     // RLS يسمح للقراءة: المسلّم للجميع + المالك + الأعضاء لمتاجرهم
-    const store = await this.getStoreBySubdomain(subdomain);
-    if (!store) return null;
+    // Storefront rendering does not need the administrative delivery credentials.
+    // Keep the session client/RLS so private store previews retain their permissions.
+    const { data } = await (await supabaseServer())
+      .from("stores")
+      .select("*")
+      .eq("subdomain", subdomain.trim().toLowerCase())
+      .maybeSingle();
+    if (!data) return null;
+    const store = this.mapStore({ ...data, client_credentials: null });
     const settings = await this.getStoreSettings(store.id);
     return { store, settings };
   }

@@ -31,8 +31,7 @@ export default function ScrollMotion() {
       return;
     }
 
-    // توجد إضافة مبكرة لهذه الفئة داخل <head> لمنع وميض المحتوى قبل hydration.
-    // هذا السطر احتياط للتنقلات أو المتصفحات التي تؤخر تنفيذ السكربت المبكر.
+    // المحتوى يبقى ظاهرًا حتى يجهز المحرك؛ لا نحجب أول رسم بانتظار hydration.
     root.classList.add("motion-enabled");
 
     // احتياط للمتصفحات القديمة: يبقى كل المحتوى ظاهرًا وقابلًا للاستخدام.
@@ -87,7 +86,13 @@ export default function ScrollMotion() {
     const registerReveal = (element: HTMLElement) => {
       if (registeredRevealElements.has(element)) return;
       registeredRevealElements.add(element);
+      // Never hide content already visible, including streamed/navigation content.
+      if (element.getBoundingClientRect().top < window.innerHeight) {
+        element.classList.add("is-revealed", "is-motion-settled");
+        return;
+      }
       assignStaggerOrder(element);
+      element.classList.add("is-motion-pending");
       revealObserver.observe(element);
     };
 
@@ -163,6 +168,7 @@ export default function ScrollMotion() {
     reduceMotion.addEventListener("change", handleMotionPreference);
 
     return () => {
+      root.classList.remove("motion-enabled");
       revealObserver.disconnect();
       mutationObserver.disconnect();
       reduceMotion.removeEventListener("change", handleMotionPreference);

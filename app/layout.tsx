@@ -80,18 +80,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
-      <head>
-        {/*
-          تفعيل الحركات قبل أول رسم يمنع وميض العناصر ثم اختفاءها عند hydration.
-          بدون JavaScript يبقى المحتوى ظاهرًا، ومع reduced-motion لا تُضاف الفئة أصلًا.
-        */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('motion-enabled')}catch(e){}",
-          }}
-        />
-      </head>
       <body className="font-sans min-h-screen">
         <ScrollMotion />
         {children}

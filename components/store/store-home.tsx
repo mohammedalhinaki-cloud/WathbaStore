@@ -19,27 +19,21 @@
 // ============================================================
 
 import Image from "next/image";
-import { services } from "@/lib/services";
 import { isOptimizableSrc, pickFirstImage } from "@/lib/images";
-import { loadStoreAndNav } from "./load-nav";
-import { isHeroEnabled, type StoreBundle } from "@/lib/types";
+import { isHeroEnabled, type StoreBundle, type Product, type Category, type StorePage } from "@/lib/types";
 import ProductsGrid from "./products-grid";
 import HeroCtaButton from "./hero-cta-button";
 
 interface Props {
   bundle: StoreBundle;
   query: string;
+  products: Product[];
+  categories: Category[];
+  pages: StorePage[];
 }
 
-export default async function StoreHome({ bundle, query }: Props) {
+export default function StoreHome({ bundle, query, products, categories, pages }: Props) {
   const { store, settings } = bundle;
-  // loadStoreAndNav مغلّفة بـ cache() — الأقسام والصفحات مجلوبة مسبقًا في
-  // app/page.tsx لبناء روابط الهيدر، فلا تتكرر الرحلة إلى قاعدة البيانات.
-  const [products, nav] = await Promise.all([
-    services().listProducts(store.id),
-    loadStoreAndNav(store.id),
-  ]);
-  const { categories, pages } = nav;
 
   const visibleCats = categories.filter((c) => c.isVisible);
   const visiblePages = pages.filter((p) => p.isVisible);
