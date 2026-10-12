@@ -8,7 +8,7 @@
 // - تسجيل النشاط لا يُسقط نجاح العملية: فلو فشل لا يؤثر على النتيجة.
 import { NextRequest, NextResponse } from "next/server";
 import { services } from "@/lib/services";
-import { ok, err, badRequest, requireOwnerUser } from "@/lib/api-utils";
+import { ok, err, badRequest, requireStoreActor } from "@/lib/api-utils";
 import { validateSubdomain } from "@/lib/subdomain";
 
 export async function POST(
@@ -16,9 +16,9 @@ export async function POST(
   ctx: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireOwnerUser();
-    if (user instanceof NextResponse) return user;
     const { id } = await ctx.params;
+    const user = await requireStoreActor(id);
+    if (user instanceof NextResponse) return user;
 
     const store = await services().getStore(id);
     if (!store) return badRequest("المتجر غير موجود");
@@ -31,18 +31,6 @@ export async function POST(
 
     const res = await services().changeSubdomain(id, subdomain);
     if (!res.ok) return badRequest(res.error ?? "فشل تغيير النطاق الفرعي");
-
-    // سجل النشاط: إجراء احتفالي — فشله لا يلغي التغيير الناجح
-    try {
-      await services().logActivity(
-        { id: user.id, email: user.email },
-        id,
-        "store.subdomain_changed",
-        { from: store.subdomain, to: subdomain }
-      );
-    } catch (logError) {
-      console.error("فشل تسجيل نشاط تغيير النطاق الفرعي", logError);
-    }
 
     const updated = (await services().getStore(id)) ?? store;
     return ok({ ok: true, subdomain, store: updated });

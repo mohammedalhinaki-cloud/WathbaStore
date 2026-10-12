@@ -1,5 +1,6 @@
 // معون — بطاقة نطاق فرعي مع تغيير حي والتحقق
 "use client";
+import { useSetupSave } from "./setup-save-context";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -9,8 +10,9 @@ import { mainDomain } from "@/lib/constants";
 import { validateSubdomain } from "@/lib/subdomain";
 import { StatusBadge, Card } from "@/components/admin/ui";
 
-export default function SubdomainManager({ store }: { store: Store }) {
+export default function SubdomainManager({ store, clientSetup = false }: { store: Store; clientSetup?: boolean }) {
   const router = useRouter();
+  const setupSave = useSetupSave();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(store.subdomain);
   const [busy, setBusy] = useState(false);
@@ -45,7 +47,11 @@ export default function SubdomainManager({ store }: { store: Store }) {
         );
       }
       setEditing(false);
-      router.refresh();
+      setupSave.saved();
+      if (clientSetup) {
+        const local = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+        window.location.assign(local ? `/admin/setup?store=${encodeURIComponent(value)}` : `https://${value}.${mainDomain()}/admin/setup`);
+      } else router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "حدث خطأ غير متوقع");
     } finally {

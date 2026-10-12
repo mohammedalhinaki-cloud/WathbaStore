@@ -65,12 +65,7 @@ export async function POST(req: NextRequest) {
       categoryId: input.categoryId ?? null,
       images: input.images,
     });
-    await services().logActivity(
-      { id: actor.id, email: actor.email },
-      input.storeId,
-      "product.created",
-      { name: input.name, price: input.price }
-    );
+
     return ok({ product }, 201);
   } catch (e) {
     return serverError(e);

@@ -31,12 +31,7 @@ export async function PATCH(
     const parsed = SCHEMA.safeParse(await req.json().catch(() => null));
     if (!parsed.success) return badRequest("بيانات غير صالحة");
     const category = await svc.updateCategory(id, parsed.data);
-    await svc.logActivity(
-      { id: actor.id, email: actor.email },
-      cat.storeId,
-      "category.updated",
-      { name: category.name }
-    );
+
     return ok({ category });
   } catch (e) {
     return serverError(e);
@@ -57,12 +52,7 @@ export async function DELETE(
     if (actor instanceof NextResponse) return actor;
 
     await svc.deleteCategory(id);
-    await svc.logActivity(
-      { id: actor.id, email: actor.email },
-      cat.storeId,
-      "category.deleted",
-      { name: cat.name }
-    );
+
     return ok({ ok: true });
   } catch (e) {
     return serverError(e);

@@ -59,12 +59,7 @@ export async function PATCH(
     }
 
     const settings = await services().updateStoreSettings(id, patch);
-    await services().logActivity(
-      { id: actor.id, email: actor.email },
-      id,
-      "settings.updated",
-      { fields: Object.keys(patch) }
-    );
+
     return ok({ settings });
   } catch (e) {
     return serverError(e);

@@ -6,7 +6,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { services } from "@/lib/services";
 import { ok, badRequest, requireStoreActor, serverError } from "@/lib/api-utils";
-import { isOwner } from "@/lib/authorize";
 import { z } from "zod";
 import { normalizeSectionOrder } from "@/lib/types";
 
@@ -33,18 +32,7 @@ export async function PATCH(
 
     const parsed = SCHEMA.safeParse(await req.json().catch(() => null));
     if (!parsed.success) return badRequest("بيانات غير صالحة");
-    let patch = parsed.data;
-
-    if (!isOwner(actor)) {
-      // صاحب المتجر: الألوان فقط (القالب وترتيب الأقسام قرار المالك)
-      patch = {
-        primaryColor: patch.primaryColor,
-        secondaryColor: patch.secondaryColor,
-      };
-      if (!patch.primaryColor && !patch.secondaryColor) {
-        return badRequest("هذه الإعدادات قرار المالك");
-      }
-    }
+    const patch = parsed.data;
 
     const settings = await services().updateStoreSettings(id, {
       template: patch.template,
@@ -55,12 +43,7 @@ export async function PATCH(
         ? normalizeSectionOrder(patch.sectionOrder)
         : undefined,
     });
-    await services().logActivity(
-      { id: actor.id, email: actor.email },
-      id,
-      "design.updated",
-      { fields: Object.keys(patch) }
-    );
+
     return ok({ settings });
   } catch (e) {
     return serverError(e);

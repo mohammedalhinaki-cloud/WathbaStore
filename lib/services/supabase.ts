@@ -1,3 +1,4 @@
+import { randomBytes, randomUUID } from "node:crypto";
 // ============================================================
 // معون — تنفيذ الخدمات على Supabase (الوضع الإنتاجي)
 // يعتمد على Supabase Auth + Row Level Security للعزل الكامل
@@ -12,7 +13,6 @@ import {
   rewriteStoredStoreUrl,
 } from "../constants";
 import type {
-  ActivityLog,
   AppUser,
   Category,
   Offer,
@@ -416,10 +416,35 @@ export class SupabaseServices implements Services {
         .eq("id", id);
       if (error) return { ok: false, error: error.message };
 
-      await this.logActivity({ id: null, email: actorEmail }, id, "store.delivered", { subdomain: store.subdomain });
       return { ok: true, credentials: { email, password } };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : "فشل التسليم" };
+    }
+  }
+
+  async ensureStoreSetupAccess(storeId: string): Promise<{ email: string; password: string }> {
+    // This method is called only after the HTTP boundary requires the platform owner.
+    const admin = supabaseAdmin();
+    const { data: existing, error: readError } = await admin.from("store_setup_access")
+      .select("email, password").eq("store_id", storeId).maybeSingle();
+    if (readError) throw new Error("تعذر تجهيز رابط الإعداد. تأكد من تطبيق ترحيل قاعدة البيانات 0014.");
+    if (existing) return existing;
+    const store = await this.getStore(storeId);
+    if (!store) throw new Error("المتجر غير موجود");
+    const email = `setup-${randomUUID()}@setup.maaoun.com`;
+    const password = randomBytes(32).toString("base64url");
+    const user = await this.createUser({ email, password, name: store.ownerName });
+    try {
+      await this.addMembership(user.id, storeId, "owner");
+      const { error } = await admin.from("store_setup_access").insert({ store_id: storeId, user_id: user.id, email, password });
+      if (error) throw error;
+      return { email, password };
+    } catch (error) {
+      // A concurrent request may already have provisioned the store. Keep one account.
+      await admin.auth.admin.deleteUser(user.id);
+      const { data: winner } = await admin.from("store_setup_access").select("email, password").eq("store_id", storeId).maybeSingle();
+      if (winner) return winner;
+      throw error;
     }
   }
 
@@ -868,45 +893,6 @@ export class SupabaseServices implements Services {
   async deletePage(id: string): Promise<void> {
     const { error } = await (await supabaseServer()).from("pages").delete().eq("id", id);
     if (error) throw new Error(error.message);
-  }
-
-  // ---------------- النشاطات ----------------
-
-  /**
-   * تسجيل النشاط بجلسة المستخدم (RLS: logs_insert) لا بالمفتاح السري.
-   * وفشل التسجيل **لا يُسقط العملية الأصلية** — كان يُسقطها سابقًا فيظهر
-   * للمستخدم «فشل الحفظ/الرفع» مع أن التغيير حُفظ فعلًا.
-   */
-  async logActivity(
-    actor: { id: string | null; email: string },
-    storeId: string | null,
-    action: string,
-    details?: Record<string, unknown>
-  ): Promise<void> {
-    try {
-      const { error } = await (await supabaseServer())
-        .from("activity_logs")
-        .insert({ store_id: storeId, user_id: actor.id, actor_email: actor.email, action, details: details ?? {} });
-      if (error) console.warn("[activity] تعذر تسجيل النشاط:", error.message);
-    } catch (e) {
-      console.warn("[activity] تعذر تسجيل النشاط:", e instanceof Error ? e.message : e);
-    }
-  }
-
-  async listActivity(opts: { storeId?: string | null; limit?: number }): Promise<ActivityLog[]> {
-    let q = (await supabaseServer()).from("activity_logs").select("*").order("created_at", { ascending: false }).limit(opts.limit ?? 100);
-    if (opts.storeId != null) q = q.eq("store_id", opts.storeId);
-    const { data, error } = await q;
-    if (error) throw new Error(error.message);
-    return (data ?? []).map((r) => ({
-      id: r.id as number,
-      storeId: (r.store_id as string) ?? null,
-      userId: (r.user_id as string) ?? null,
-      actorEmail: (r.actor_email as string) ?? "",
-      action: r.action as string,
-      details: (r.details as Record<string, unknown>) ?? {},
-      createdAt: r.created_at as string,
-    }));
   }
 
   // ---------------- الموقع العام ----------------

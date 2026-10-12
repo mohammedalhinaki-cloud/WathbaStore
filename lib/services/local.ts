@@ -1,3 +1,4 @@
+import { randomBytes, randomUUID } from "node:crypto";
 // ============================================================
 // معون — تنفيذ الخدمات على SQLite (الوضع التجريبي المحلي)
 // ============================================================
@@ -15,7 +16,6 @@ import { hashPassword, verifyPassword } from "../local/auth";
 import { StorageError, type StorageHealth } from "./types";
 import { normalizeSectionOrder, mergeLandingContent, DEFAULT_LANDING_CONTENT } from "../types";
 import type {
-  ActivityLog,
   AppUser,
   Category,
   Offer,
@@ -350,8 +350,22 @@ export class LocalServices implements Services {
     d.prepare("UPDATE stores SET status = 'delivered', delivered_at = ?, client_credentials = ?, updated_at = ? WHERE id = ?").run(
       now(), JSON.stringify({ email, password }), now(), id
     );
-    await this.logActivity({ id: null, email: actorEmail }, id, "store.delivered", { subdomain: store.subdomain, clientEmail: email });
+
     return { ok: true, credentials: { email, password } };
+  }
+
+  async ensureStoreSetupAccess(storeId: string): Promise<{ email: string; password: string }> {
+    const d = db();
+    const existing = d.prepare("SELECT email, password FROM store_setup_access WHERE store_id = ?").get(storeId) as { email: string; password: string } | undefined;
+    if (existing) return existing;
+    const store = await this.getStore(storeId);
+    if (!store) throw new Error("المتجر غير موجود");
+    const email = `setup-${randomUUID()}@setup.maaoun.com`;
+    const password = randomBytes(32).toString("base64url");
+    const user = await this.createUser({ email, password, name: store.ownerName });
+    await this.addMembership(user.id, storeId, "owner");
+    d.prepare("INSERT INTO store_setup_access (store_id, user_id, email, password) VALUES (?,?,?,?)").run(storeId, user.id, email, password);
+    return { email, password };
   }
 
   // ---------------- إعدادات المتجر ----------------
@@ -671,45 +685,6 @@ export class LocalServices implements Services {
 
   async deletePage(id: string): Promise<void> {
     db().prepare("DELETE FROM pages WHERE id = ?").run(id);
-  }
-
-  // ---------------- النشاطات ----------------
-
-  async logActivity(
-    actor: { id: string | null; email: string },
-    storeId: string | null,
-    action: string,
-    details?: Record<string, unknown>
-  ): Promise<void> {
-    // فشل تسجيل النشاط لا يُسقط العملية الأصلية (نفس سلوك طبقة Supabase)
-    try {
-      db().prepare(
-        "INSERT INTO activity_logs (store_id, user_id, actor_email, action, details, created_at) VALUES (?,?,?,?,?,?)"
-      ).run(storeId, actor.id, actor.email, action, details ? JSON.stringify(details) : null, now());
-    } catch (e) {
-      console.warn("[activity] تعذر تسجيل النشاط:", e instanceof Error ? e.message : e);
-    }
-  }
-
-  async listActivity(opts: { storeId?: string | null; limit?: number }): Promise<ActivityLog[]> {
-    const d = db();
-    let sql = "SELECT * FROM activity_logs";
-    const params: (string | number | null)[] = [];
-    if (opts.storeId != null) {
-      sql += " WHERE store_id = ?";
-      params.push(opts.storeId);
-    }
-    sql += " ORDER BY created_at DESC, id DESC LIMIT ?";
-    params.push(opts.limit ?? 100);
-    return (d.prepare(sql).all(...params) as Record<string, unknown>[]).map((r) => ({
-      id: r.id as number,
-      storeId: (r.store_id as string) ?? null,
-      userId: (r.user_id as string) ?? null,
-      actorEmail: (r.actor_email as string) ?? "",
-      action: r.action as string,
-      details: r.details ? JSON.parse(r.details as string) : {},
-      createdAt: r.created_at as string,
-    }));
   }
 
   // ---------------- الموقع العام ----------------

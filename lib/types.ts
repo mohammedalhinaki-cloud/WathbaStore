@@ -215,40 +215,6 @@ export interface StoreMember {
   createdAt: string;
 }
 
-export interface ActivityLog {
-  id: number;
-  storeId: string | null;
-  userId: string | null;
-  actorEmail: string;
-  action: string;
-  details: Record<string, unknown>;
-  createdAt: string;
-}
-
-export const ACTIVITY_LABELS: Record<string, string> = {
-  "store.created": "إنشاء متجر",
-  "store.updated": "تعديل بيانات متجر",
-  "store.status_changed": "تغيير حالة متجر",
-  "store.subdomain_changed": "تغيير النطاق الفرعي",
-  "store.delivered": "تسليم متجر",
-  "design.updated": "تعديل التصميم",
-  "settings.updated": "تعديل إعدادات المتجر",
-  "seo.updated": "تحديث SEO",
-  "product.created": "إضافة منتج",
-  "product.updated": "تعديل منتج",
-  "product.deleted": "حذف منتج",
-  "category.created": "إضافة قسم",
-  "category.updated": "تعديل قسم",
-  "category.deleted": "حذف قسم",
-  "page.created": "إضافة صفحة",
-  "page.updated": "تعديل صفحة",
-  "page.deleted": "حذف صفحة",
-  "image.uploaded": "رفع صورة",
-  "image.deleted": "حذف صورة",
-  "owner.login": "دخول المالك",
-  "member.login": "دخول صاحب متجر",
-};
-
 export interface SiteSettings {
   whatsappNumber: string;
   developerUrl: string;

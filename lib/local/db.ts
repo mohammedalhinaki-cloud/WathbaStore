@@ -149,14 +149,11 @@ function initSchema(db: DatabaseSync): void {
     UNIQUE (store_id, user_id)
   );
 
-  CREATE TABLE IF NOT EXISTS activity_logs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    store_id TEXT,
-    user_id TEXT,
-    actor_email TEXT,
-    action TEXT NOT NULL,
-    details TEXT,
-    created_at TEXT NOT NULL
+  CREATE TABLE IF NOT EXISTS store_setup_access (
+    store_id TEXT PRIMARY KEY REFERENCES stores(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES local_users(id) ON DELETE CASCADE,
+    email TEXT NOT NULL,
+    password TEXT NOT NULL
   );
 
   CREATE TABLE IF NOT EXISTS site_settings (
@@ -237,7 +234,6 @@ function ensureSiteColumns(database: DatabaseSync): void {
   }
 }
 
-
 /**
  * يعيد كتابة روابط ونصوص المنصة القديمة في قاعدة محلية موجودة.
  * لا يحذف صفوفًا ولا يغيّر النطاقات الفرعية. حساب التجربة يُحدَّث فقط
@@ -309,10 +305,6 @@ function migrateLegacyPlatformData(database: DatabaseSync): void {
         "owner@maaoun.com",
         hashPassword("Maaoun#2026"),
         legacy.id
-      );
-      database.prepare("UPDATE activity_logs SET actor_email=? WHERE lower(actor_email)=lower(?)").run(
-        "owner@maaoun.com",
-        "owner@waathba.com"
       );
     }
   }
@@ -534,9 +526,6 @@ function ensureHoneyShowcase(database: DatabaseSync): void {
   );
 
   const ownerEmail = process.env.LOCAL_OWNER_EMAIL || "owner@maaoun.com";
-  database.prepare(
-    "INSERT INTO activity_logs (store_id, user_id, actor_email, action, details, created_at) VALUES (?,?,?,?,?,?)"
-  ).run(storeId, null, ownerEmail, "store.delivered", JSON.stringify({ subdomain: "honey" }), ago(1));
 }
 
 // ------------------------------------------------------------
@@ -694,12 +683,6 @@ function ensureOsraShowcase(database: DatabaseSync): void {
   );
 
   const ownerEmail = process.env.LOCAL_OWNER_EMAIL || "owner@maaoun.com";
-  const insLog = database.prepare(
-    "INSERT INTO activity_logs (store_id, user_id, actor_email, action, details, created_at) VALUES (?,?,?,?,?,?)"
-  );
-  insLog.run(null, null, ownerEmail, "store.created", JSON.stringify({ store: storeId, name: "أسرة منتجة" }), ago(3));
-  insLog.run(storeId, null, ownerEmail, "product.created", JSON.stringify({ name: "فطائر الجبن" }), ago(2));
-  insLog.run(storeId, null, ownerEmail, "store.delivered", JSON.stringify({ subdomain: "osra" }), ago(1));
 }
 
 // ------------------------------------------------------------
@@ -951,20 +934,7 @@ function seedIfEmpty(db: DatabaseSync): void {
   insPortfolio.run("pf-sweets", "دار رشف للحلويات", "متجر حلويات شرقية وغربية بهوية توتية ذهبية: كتالوج كامل، طلب عبر واتساب، وحسابات تحويل بنكي.", "/seed/sweets-cover.jpg", "https://sweets.maaoun.com", "حلويات, مناسبات, متجر طعام", 1, 2, ago(1));
   insPortfolio.run("pf-honey", "منحل الوثبة", "متجر عسل ومنتجات نحل فاخر بهوية عنبرية ذهبية على خلفية داكنة: كتالوج كامل، طلب عبر واتساب، وحسابات تحويل بنكي.", "/seed/honey-cover.jpg", "https://honey.maaoun.com", "عسل, منتجات طبيعية, متجر طعام", 1, 3, ago(1));
 
-  // ----- سجل النشاطات -----
-  const insLog = db.prepare(
-    "INSERT INTO activity_logs (store_id, user_id, actor_email, action, details, created_at) VALUES (?,?,?,?,?,?)"
-  );
   const ownerEmail = process.env.LOCAL_OWNER_EMAIL || "owner@maaoun.com";
-  insLog.run(null, "user-owner", ownerEmail, "store.created", JSON.stringify({ store: "store-sweets", name: "دار رشف للحلويات" }), ago(2));
-  insLog.run("store-rshaf", "user-owner", ownerEmail, "product.created", JSON.stringify({ name: "كيك الشوكولاتة" }), ago(5));
-  insLog.run("store-oud", "user-owner", ownerEmail, "store.delivered", JSON.stringify({ subdomain: "oud" }), ago(10));
-  insLog.run("store-rshaf", "user-owner", ownerEmail, "store.delivered", JSON.stringify({ subdomain: "rshaf" }), ago(18));
-  insLog.run("store-sweets", "user-owner", ownerEmail, "store.delivered", JSON.stringify({ subdomain: "sweets" }), ago(1));
-  insLog.run("store-sweets", "user-owner", ownerEmail, "product.created", JSON.stringify({ name: "كنافة نابلسية بالجبن" }), ago(2));
-  insLog.run(null, "user-owner", ownerEmail, "store.created", JSON.stringify({ store: "store-honey", name: "منحل الوثبة" }), ago(3));
-  insLog.run("store-honey", "user-owner", ownerEmail, "product.created", JSON.stringify({ name: "عسل السدر الجبلي" }), ago(3));
-  insLog.run("store-honey", "user-owner", ownerEmail, "store.delivered", JSON.stringify({ subdomain: "honey" }), ago(1));
 }
 
 // ------------------------------------------------------------
@@ -1077,15 +1047,6 @@ function completeSweetsShowcase(database: DatabaseSync): void {
     "/seed/sweets-cover.jpg", "https://sweets.maaoun.com", "حلويات, مناسبات, متجر طعام", 2, ago(1)
   );
 
-  const hasLog = database.prepare(
-    "SELECT 1 AS x FROM activity_logs WHERE store_id = ? AND action = 'store.delivered' LIMIT 1"
-  ).get(store.id) as { x: number } | undefined;
-  if (!hasLog) {
-    const ownerEmail = process.env.LOCAL_OWNER_EMAIL || "owner@maaoun.com";
-    database.prepare(
-      "INSERT INTO activity_logs (store_id, user_id, actor_email, action, details, created_at) VALUES (?,?,?,?,?,?)"
-    ).run(store.id, null, ownerEmail, "store.delivered", JSON.stringify({ subdomain: "sweets" }), ago(1));
-  }
 }
 
 // ------------------------------------------------------------

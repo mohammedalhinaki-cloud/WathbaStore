@@ -29,12 +29,6 @@ export async function POST(req: NextRequest) {
       c.set(SESSION_COOKIE, signSession(user.id), sessionCookieOptions(host));
     }
 
-    await svc.logActivity(
-      { id: user.id, email: user.email },
-      user.memberships[0]?.storeId ?? null,
-      user.role === "owner" ? "owner.login" : "member.login",
-      {}
-    );
 
     return NextResponse.json({ user });
   } catch (e) {

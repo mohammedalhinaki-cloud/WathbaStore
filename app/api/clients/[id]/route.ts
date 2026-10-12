@@ -18,6 +18,5 @@ export async function GET(
   if (!client) return badRequest("العميل غير موجود");
   const settings = await services().getStoreSettings(id);
   const products = await services().listProducts(id, { includeHidden: true });
-  const logs = await services().listActivity({ storeId: id, limit: 30 });
-  return ok({ client, settings, products, logs });
+  return ok({ client, settings, products });
 }

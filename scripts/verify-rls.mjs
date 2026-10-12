@@ -182,6 +182,7 @@ async function main() {
   await db.exec(SETTINGS_COLS);
   await db.exec(GRANTS);
   await db.exec(SEED);
+  await db.exec(fs.readFileSync(path.join(ROOT, "supabase/migrations/0014_client_setup_access.sql"), "utf8"));
   console.log("  · نُفِّذت الترحيلات 0001 + 0003 + 0004 على قاعدة نظيفة\n");
 
   // ---------- التحقق من تهيئة الخزنة ----------
@@ -226,7 +227,7 @@ async function main() {
   record("يعدّل إعدادات أي متجر", r.ok, r.error ?? "");
 
   r = await owner("insert into public.activity_logs (store_id, action) values ($1,'test.owner') returning id", [S_B]);
-  record("يسجّل النشاط (بجلسة المستخدم)", r.ok, r.error ?? "");
+  record("تم تعطيل كتابة سجل النشاط", !r.ok);
 
   r = await owner("select count(*)::int as n from public.store_credentials");
   record("يقرأ بيانات تسليم العملاء", r.ok, `صفوف: ${r.rows[0]?.n ?? "-"}`);
@@ -251,7 +252,16 @@ async function main() {
 
   r = await memberA("update public.stores set subdomain = 'hacked' where id = $1 returning subdomain", [S_A]);
   const stillRshaf = await db.query("select subdomain from public.stores where id = $1", [S_A]);
-  record("لا يغيّر النطاق الفرعي (حقل محمي)", stillRshaf.rows[0].subdomain === "rshaf", `النتيجة: ${stillRshaf.rows[0].subdomain}`);
+  record("يغير نطاق متجره", r.ok && stillRshaf.rows[0].subdomain === "hacked");
+  await db.query("update public.stores set subdomain = 'rshaf' where id = $1", [S_A]);
+
+  const attributionBefore = (await db.query("select developer_url from public.store_settings where store_id = $1", [S_A])).rows[0].developer_url;
+  r = await memberA("update public.store_settings set developer_url = 'https://example.com', template = 'minimal', font = 'tajawal' where store_id = $1 returning developer_url, template, font", [S_A]);
+  record("يحفظ التصميم والخط ويحمي رابط معون مباشرة في قاعدة البيانات", r.ok && r.rows[0].developer_url === attributionBefore && r.rows[0].template === "minimal" && r.rows[0].font === "tajawal");
+  r = await memberA("select * from public.store_setup_access");
+  record("لا يستطيع العميل قراءة روابط الإعداد الخاصة", !r.ok);
+  r = await asActor(db, null, "anon", "select * from public.store_setup_access");
+  record("لا يستطيع الزائر قراءة روابط الإعداد الخاصة", !r.ok);
 
   const statusBefore = (await db.query("select status from public.stores where id = $1", [S_A])).rows[0].status;
   await memberA("update public.stores set status = 'suspended' where id = $1 returning status", [S_A]);
@@ -275,7 +285,7 @@ async function main() {
   record("لا يحذف أقسام متجر آخر", !r.ok || r.rows.length === 0, r.error ?? `حُذف ${r.rows.length}`);
 
   r = await memberA("insert into public.activity_logs (store_id, action) values ($1,'test.member') returning id", [S_A]);
-  record("يسجّل نشاط متجره", r.ok, r.error ?? "");
+  record("لا يسجل العميل نشاطًا بعد إزالة الميزة", !r.ok);
 
   r = await memberA("insert into public.activity_logs (store_id, action) values ($1,'test.hack') returning id", [S_B]);
   record("لا يسجّل نشاط متجر آخر", !r.ok, r.error ? "منعته السياسة ✓" : "نجح! خطأ أمني");

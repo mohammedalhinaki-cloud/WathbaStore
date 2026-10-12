@@ -7,7 +7,6 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Activity,
   ArrowRight,
   LayoutDashboard,
   LogOut,
@@ -40,7 +39,6 @@ const NAV: { href: string; label: string; icon: React.ElementType; end?: boolean
   { href: "/admin/offers", label: "العروض", icon: Megaphone },
   { href: "/admin/content", label: "محتوى الموقع", icon: PenLine },
   { href: "/admin/settings", label: "الإعدادات", icon: Settings },
-  { href: "/admin/activity", label: "سجل النشاطات", icon: Activity },
 ];
 
 export default function OwnerShell({

@@ -13,6 +13,7 @@
 // ============================================================
 
 "use client";
+import { useSetupSave } from "./setup-save-context";
 
 import { useRef, useState } from "react";
 import { ImagePlus, X, Loader2, AlertTriangle } from "lucide-react";
@@ -38,10 +39,12 @@ export default function UploadField({
   folder,
   label,
   value,
-  onChange,
+  onChange: changeValue,
   hint,
   maxSize,
 }: Props) {
+  const setupSave = useSetupSave();
+  const onChange = (value: string[]) => { setupSave.dirty(); changeValue(value); };
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const { uploading, error, errorCode, upload, removeUploaded } = useImageUpload({

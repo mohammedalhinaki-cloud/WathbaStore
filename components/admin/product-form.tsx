@@ -3,6 +3,7 @@
 // ============================================================
 
 "use client";
+import { useSetupSave } from "./setup-save-context";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -17,10 +18,12 @@ interface Props {
   categories: Category[];
   product?: Product;
   backHref: string;
+  onDone?: () => void;
 }
 
-export default function ProductForm({ storeId, categories, product, backHref = "/admin/products" }: Props) {
+export default function ProductForm({ storeId, categories, product, onDone, backHref = "/admin/products" }: Props) {
   const router = useRouter();
+  const setupSave = useSetupSave();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -58,8 +61,10 @@ export default function ProductForm({ storeId, categories, product, backHref = "
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "فشل الحفظ");
       setSuccess("تم حفظ المنتج — يظهر الآن في المتجر");
+      setupSave.saved();
       router.refresh();
-      setTimeout(() => router.push(product ? backHref : `${backHref}`), 800);
+      if (onDone) onDone();
+      else setTimeout(() => router.push(backHref), 800);
     } catch (e) {
       setError(e instanceof Error ? e.message : "حدث خطأ");
     } finally {
@@ -114,7 +119,7 @@ export default function ProductForm({ storeId, categories, product, backHref = "
         <div className="mt-5 flex items-center justify-between border-t border-ink-100 pt-5">
           <Toggle checked={visible} onChange={setVisible} label={visible ? "المنتج ظاهر" : "المنتج مخفي"} />
           <div className="flex gap-2">
-            <GhostBtn onClick={() => router.push(backHref)}>
+            <GhostBtn onClick={() => { if (onDone) { if (confirm("تجاهل تعديلات المنتج الحالية؟")) onDone(); } else router.push(backHref); }}>
               <ArrowRight className="h-4 w-4" />
               رجوع
             </GhostBtn>

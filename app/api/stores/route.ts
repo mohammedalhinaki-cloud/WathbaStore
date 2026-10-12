@@ -72,13 +72,14 @@ export async function POST(req: NextRequest) {
       coverUrl: input.coverUrl ?? null,
       status: "preparing",
     });
-    await svc.logActivity(
-      { id: user.id, email: user.email },
-      store.id,
-      "store.created",
-      { name: store.name, subdomain: store.subdomain }
-    );
-    return ok({ store }, 201);
+
+    let setupError: string | null = null;
+    try {
+      await svc.ensureStoreSetupAccess(store.id);
+    } catch (error) {
+      setupError = error instanceof Error ? error.message : "تعذر تجهيز رابط الإعداد";
+    }
+    return ok({ store, setupError }, 201);
   } catch (e) {
     return serverError(e);
   }

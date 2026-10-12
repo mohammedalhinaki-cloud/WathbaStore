@@ -1,3 +1,4 @@
+import SetupLinkPanel from "@/components/admin/setup-link-panel";
 // ============================================================
 // باني المتجر — نظرة عامة (بيانات المتجر + النطاق + الإجراءات)
 // ============================================================
@@ -90,6 +91,7 @@ export default async function StoreOverviewPage({
         </div>
       </div>
 
+      <div className="mb-6"><SetupLinkPanel storeId={store.id} phone={store.ownerPhone} name={store.name} /></div>
       <BuilderNav storeId={store.id} />
 
       <div className="grid gap-6 lg:grid-cols-3">

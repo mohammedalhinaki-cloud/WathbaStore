@@ -79,12 +79,7 @@ export async function PATCH(
       categoryId: patch.categoryId,
       images: patch.images,
     });
-    await services().logActivity(
-      { id: actor.id, email: actor.email },
-      product.storeId,
-      "product.updated",
-      { name: updated.name }
-    );
+
     return ok({ product: updated });
   } catch (e) {
     return serverError(e);
@@ -104,12 +99,7 @@ export async function DELETE(
     if (actor instanceof NextResponse) return actor;
 
     await services().deleteProduct(product.id);
-    await services().logActivity(
-      { id: actor.id, email: actor.email },
-      product.storeId,
-      "product.deleted",
-      { name: product.name }
-    );
+
     return ok({ ok: true });
   } catch (e) {
     return serverError(e);

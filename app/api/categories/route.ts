@@ -40,12 +40,7 @@ export async function POST(req: NextRequest) {
     if (actor instanceof NextResponse) return actor;
 
     const category = await services().createCategory(storeId, { name, slug, isVisible });
-    await services().logActivity(
-      { id: actor.id, email: actor.email },
-      storeId,
-      "category.created",
-      { name }
-    );
+
     return ok({ category }, 201);
   } catch (e) {
     return serverError(e);
