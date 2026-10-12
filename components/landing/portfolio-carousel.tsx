@@ -23,7 +23,7 @@ export interface PortfolioCarouselItem {
   description: string;
   imageUrl: string;
   storeUrl: string;
-  tags: string;
+  inquiryHref: string;
 }
 
 /** زمن بقاء المتجر ثابتًا أمام المستخدم */
@@ -42,11 +42,7 @@ function StoreCard({
   eager?: boolean;
 }) {
   return (
-    <a
-      href={item.storeUrl || "#"}
-      target="_blank"
-      rel="noopener noreferrer"
-      draggable={false}
+    <article
       className="card-dark motion-card group flex h-full flex-col overflow-hidden rounded-3xl transition-all hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-black/30"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-ink-800">
@@ -64,25 +60,29 @@ function StoreCard({
       <div className="p-5">
         <div className="flex items-center justify-between gap-2">
           <h3 className="font-bold text-fg">{item.title}</h3>
-          <span className="rounded-full bg-emerald-500/15 px-2.5 py-1 text-[11px] font-bold text-emerald-400">
-            يعمل
-          </span>
+          <a
+            href={item.storeUrl || undefined}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`زر المتجر: ${item.title}`}
+            aria-disabled={!item.storeUrl}
+            className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 px-4 py-2 text-sm font-bold text-emerald-400 transition-colors hover:bg-emerald-500/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+          >
+            زر المتجر
+          </a>
         </div>
         <p className="mt-1.5 line-clamp-2 text-sm text-muted">{item.description}</p>
-        {item.tags && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {item.tags.split(",").slice(0, 3).map((t) => (
-              <span
-                key={t}
-                className="rounded-md bg-white/5 px-2 py-0.5 text-[11px] font-semibold text-ink-300"
-              >
-                {t.trim()}
-              </span>
-            ))}
-          </div>
-        )}
+        <a
+          href={item.inquiryHref || undefined}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-disabled={!item.inquiryHref}
+          className="btn-primary motion-action mt-4 flex min-h-11 w-full items-center justify-center px-5 py-2.5 text-sm"
+        >
+          أريد مثل هذا
+        </a>
       </div>
-    </a>
+    </article>
   );
 }
 
