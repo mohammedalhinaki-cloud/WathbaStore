@@ -7,7 +7,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { services } from "@/lib/services";
 import { mainDomain, formatDate, formatDateShort, formatPrice } from "@/lib/constants";
-import { ACTIVITY_LABELS } from "@/lib/types";
 import { PageHeader, StatusBadge, Card, EmptyState } from "@/components/admin/ui";
 import { ExternalLink, KeyRound, Phone, Mail, Store as StoreIcon, Activity } from "lucide-react";
 
@@ -19,10 +18,9 @@ export default async function ClientPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [client, products, logs] = await Promise.all([
+  const [client, products] = await Promise.all([
     services().getClient(id),
     services().listProducts(id, { includeHidden: true }),
-    services().listActivity({ storeId: id, limit: 15 }),
   ]);
   if (!client) notFound();
 
@@ -166,25 +164,6 @@ export default async function ClientPage({
           )}
         </Card>
 
-        {/* سجل النشاط */}
-        <Card>
-          <h3 className="mb-4 flex items-center gap-2 font-extrabold text-ink-900">
-            <Activity className="h-4 w-4 text-brand-600" />
-            سجل نشاط المتجر
-          </h3>
-          {logs.length === 0 ? (
-            <p className="py-8 text-center text-sm text-ink-400">لا يوجد نشاط</p>
-          ) : (
-            <ol className="max-h-96 space-y-3 overflow-y-auto">
-              {logs.map((l) => (
-                <li key={l.id} className="border-b border-ink-100 pb-3 last:border-0">
-                  <p className="text-sm font-bold text-ink-800">{ACTIVITY_LABELS[l.action] ?? l.action}</p>
-                  <p className="text-xs text-ink-400">{l.actorEmail} · {formatDate(l.createdAt)}</p>
-                </li>
-              ))}
-            </ol>
-          )}
-        </Card>
       </div>
     </div>
   );

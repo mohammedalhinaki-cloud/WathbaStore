@@ -12,8 +12,6 @@ import { canAccessStorePanel } from "@/lib/authorize";
 import { services } from "@/lib/services";
 import { storeHref } from "@/lib/links";
 import { mainDomain } from "@/lib/constants";
-import { ACTIVITY_LABELS } from "@/lib/types";
-import { formatDateShort } from "@/lib/constants";
 import OwnerShell from "@/components/admin/owner-shell";
 import ClientShell from "@/components/admin/client-shell";
 import { Card, StatCard, StatusBadge, PageHeader, EmptyState } from "@/components/admin/ui";
@@ -29,7 +27,6 @@ import {
   MessageCircle,
   Plus,
   Palette,
-  Activity as ActivityIcon,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -69,10 +66,7 @@ export default async function AdminHome() {
 // ============================================================
 
 async function OwnerDashboard({ user }: { user: { name: string; email: string } }) {
-  const [stores, logs] = await Promise.all([
-    services().listStores(),
-    services().listActivity({ limit: 8 }),
-  ]);
+  const stores = await services().listStores();
 
   const inProgress = stores.filter((s) => s.status === "draft" || s.status === "preparing").length;
   const testing = stores.filter((s) => s.status === "testing" || s.status === "ready").length;
@@ -106,7 +100,7 @@ async function OwnerDashboard({ user }: { user: { name: string; email: string } 
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         {/* آخر المتاجر */}
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-3">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-extrabold text-ink-900">أحدث المتاجر</h2>
             <Link href="/admin/stores" className="flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700">
@@ -168,37 +162,6 @@ async function OwnerDashboard({ user }: { user: { name: string; email: string } 
           )}
         </Card>
 
-        {/* آخر النشاطات */}
-        <Card>
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-extrabold text-ink-900">آخر النشاطات</h2>
-            <Link href="/admin/activity" className="flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700">
-              الكل
-              <ArrowLeft className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-          {logs.length === 0 ? (
-            <p className="py-8 text-center text-sm text-ink-400">لا توجد نشاطات بعد</p>
-          ) : (
-            <ol className="space-y-4">
-              {logs.map((l) => (
-                <li key={l.id} className="flex gap-3">
-                  <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-50">
-                    <ActivityIcon className="h-3.5 w-3.5 text-brand-600" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-ink-800">
-                      {ACTIVITY_LABELS[l.action] ?? l.action}
-                    </p>
-                    <p className="truncate text-xs text-ink-400">
-                      {l.actorEmail} · {formatDateShort(l.createdAt)}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          )}
-        </Card>
       </div>
     </OwnerShell>
   );
@@ -217,11 +180,10 @@ async function ClientDashboard({
   storeId: string;
   storeUrlHref: string;
 }) {
-  const [store, products, categories, logs] = await Promise.all([
+  const [store, products, categories] = await Promise.all([
     services().getStore(storeId),
     services().listProducts(storeId, { includeHidden: true }),
     services().listCategories(storeId, true),
-    services().listActivity({ storeId, limit: 6 }),
   ]);
   if (!store) notFound();
 
@@ -301,19 +263,6 @@ async function ClientDashboard({
         </Card>
 
         <Card>
-          <h2 className="mb-4 font-extrabold text-ink-900">آخر النشاط</h2>
-          {logs.length === 0 ? (
-            <p className="py-6 text-center text-sm text-ink-400">لا يوجد نشاط بعد</p>
-          ) : (
-            <ol className="space-y-3">
-              {logs.map((l) => (
-                <li key={l.id} className="border-b border-ink-100 pb-3 last:border-0">
-                  <p className="text-sm font-bold text-ink-800">{ACTIVITY_LABELS[l.action] ?? l.action}</p>
-                  <p className="text-xs text-ink-400">{formatDateShort(l.createdAt)}</p>
-                </li>
-              ))}
-            </ol>
-          )}
           <a
             href={storeUrlHref}
             target="_blank"

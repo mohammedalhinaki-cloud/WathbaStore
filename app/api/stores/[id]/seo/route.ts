@@ -29,12 +29,7 @@ export async function PATCH(
     if (!parsed.success) return badRequest("بيانات غير صالحة");
 
     const settings = await services().updateStoreSettings(id, parsed.data);
-    await services().logActivity(
-      { id: actor.id, email: actor.email },
-      id,
-      "seo.updated",
-      { fields: Object.keys(parsed.data) }
-    );
+
     return ok({ settings });
   } catch (e) {
     return serverError(e);

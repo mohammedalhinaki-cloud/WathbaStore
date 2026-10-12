@@ -4,6 +4,7 @@
 // ============================================================
 
 "use client";
+import { useSetupSave } from "./setup-save-context";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -16,10 +17,12 @@ import { FormAlerts } from "./use-api";
 interface Props {
   store: Store;
   settings: StoreSettings;
+  lockAttribution?: boolean;
 }
 
-export default function StoreSettingsForm({ store, settings }: Props) {
+export default function StoreSettingsForm({ store, settings, lockAttribution = false }: Props) {
   const router = useRouter();
+  const setupSave = useSetupSave();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -47,7 +50,7 @@ export default function StoreSettingsForm({ store, settings }: Props) {
           socialSnapchat: snapchat.trim(),
           socialTiktok: tiktok.trim(),
           socialWhatsApp: whatsapp.trim(),
-          developerUrl: devUrl.trim(),
+          ...(lockAttribution ? {} : { developerUrl: devUrl.trim() }),
           footerBgColor: footerBgColor.trim(),
           ibanRajhi: ibanRajhi.trim(),
           ibanAlinmaa: ibanAlinmaa.trim(),
@@ -57,6 +60,7 @@ export default function StoreSettingsForm({ store, settings }: Props) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "فشل الحفظ");
       setSuccess("تم حفظ الإعدادات");
+      setupSave.saved();
       router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "حدث خطأ");
@@ -152,6 +156,7 @@ export default function StoreSettingsForm({ store, settings }: Props) {
       </Card>
 
       <Card>
+        {!lockAttribution && <>
         <h3 className="mb-1 font-extrabold text-ink-900">رابط الموقع المطور</h3>
         <p className="mb-5 text-xs text-ink-400">
           يظهر أسفل المتجر: «تطوير: maaoun.com» — الرابط يُفتح في تبويب جديد.
@@ -160,6 +165,7 @@ export default function StoreSettingsForm({ store, settings }: Props) {
         <Field label="DEVELOPER_URL">
           <input className={inputCls} dir="ltr" value={devUrl} onChange={(e) => setDevUrl(e.target.value)} />
         </Field>
+        </>}
         <div className="mt-6 flex justify-end">
           <PrimaryBtn onClick={() => void save()} disabled={saving}>
             {saving && <Loader2 className="h-4 w-4 animate-spin" />}

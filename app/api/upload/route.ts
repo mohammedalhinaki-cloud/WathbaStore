@@ -69,12 +69,7 @@ export async function POST(req: NextRequest) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const url = await services().uploadImage(storeId, folder, buffer, file.name);
-    await services().logActivity(
-      { id: actor.id, email: actor.email },
-      storeId,
-      "image.uploaded",
-      { folder, name: file.name, size: file.size }
-    );
+
     return ok({ url }, 201);
   } catch (e) {
     if (e instanceof StorageError) {
@@ -100,12 +95,7 @@ export async function DELETE(req: NextRequest) {
 
     const deleted = await services().deleteImage(url);
     if (deleted) {
-      await services().logActivity(
-        { id: actor.id, email: actor.email },
-        storeId,
-        "image.deleted",
-        { url }
-      );
+
     }
     return ok({ ok: true, deleted });
   } catch (e) {

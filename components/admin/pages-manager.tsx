@@ -3,6 +3,7 @@
 // ============================================================
 
 "use client";
+import { useSetupSave } from "./setup-save-context";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -18,6 +19,7 @@ interface Props {
 
 export default function PagesManager({ storeId, pages }: Props) {
   const router = useRouter();
+  const setupSave = useSetupSave();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -33,6 +35,7 @@ export default function PagesManager({ storeId, pages }: Props) {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "حدث خطأ");
       setSuccess("تم الحفظ");
+      setupSave.saved();
       router.refresh();
       return data;
     } catch (e) {

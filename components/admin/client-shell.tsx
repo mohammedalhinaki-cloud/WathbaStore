@@ -7,7 +7,6 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Activity,
   ArrowRight,
   ExternalLink,
   LayoutDashboard,
@@ -36,10 +35,10 @@ interface Props {
 
 const NAV = [
   { href: "/admin", label: "الرئيسية", icon: LayoutDashboard, end: true },
+  { href: "/admin/setup", label: "إعداد المتجر والنشر", icon: Palette },
   { href: "/admin/products", label: "المنتجات", icon: Store },
   { href: "/admin/categories", label: "الأقسام", icon: Tags },
   { href: "/admin/appearance", label: "المظهر والبيانات", icon: Palette },
-  { href: "/admin/logs", label: "سجل النشاط", icon: Activity },
 ];
 
 export default function ClientShell({

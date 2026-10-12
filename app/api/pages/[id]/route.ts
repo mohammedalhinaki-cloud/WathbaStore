@@ -40,12 +40,7 @@ export async function PATCH(
     const parsed = SCHEMA.safeParse(await req.json().catch(() => null));
     if (!parsed.success) return badRequest("بيانات غير صالحة");
     const updated = await services().updatePage(id, parsed.data);
-    await services().logActivity(
-      { id: actor.id, email: actor.email },
-      page.storeId,
-      "page.updated",
-      { title: updated.title }
-    );
+
     return ok({ page: updated });
   } catch (e) {
     return serverError(e);
@@ -64,12 +59,7 @@ export async function DELETE(
     if (actor instanceof NextResponse) return actor;
 
     await services().deletePage(id);
-    await services().logActivity(
-      { id: actor.id, email: actor.email },
-      page.storeId,
-      "page.deleted",
-      { title: page.title }
-    );
+
     return ok({ ok: true });
   } catch (e) {
     return serverError(e);

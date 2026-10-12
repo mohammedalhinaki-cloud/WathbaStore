@@ -14,6 +14,7 @@
 // ============================================================
 
 "use client";
+import { useSetupSave } from "./setup-save-context";
 
 import { useRef, useState } from "react";
 import { AlertTriangle, ImagePlus, Loader2, RefreshCw, Trash2 } from "lucide-react";
@@ -62,7 +63,7 @@ export default function ImageField({
   folder,
   label,
   value,
-  onChange,
+  onChange: changeValue,
   hint,
   recommend,
   shape = "square",
@@ -70,6 +71,8 @@ export default function ImageField({
   urlPlaceholder,
   shareOptimized = false,
 }: Props) {
+  const setupSave = useSetupSave();
+  const onChange = (value: string) => { setupSave.dirty(); changeValue(value); };
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [broken, setBroken] = useState(false);

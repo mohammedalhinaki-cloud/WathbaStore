@@ -3,6 +3,7 @@
 // ============================================================
 
 "use client";
+import { useSetupSave } from "./setup-save-context";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -21,6 +22,7 @@ interface Props {
 
 export default function SeoForm({ store, settings, canonicalBase }: Props) {
   const router = useRouter();
+  const setupSave = useSetupSave();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -52,6 +54,7 @@ export default function SeoForm({ store, settings, canonicalBase }: Props) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "فشل الحفظ");
       setSuccess("تم حفظ إعدادات SEO");
+      setupSave.saved();
       router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "حدث خطأ");

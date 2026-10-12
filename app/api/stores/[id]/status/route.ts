@@ -22,12 +22,7 @@ export async function POST(
     if (!store) return badRequest("المتجر غير موجود");
 
     await services().setStoreStatus(id, status);
-    await services().logActivity(
-      { id: user.id, email: user.email },
-      id,
-      "store.status_changed",
-      { from: store.status, to: status }
-    );
+
     return ok({ store: await services().getStore(id) });
   } catch (e) {
     return serverError(e);

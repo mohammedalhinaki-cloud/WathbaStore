@@ -3,7 +3,6 @@
 // ============================================================
 
 import type {
-  ActivityLog,
   AppUser,
   Category,
   Offer,
@@ -142,6 +141,9 @@ export interface Services {
   /** تسليم المتجر: تغيير الحالة + إنشاء حساب العميل */
   deliverStore(id: string, actorEmail: string): Promise<{ ok: boolean; credentials?: { email: string; password: string }; error?: string }>;
 
+  /** Dedicated single-store account behind the private setup link. Owner only. */
+  ensureStoreSetupAccess(storeId: string): Promise<{ email: string; password: string }>;
+
   // ----- إعدادات المتجر -----
   getStoreSettings(storeId: string): Promise<StoreSettings>;
   updateStoreSettings(storeId: string, patch: Partial<StoreSettings>): Promise<StoreSettings>;
@@ -167,10 +169,6 @@ export interface Services {
   createPage(storeId: string, input: PageInput): Promise<StorePage>;
   updatePage(id: string, patch: Partial<PageInput>): Promise<StorePage>;
   deletePage(id: string): Promise<void>;
-
-  // ----- النشاطات -----
-  logActivity(actor: { id: string | null; email: string }, storeId: string | null, action: string, details?: Record<string, unknown>): Promise<void>;
-  listActivity(opts: { storeId?: string | null; limit?: number }): Promise<ActivityLog[]>;
 
   // ----- الموقع العام -----
   getSiteSettings(): Promise<SiteSettings>;

@@ -1,5 +1,6 @@
 // معون — نموذج التصميم: قالب، خط، ألوان، ترتيب الأقسام
 "use client";
+import { useSetupSave } from "./setup-save-context";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -16,6 +17,7 @@ interface Props {
 
 export default function DesignForm({ store, settings }: Props) {
   const router = useRouter();
+  const setupSave = useSetupSave();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -27,6 +29,7 @@ export default function DesignForm({ store, settings }: Props) {
   const [order, setOrder] = useState<SectionKey[]>(settings.sectionOrder);
 
   function move(i: number, dir: "up" | "down") {
+    setupSave.dirty();
     setOrder((prev) => {
       const next = [...prev];
       const j = dir === "up" ? i - 1 : i + 1;
@@ -49,6 +52,7 @@ export default function DesignForm({ store, settings }: Props) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "فشل الحفظ");
       setSuccess("تم حفظ التصميم — ستظهر التغييرات فورًا في المتجر");
+      setupSave.saved();
       router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "حدث خطأ");
@@ -67,7 +71,7 @@ export default function DesignForm({ store, settings }: Props) {
               <button
                 key={t.key}
                 type="button"
-                onClick={() => setTemplate(t.key)}
+                onClick={() => { setupSave.dirty(); setTemplate(t.key); }}
                 className={`rounded-2xl border-2 p-4 text-right transition-all ${
                   template === t.key ? "border-brand-500 bg-brand-50" : "border-ink-200 bg-white hover:border-brand-300"
                 }`}

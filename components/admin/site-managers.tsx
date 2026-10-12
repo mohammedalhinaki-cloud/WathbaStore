@@ -1,6 +1,6 @@
 // ============================================================
 // معون — إدارة محتوى الموقع العام (المالك)
-// أعمال، باقات، عروض، إعدادات الموقع، سجل النشاطات
+// أعمال، باقات، عروض، إعدادات الموقع
 // ============================================================
 
 "use client";
@@ -9,59 +9,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
-import type { ActivityLog, Offer, PortfolioItem, PricingPlan, SiteSettings } from "@/lib/types";
-import { ACTIVITY_LABELS } from "@/lib/types";
-import { formatDate } from "@/lib/constants";
+import type { Offer, PortfolioItem, PricingPlan, SiteSettings } from "@/lib/types";
 import { formatPrice, mainDomain, APP_NAME, APP_TAGLINE } from "@/lib/constants";
 import { Card, Field, inputCls, PrimaryBtn, GhostBtn, Toggle, EmptyState } from "./ui";
 import { FormAlerts } from "./use-api";
 import UploadField from "./upload-field";
 import ImageField from "./image-field";
-
-// ------------------------------------------------------------
-// قائمة نشاط عام
-// ------------------------------------------------------------
-export function ActivityList({
-  logs,
-  stores,
-  hideActor = false,
-}: {
-  logs: ActivityLog[];
-  stores: { id: string; name: string }[];
-  /**
-   * أخفِ بريد المنفّذ (actorEmail). يُستخدم في لوحة أي متجر حتى لا يظهر
-   * بريد المالك الرئيسي عند تدخّله في متجر — فلا يظهر حساب المالك في أي
-   * قائمة داخل لوحة المتجر.
-   */
-  hideActor?: boolean;
-}) {
-  const storeName = (id: string | null) => stores.find((s) => s.id === id)?.name ?? "المنصة";
-  if (logs.length === 0) {
-    return <EmptyState icon="📝" title="لا توجد نشاطات" sub="ستظهر هنا كل العمليات التي تمت" />;
-  }
-  return (
-    <Card>
-      <ol className="divide-y divide-ink-100">
-        {logs.map((l) => (
-          <li key={l.id} className="flex items-start justify-between gap-4 py-3.5">
-            <div className="flex items-start gap-3">
-              <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-brand-500" />
-              <div>
-                <p className="text-sm font-bold text-ink-800">{ACTIVITY_LABELS[l.action] ?? l.action}</p>
-                {!hideActor && (
-                  <p className="mt-0.5 text-xs text-ink-400">
-                    {storeName(l.storeId)} · {l.actorEmail || "النظام"}
-                  </p>
-                )}
-              </div>
-            </div>
-            <span className="shrink-0 text-xs text-ink-400">{formatDate(l.createdAt)}</span>
-          </li>
-        ))}
-      </ol>
-    </Card>
-  );
-}
 
 // ------------------------------------------------------------
 // الأعمال (Portfolio)

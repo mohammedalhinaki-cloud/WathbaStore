@@ -3,6 +3,7 @@
 // ============================================================
 
 "use client";
+import { useSetupSave } from "./setup-save-context";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -20,6 +21,7 @@ interface Props {
 
 export default function StoreInfoForm({ store, settings }: Props) {
   const router = useRouter();
+  const setupSave = useSetupSave();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -65,6 +67,7 @@ export default function StoreInfoForm({ store, settings }: Props) {
       if (!res2.ok) throw new Error(data2.error ?? "فشل حفظ الإعدادات");
 
       setSuccess("تم حفظ بيانات المتجر");
+      setupSave.saved();
       router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "حدث خطأ");

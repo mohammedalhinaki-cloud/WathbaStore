@@ -37,7 +37,7 @@ export default function StoreShell({
 }: Props) {
   const { store, settings } = bundle;
   const font = FONTS.find((f) => f.key === settings.font)?.family ?? "Cairo";
-  const devUrl = developerUrl(settings.developerUrl);
+  const devUrl = developerUrl();
 
   if (store.status === "suspended") {
     return (

@@ -367,7 +367,7 @@ async function main() {
       ["المنتجات", `/admin/products?store=rshaf`, "المنتجات"],
       ["الأقسام", `/admin/categories?store=rshaf`, "الأقسام"],
       ["المظهر والبيانات", `/admin/appearance?store=rshaf`, "المظهر"],
-      ["سجل النشاط", `/admin/logs?store=rshaf`, "سجل النشاط"],
+      ["إعداد المتجر", `/admin/setup?store=rshaf`, "جهّز متجرك بنفسك"],
     ]) {
       const p = await page(pathname);
       record(`لوحة المتجر — ${label}`, p.status === 200 && p.html.includes(marker), `HTTP ${p.status}`);
@@ -447,7 +447,7 @@ async function main() {
     record("لا يرفع صورًا لمتجر عود", memberUploadOther.status === 403, `HTTP ${memberUploadOther.status}`);
 
     const memberActivityOther = await api(`/api/activity?storeId=${STORE_OUD}`);
-    record("لا يقرأ نشاط متجر عود", memberActivityOther.status === 403, `HTTP ${memberActivityOther.status}`);
+    record("إزالة API النشاط للعميل", memberActivityOther.status === 404, `HTTP ${memberActivityOther.status}`);
 
     // على النطاقات الحقيقية: صاحب رشف يدخل لوحة متجره ولا يدخل لوحة عود
     res = await login(RSHAF, "rshaf.maaoun.com");
@@ -466,11 +466,10 @@ async function main() {
     // نُعيد جلسة صاحب المتجر لباقي فحوص العزل أدناه
     res = await login(RSHAF);
 
-    const memberOwnerPanel = await page("/admin/stores");
+    const memberOwnerPanel = await page("/admin/stores", { redirect: "manual" });
     const blockedOwnerPanel =
-      memberOwnerPanel.status === 200 &&
-      !memberOwnerPanel.html.includes("إنشاء متجر") &&
-      (memberOwnerPanel.html.includes("تسجيل الدخول") || memberOwnerPanel.html.includes("لوحة إدارة معون"));
+      ([302, 307].includes(memberOwnerPanel.status) && memberOwnerPanel.location?.includes("/admin/login")) ||
+      (memberOwnerPanel.status === 200 && /NEXT_REDIRECT[\s\S]{0,200}\/admin\/login/.test(memberOwnerPanel.html));
     record("لا يدخل لوحة المالك الرئيسي", blockedOwnerPanel, `HTTP ${memberOwnerPanel.status}`);
 
     const memberCreateStore = await api("/api/stores", {
@@ -547,6 +546,44 @@ async function main() {
         finalPayload?.settings?.ibanAlinmaa === (beforeRshafSettings?.ibanAlinmaa ?? "") &&
         finalPayload?.settings?.ibanAlahli === (beforeRshafSettings?.ibanAlahli ?? "")
     );
+
+    {
+    // Private setup link: provisioned automatically, scoped session, content permissions, attribution.
+    await login(OWNER);
+    const created = await api("/api/stores", { method: "POST", body: JSON.stringify({ name: "متجر إعداد تجريبي", subdomain: "setup-flow-test", ownerName: "عميل تجريبي" }) });
+    const setupId = created.json?.store?.id;
+    record("إنشاء متجر جديد يجهز حساب الإعداد تلقائيًا", created.status === 201 && setupId && !created.json.setupError);
+    const firstLink = await api(`/api/stores/${setupId}/setup-link`, { method: "POST" });
+    const secondLink = await api(`/api/stores/${setupId}/setup-link`, { method: "POST" });
+    record("رابط الإعداد ثابت ويمكن إعادة إرساله", firstLink.status === 200 && firstLink.json.url === secondLink.json?.url);
+    const token = new URLSearchParams(new URL(firstLink.json.url).hash.slice(1));
+    const setupBody = { store: token.get("store"), email: token.get("email"), key: token.get("key") };
+    cookies = "";
+    const anonymousLink = await api(`/api/stores/${setupId}/setup-link`, { method: "POST" });
+    record("الرابط الخاص لا يقرأه الزائر", [401, 403].includes(anonymousLink.status));
+    const wrongToken = await api("/api/auth/setup", { method: "POST", body: JSON.stringify({ ...setupBody, key: "x".repeat(43) }) });
+    record("يرفض رابط إعداد غير صحيح", wrongToken.status === 401);
+    const wrongStore = await api("/api/auth/setup", { method: "POST", body: JSON.stringify({ ...setupBody, store: STORE_OUD }) });
+    record("لا يمكن استخدام الرابط لإدارة متجر آخر", wrongStore.status === 401);
+    const entry = await api("/api/auth/setup", { method: "POST", body: JSON.stringify(setupBody) });
+    cookies = entry.headers.getSetCookie().map((c) => c.split(";")[0]).join("; ");
+    record("الرابط يدخل العميل إلى لوحة متجره", entry.status === 200 && entry.json?.next.includes("/admin/setup"));
+    const setupPage = await api("/admin/setup?store=setup-flow-test");
+    record("واجهة الإعداد تشمل الخطوة الأخيرة ولا تعرض خيار رابط المطور", setupPage.status === 200 && setupPage.text.includes("انشر المتجر") && !setupPage.text.includes("DEVELOPER_URL"));
+    const account = await api("/api/auth/session");
+    record("حساب الإعداد عضو في متجر واحد فقط", account.json?.user?.role === "member" && account.json.user.memberships.length === 1 && account.json.user.memberships[0].storeId === setupId);
+    const otherStore = await api(`/api/stores/${STORE_OUD}`, { method: "PATCH", body: JSON.stringify({ name: "مرفوض" }) });
+    record("حساب الإعداد لا يعدل متجرًا آخر", [401,403].includes(otherStore.status));
+    const changedDesign = await api(`/api/stores/${setupId}/design`, { method: "PATCH", body: JSON.stringify({ template: "minimal", font: "tajawal", sectionOrder: ["products"] }) });
+    record("العميل يختار القالب والخط وترتيب الأقسام", changedDesign.status === 200 && changedDesign.json.settings.template === "minimal" && changedDesign.json.settings.font === "tajawal");
+    const detailsBefore = await api(`/api/stores/${setupId}`);
+    const changedFooter = await api(`/api/stores/${setupId}/settings`, { method: "PATCH", body: JSON.stringify({ developerUrl: "https://example.com", aboutText: "عن متجري" }) });
+    record("حماية رابط معون مع السماح بحفظ بيانات المتجر", changedFooter.status === 200 && changedFooter.json.settings.developerUrl === detailsBefore.json.settings.developerUrl);
+    const storefront = await api("/?store=setup-flow-test");
+    record("حقوق معون ثابتة حتى مع إزالة الفوتر من ترتيب الأقسام", storefront.status === 200 && storefront.text.includes("تطوير ") && storefront.text.includes("maaoun.com"));
+    const retired = await api("/api/activity");
+    record("إزالة واجهة برمجة سجل النشاط", retired.status === 404);
+    }
   } finally {
     stopApp();
     await new Promise((r) => setTimeout(r, 600));

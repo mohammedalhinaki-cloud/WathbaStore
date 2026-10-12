@@ -24,7 +24,7 @@ const PatchSchema = z
   })
   .partial();
 
-const MEMBER_FIELDS = ["name", "whatsapp", "description", "logoUrl", "coverUrl"] as const;
+const MEMBER_FIELDS = ["name", "ownerName", "ownerPhone", "ownerEmail", "whatsapp", "description", "logoUrl", "coverUrl"] as const;
 
 export async function GET(
   _req: NextRequest,
@@ -37,7 +37,7 @@ export async function GET(
     const store = await services().getStore(id);
     if (!store) return badRequest("المتجر غير موجود");
     const settings = await services().getStoreSettings(id);
-    return ok({ store, settings });
+    return ok({ store: { ...store, clientCredentials: null }, settings });
   } catch (e) {
     return serverError(e);
   }
@@ -70,12 +70,7 @@ export async function PATCH(
     }
 
     const store = await services().updateStore(id, patch);
-    await services().logActivity(
-      { id: actor.id, email: actor.email },
-      id,
-      "store.updated",
-      { fields: Object.keys(patch) }
-    );
+
     return ok({ store });
   } catch (e) {
     return serverError(e);
