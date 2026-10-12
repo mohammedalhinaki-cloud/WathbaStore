@@ -309,7 +309,9 @@ export default async function LandingPage() {
               description: p.description,
               imageUrl: p.imageUrl,
               storeUrl: p.storeUrl,
-              tags: p.tags,
+              inquiryHref: settings.whatsappNumber
+                ? waChatLink(settings.whatsappNumber, `السلام عليكم، أريد مثل ${p.title}\nرابط المتجر: ${p.storeUrl}`)
+                : "",
             }))}
           />
         </div>
@@ -334,7 +336,7 @@ export default async function LandingPage() {
           plans={plans.map((p) => ({
             id: p.id,
             name: p.name,
-            price: formatPrice(p.price, p.currency),
+            price: p.price > 0 ? `${formatPrice(p.price, p.currency)} شهريًا` : formatPrice(p.price, p.currency),
             oldPrice: p.oldPrice != null ? formatPrice(p.oldPrice, p.currency) : null,
             features: p.features,
             isFeatured: p.isFeatured,
